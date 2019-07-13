@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
+import React, {Component, Fragment} from 'react';
 import { Route, Switch } from 'react-router-dom'
 import Menu  from 'components/Menu'
 import Pubg from 'pages/Pubg/index.js'
 import Match from 'pages/Pubg/Match.js'
-import Matchtest from 'pages/Pubg/Matchtest.js'
+//import Matchtest from 'pages/Pubg/Matchtest.js'
 import Lol from 'pages/Lol'
 import About from 'pages/About'
 import Home from 'pages/Home'
@@ -25,37 +25,43 @@ const Wrapper = styled.div`
     background-color: white;
 `
 
+const MainContainer = styled.div`
+    grid-row: 2;
+`
+
+const RouteTo = ({component: Component, ...rest }) =>
+    <Route
+        {...rest}
+        render={props => [
+            <Menu />,
+            <MainContainer className="container" key="mainContainer" id="MainContainer">
+                <Component key="Component" {...props} />
+            </MainContainer>,
+        ]}
+    />
+
 class Router extends Component {
     render() {
         return (
             <BrowserRouter>
-                <Route exact path="/" component={Home}/>
-                <Route path="/about" component={About}/>
-                <Switch>
-                    <Route path="/pubg/:telemetryUrl" component={Matchtest}/>
-                    <Route path="/pubg" component={Pubg}/>
-                </Switch>
-                <Switch>
-                    <Route path="/lol/:playerId/:platformrId:/matchId" component={Lol}/>
-                    <Route path="/lol/:playerId" component={Lol}/>
-                    <Route path="/lol" component={Lol}/>
-                </Switch>
+                <PaddingWrapper>
+                    <Wrapper>
+                        <Route exact path="/" component={Home}/>
+                        <Route exact path="/about" component={About}/>
+                        <Switch>
+                            <RouteTo path="/pubg/:telemetryUrl" component={Match}/>
+                            <RouteTo path="/pubg" component={Pubg}/>
+                        </Switch>
+                        <Switch>
+                            <RouteTo path="/lol/:playerId/:platformrId:/matchId" component={Lol}/>
+                            <RouteTo path="/lol/:playerId" component={Lol}/>
+                            <RouteTo path="/lol" component={Lol}/>
+                        </Switch>
+                    </Wrapper>
+                </PaddingWrapper>
             </BrowserRouter>
-        );
-    }
-}
-
-class RouteWithMenu extends Component {
-    render() {
-        return (
-            <PaddingWrapper>
-                <Wrapper>
-                    <Menu />
-                    <Router />
-                </Wrapper>
-            </PaddingWrapper>
         )
     }
 }
 
-export default RouteWithMenu;
+export default Router;

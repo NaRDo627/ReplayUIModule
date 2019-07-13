@@ -1,5 +1,5 @@
 import React from 'react'
-import styled from 'styled-components/typings/styled-components'
+import styled from 'styled-components'
 
 const StyledDot = styled.div.attrs({
     style: props => ({
