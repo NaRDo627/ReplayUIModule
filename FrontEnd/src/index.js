@@ -1,14 +1,20 @@
-const React = require('react');
-const ReactDOM = require('react-dom');
+import React from 'react'
+import ReactDOM from 'react-dom'
+
+import Routes from './routes.js'
 
 
 // tag::app[]
 class App extends React.Component {
 	render() {
 		return (
-			<div>
-				Hello, World!2
-			</div>
+			<React.Fragment>
+				<div>
+					Hello, World~!
+				</div>
+				<Routes />
+			</React.Fragment>
+
 		)
 	}
 }
