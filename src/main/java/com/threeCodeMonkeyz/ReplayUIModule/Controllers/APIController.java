@@ -1,16 +1,21 @@
 package com.threeCodeMonkeyz.ReplayUIModule.Controllers;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import com.google.gson.JsonParser;
+import com.threeCodeMonkeyz.ReplayUIModule.Service.APIService;
+import org.apache.commons.jcs.utils.zip.CompressionUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
+
 
 @RestController
 @RequestMapping(value = "/api")
 public class APIController {
+    @Autowired
+    private APIService apiService;
 
     @RequestMapping(value = "/test", method = RequestMethod.GET)
     public ResponseEntity<String> getApiTest() {
@@ -19,5 +24,16 @@ public class APIController {
         object.addProperty("status", 200);
 
         return new ResponseEntity<>(object.toString(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value ="/lol/{matchId}",method = RequestMethod.GET)
+    public ResponseEntity<String> getLolData(@PathVariable("matchId") String matchId) throws Exception{
+        return apiService.getLolData(matchId);
+
+    }
+
+    @RequestMapping(value ="/pubg/{platform}/{matchId}",method = RequestMethod.GET)
+    public ResponseEntity<String> getPubgData(@PathVariable("platform") String platform,@PathVariable("matchId") String matchId) throws Exception{
+        return apiService.getPubgData(platform,matchId);
     }
 }
