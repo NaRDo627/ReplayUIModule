@@ -33,3 +33,5 @@ build/
 /.idea
 /node_modules
 /target
+
+FrontEnd/node_modules
