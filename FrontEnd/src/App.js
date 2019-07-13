@@ -3,7 +3,6 @@ import { Route, Switch } from 'react-router-dom'
 import Menu  from 'components/Menu'
 import Pubg from 'pages/Pubg/index.js'
 import Match from 'pages/Pubg/Match.js'
-import Matchtest from 'pages/Pubg/Matchtest.js'
 import Lol from 'pages/Lol'
 import About from 'pages/About'
 import Home from 'pages/Home'
@@ -33,7 +32,7 @@ class App extends Component {
                     <Route exact path="/" component={Home}/>
                     <Route path="/about" component={About}/>
                     <Switch>
-                        <Route path="/pubg/:telemetryUrl" component={Matchtest}/>
+                        <Route path="/pubg/:telemetryUrl" component={Match}/>
                         <Route path="/pubg" component={Pubg}/>
                     </Switch>
                     <Switch>

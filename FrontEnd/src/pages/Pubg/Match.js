@@ -1,8 +1,8 @@
-import React from 'react'
+import React, { Component } from 'react'
 import { get } from 'lodash'
 import styled from 'styled-components'
+import Map from 'components/Pubg/Map/index.js'
 import jsonData from 'assets/originalPubg.json'
-import Map from 'components/Map/index.js'
 
 
 const MatchContainer = styled.div`
@@ -18,45 +18,27 @@ const MapContainer = styled.div`
     padding-bottom: 100%;
 `
 
-class Match extends React.Component {
-    state = { telemetry: null, secondsSinceEpoch: 600, autoPlay: false }
+let telemetryUrl = jsonData.match.telemetryUrl;
 
-    static getDerivedStateFromProps(nextProps, prevState) {
-        const matchId = get(nextProps, 'data.match.id')
-        if (prevState.matchId === matchId) return null
-
-        return { matchId, telemetry: null }
+class Match extends Component{
+    state = {
+        telemetry: null,
+        secondsSinceEpoch: 600,
+        autoPlay: true
     }
 
-    componentDidUpdate(prevProps, prevState) {
-        // console.log('did update', get(prevProps, 'data.match.id'), get(this.props, 'data.match.id'))
-        if (get(prevProps, 'data.match.id') !== get(this.props, 'data.match.id')) {
-            this.loadTelemetry()
-        }
-    }
 
     componentDidMount() {
-        if (get(this.props, 'data.match.id')) {
-            this.loadTelemetry()
-        }
-
-        if (this.state.autoPlay) {
+        console.log(typeof telemetry)
+        this.loadTelemetry()
+        if(this.state.autoPlay) {
             this.startAutoplay()
         }
     }
 
-    componentWillUnmount() {
-        // console.log('unmounting', get(this.props, 'data.match.id'))
-    }
-
-    onChange = e => {
-        this.setState({ [e.target.name]: e.target.value })
-        // console.log(this.props.history)
-    }
-
     loadTelemetry = async () => {
-        // console.log('Fetching telemetry')
-        const res = await fetch(this.props.data.match.telemetryUrl)
+        console.log('Fetching telemetry')
+        const res = await fetch(telemetryUrl)
         const telemetry = await res.json()
         console.log('setting telemetry', telemetry)
         this.setState({ telemetry })
@@ -69,27 +51,26 @@ class Match extends React.Component {
     }
 
     render() {
-        const { match: routerMatch, data: { loading, error, match } } = this.props
-        const { telemetry, secondsSinceEpoch } = this.state
+        const {telemetry, secondsSinceEpoch } = this.state;
+        console.log(jsonData)
+        return(
+            <div>
+                <div>TelemetryUrl : {this.props.match.params.telemetryUrl}</div>
+                <MatchContainer>
+                    <MapContainer>
+                        <Map
+                            jsonData={jsonData}
+                            telemetry= {telemetry}
+                            secondsSinceEpoch = {secondsSinceEpoch}
+                        />
+                    </MapContainer>
+                </MatchContainer>
+            </div>
+            
 
-        if (loading) return 'Loading...'
-        if (error) return `Error ${error}`
-        if (!match) return 'Match not found'
 
-        return <div>
-            MatchID: {jsonData.match.id} {secondsSinceEpoch}
-            <p />
-            <MatchContainer>
-                <MapContainer>
-                    <Map
-                        match={jsonData.match}
-                        telemetry={telemetry}
-                        secondsSinceEpoch={secondsSinceEpoch}
-                        focusPlayer={jsonData.playerName}
-                    />
-                </MapContainer>
-            </MatchContainer>
-        </div>
+
+        )
     }
 }
 
