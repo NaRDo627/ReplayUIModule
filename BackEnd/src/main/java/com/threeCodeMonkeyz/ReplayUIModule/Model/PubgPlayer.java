@@ -1,5 +1,7 @@
 package com.threeCodeMonkeyz.ReplayUIModule.Model;
 
+import com.google.gson.JsonObject;
+
 public class PubgPlayer {
     private String id;
     private String name;

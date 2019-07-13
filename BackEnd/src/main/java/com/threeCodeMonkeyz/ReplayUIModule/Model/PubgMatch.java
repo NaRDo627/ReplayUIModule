@@ -1,5 +1,8 @@
 package com.threeCodeMonkeyz.ReplayUIModule.Model;
 
+import com.google.gson.JsonArray;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class PubgMatch {
@@ -10,7 +13,7 @@ public class PubgMatch {
     private String mapName;
     private int durationSeconds;
     private String telemetryUrl;
-    private List<PubgPlayer> players;
+    private List players= new ArrayList();
 
     public String getId() {
         return id;
@@ -68,11 +71,11 @@ public class PubgMatch {
         this.telemetryUrl = telemetryUrl;
     }
 
-    public List<PubgPlayer> getPlayers() {
+    public List getPlayers() {
         return players;
     }
 
-    public void setPlayers(List<PubgPlayer> players) {
+    public void setPlayers(List players) {
         this.players = players;
     }
 }
