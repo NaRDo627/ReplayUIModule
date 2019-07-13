@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import styled from 'styled-components/typings/styled-components'
 
 const getMapAsset = mapName => require(`assets/${mapName}.jpg`) // eslint-disable-line
 

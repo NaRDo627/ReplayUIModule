@@ -2,7 +2,7 @@ import React from 'react'
 import { get } from 'lodash'
 import styled from 'styled-components'
 import jsonData from 'assets/originalPubg.json'
-import Map from 'components/Map/index.js'
+import Map from '../../components/Replay/Pubg/Map/index.js'
 
 
 const MatchContainer = styled.div`

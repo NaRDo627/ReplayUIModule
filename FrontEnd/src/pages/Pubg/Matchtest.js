@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { get } from 'lodash'
 import styled from 'styled-components'
-import Map from 'components/Map/index.js'
+import Map from '../../components/Replay/Pubg/Map/index.js'
 import jsonData from 'assets/originalPubg.json'
 
 
