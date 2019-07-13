@@ -1,29 +1,8 @@
-import React from 'react'
-import ReactDOM from 'react-dom'
+import React from 'react';
+import ReactDOM from 'react-dom';
+import './index.css';
+import Root from './Root'
+import * as serviceWorker from './serviceWorker';
 
-import Routes from './routes.js'
-
-
-// tag::app[]
-class App extends React.Component {
-	render() {
-		return (
-			<React.Fragment>
-				<div>
-					Hello, World~!
-				</div>
-				<Routes />
-			</React.Fragment>
-
-		)
-	}
-}
-// end::app[]
-
-// tag::render[]
-ReactDOM.render(
-	<App />,
-	document.getElementById('react')
-)
-// end::render[]
-
+ReactDOM.render(<Root />, document.getElementById('root'));
+serviceWorker.unregister();
