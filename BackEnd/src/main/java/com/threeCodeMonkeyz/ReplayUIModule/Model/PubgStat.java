@@ -1,6 +1,6 @@
 package com.threeCodeMonkeyz.ReplayUIModule.Model;
 
-public class PubgStats {
+public class PubgStat {
     private int kills;
     private int winPlace;
 

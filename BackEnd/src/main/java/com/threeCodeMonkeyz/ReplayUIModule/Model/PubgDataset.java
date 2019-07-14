@@ -2,12 +2,15 @@ package com.threeCodeMonkeyz.ReplayUIModule.Model;
 
 import com.google.gson.JsonArray;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class PubgDataset {
     private String version;
     private String game;
     private PubgMatch match;
-    private JsonArray rawTelemetry;
-    private String playerName;
+    private List rawReplayData;
+    //private String playerName;
 
     public String getVersion() {
         return version;
@@ -33,19 +36,12 @@ public class PubgDataset {
         this.match = match;
     }
 
-    public JsonArray getRawTelemetry() {
-        return rawTelemetry;
+    public List getRawReplayData() {
+        return rawReplayData;
     }
 
-    public void setRawTelemetry(JsonArray rawTelemetry) {
-        this.rawTelemetry = rawTelemetry;
+    public void setRawReplayData(List rawTelemetry) {
+        this.rawReplayData = rawTelemetry;
     }
 
-    public String getPlayerName() {
-        return playerName;
-    }
-
-    public void setPlayerName(String playerName) {
-        this.playerName = playerName;
-    }
 }
