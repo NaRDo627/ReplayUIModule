@@ -16,7 +16,7 @@ import org.springframework.web.client.RestTemplate;
 public class APIController {
     @Autowired
     private APIService apiService;
-
+    @CrossOrigin
     @RequestMapping(value = "/test", method = RequestMethod.GET)
     public ResponseEntity<String> getApiTest() {
         JsonObject object = new JsonObject();
@@ -25,13 +25,13 @@ public class APIController {
 
         return new ResponseEntity<>(object.toString(), HttpStatus.OK);
     }
-
+    @CrossOrigin
     @RequestMapping(value ="/lol/{matchId}",method = RequestMethod.GET)
     public ResponseEntity<String> getLolData(@PathVariable("matchId") String matchId) throws Exception{
         return apiService.getLolData(matchId);
 
     }
-
+    @CrossOrigin
     @RequestMapping(value ="/pubg/{platform}/{matchId}",method = RequestMethod.GET)
     public ResponseEntity<String> getPubgData(@PathVariable("platform") String platform,@PathVariable("matchId") String matchId) throws Exception{
         return apiService.getPubgData(platform,matchId);
