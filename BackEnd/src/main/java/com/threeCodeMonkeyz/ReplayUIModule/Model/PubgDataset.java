@@ -9,7 +9,7 @@ public class PubgDataset {
     private String version;
     private String game;
     private PubgMatch match;
-    private List rawReplayData = new ArrayList();
+    private List rawReplayData;
     //private String playerName;
 
     public String getVersion() {
