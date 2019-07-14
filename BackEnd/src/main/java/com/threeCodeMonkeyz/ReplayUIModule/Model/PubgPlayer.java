@@ -1,12 +1,10 @@
 package com.threeCodeMonkeyz.ReplayUIModule.Model;
 
-import com.google.gson.JsonObject;
-
 public class PubgPlayer {
     private String id;
     private String name;
     private String rosterId;
-    private PubgStats stats;
+    private PubgStat stats;
 
     public String getId() {
         return id;
@@ -32,11 +30,11 @@ public class PubgPlayer {
         this.rosterId = rosterId;
     }
 
-    public PubgStats getStats() {
+    public PubgStat getStats() {
         return stats;
     }
 
-    public void setStats(PubgStats stats) {
+    public void setStats(PubgStat stats) {
         this.stats = stats;
     }
 }

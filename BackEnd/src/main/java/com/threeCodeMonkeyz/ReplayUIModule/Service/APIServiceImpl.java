@@ -1,17 +1,15 @@
 package com.threeCodeMonkeyz.ReplayUIModule.Service;
 
 import com.google.gson.*;
-import com.google.gson.reflect.TypeToken;
 import com.threeCodeMonkeyz.ReplayUIModule.Model.PubgDataset;
 import com.threeCodeMonkeyz.ReplayUIModule.Model.PubgMatch;
 import com.threeCodeMonkeyz.ReplayUIModule.Model.PubgPlayer;
-import com.threeCodeMonkeyz.ReplayUIModule.Model.PubgStats;
+import com.threeCodeMonkeyz.ReplayUIModule.Model.PubgStat;
 import org.apache.commons.jcs.utils.zip.CompressionUtil;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -82,13 +80,13 @@ public class APIServiceImpl implements APIService {
                 continue;
             
             PubgPlayer pubgPlayer = new PubgPlayer();
-            PubgStats pubgStats = new PubgStats();
+            PubgStat pubgStat = new PubgStat();
             JsonObject attributesStats = includedObject.get("attributes").getAsJsonObject().get("stats").getAsJsonObject();
             pubgPlayer.setId(attributesStats.get("playerId").getAsString());
             pubgPlayer.setName(attributesStats.get("name").getAsString());
-            pubgStats.setKills(attributesStats.get("kills").getAsInt());
-            pubgStats.setWinPlace(attributesStats.get("winPlace").getAsInt());
-            pubgPlayer.setStats(pubgStats);
+            pubgStat.setKills(attributesStats.get("kills").getAsInt());
+            pubgStat.setWinPlace(attributesStats.get("winPlace").getAsInt());
+            pubgPlayer.setStats(pubgStat);
             players.add(pubgPlayer);
             pId.add(includedObject.get("id").getAsString());
         }
@@ -113,6 +111,7 @@ public class APIServiceImpl implements APIService {
             }
         }
 
+        JsonObject tempDataObject = Parser.parse(data).getAsJsonObject().get("data").getAsJsonObject();
         PubgMatch match = new PubgMatch();
         match.setId(tempDataObject.get("id").getAsString());
         tempDataObject = tempDataObject.get("attributes").getAsJsonObject();
