@@ -71,39 +71,45 @@ public class APIServiceImpl implements APIService {
         String telemetry = new String(CompressionUtil.decompressGzipByteArray(telemetryGzip));
         JsonArray jsonArrayTelemetry = Parser.parse(telemetry).getAsJsonArray();
 
-        JsonObject tempDataObject = Parser.parse(data).getAsJsonObject().get("data").getAsJsonObject();
-
-
-        GsonBuilder builder = new GsonBuilder();
-        Gson gson = builder.create();
+       GsonBuilder builder = new GsonBuilder();
+       Gson gson = builder.create();
         List<PubgPlayer> players = new ArrayList<>();
         List<String> pId = new ArrayList<>();
         for (int i = 0; i < includedArray.size(); i++) {
             JsonObject includedObject = (JsonObject) includedArray.get(i);
-            if (includedObject.get("type").getAsString().equals("participant")) {
-                PubgPlayer pubgPlayer = new PubgPlayer();
-                PubgStats pubgStats = new PubgStats();
-                pubgPlayer.setId(includedObject.get("attributes").getAsJsonObject().get("stats").getAsJsonObject().get("playerId").getAsString());
-                pubgPlayer.setName(includedObject.get("attributes").getAsJsonObject().get("stats").getAsJsonObject().get("name").getAsString());
-                pubgStats.setKills(includedObject.get("attributes").getAsJsonObject().get("stats").getAsJsonObject().get("kills").getAsInt());
-                pubgStats.setWinPlace(includedObject.get("attributes").getAsJsonObject().get("stats").getAsJsonObject().get("winPlace").getAsInt());
-                pubgPlayer.setStats(pubgStats);
-                players.add(pubgPlayer);
-                pId.add(includedObject.get("id").getAsString());
-            }
+            
+            if (!includedObject.get("type").getAsString().equals("participant"))
+                continue;
+            
+            PubgPlayer pubgPlayer = new PubgPlayer();
+            PubgStats pubgStats = new PubgStats();
+            JsonObject attributesStats = includedObject.get("attributes").getAsJsonObject().get("stats").getAsJsonObject();
+            pubgPlayer.setId(attributesStats.get("playerId").getAsString());
+            pubgPlayer.setName(attributesStats.get("name").getAsString());
+            pubgStats.setKills(attributesStats.get("kills").getAsInt());
+            pubgStats.setWinPlace(attributesStats.get("winPlace").getAsInt());
+            pubgPlayer.setStats(pubgStats);
+            players.add(pubgPlayer);
+            pId.add(includedObject.get("id").getAsString());
         }
         for (int i = 0; i < includedArray.size(); i++) {
             JsonObject includedObject = (JsonObject) includedArray.get(i);
-            if (includedObject.get("type").getAsString().equals("roster")) {
-                JsonArray participantsIdAry = includedObject.get("relationships").getAsJsonObject().get("participants").getAsJsonObject().get("data").getAsJsonArray();
-                int size = includedObject.get("relationships").getAsJsonObject().get("participants").getAsJsonObject().get("data").getAsJsonArray().size();
-                for (int j = 0; j < size; j++) {
-                    for (int k = 0; k < pId.size(); k++) {
-                        if (participantsIdAry.get(j).getAsJsonObject().get("id").getAsString().equals(pId.get(k))) {
-                            players.get(k).setRosterId(includedObject.get("id").getAsString());
-                        }
-                    }
-                }
+            
+            if (!includedObject.get("type").getAsString().equals("roster")) 
+                continue;
+            
+            JsonArray participantsIdAry = includedObject.get("relationships").getAsJsonObject().get("participants").getAsJsonObject().get("data").getAsJsonArray();
+         //   int size = includedObject.get("relationships").getAsJsonObject().get("participants").getAsJsonObject().get("data").getAsJsonArray().size();
+            for (int j = 0; j < participantsIdAry.size(); j++) {
+                Integer pIdIndex = pId.indexOf(participantsIdAry.get(j).getAsJsonObject().get("id").getAsString());
+                players.get(pIdIndex).setRosterId(includedObject.get("id").getAsString());
+                
+//                 for (int k = 0; k < pId.size(); k++) {
+//                     if (!participantsIdAry.get(j).getAsJsonObject().get("id").getAsString().equals(pId.get(k))) 
+//                         continue;
+
+//                      players.get(k).setRosterId(includedObject.get("id").getAsString());
+//                 }
             }
         }
 
