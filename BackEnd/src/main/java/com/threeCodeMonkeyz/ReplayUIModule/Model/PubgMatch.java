@@ -13,7 +13,7 @@ public class PubgMatch {
     private String mapName;
     private int durationSeconds;
     private String telemetryUrl;
-    private List players= new ArrayList();
+    private List players;
 
     public String getId() {
         return id;
