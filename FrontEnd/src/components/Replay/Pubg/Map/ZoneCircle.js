@@ -1,18 +1,26 @@
-import styled from 'styled-components'
+import React from 'react'
+import { Circle } from 'react-konva'
+import { toScale } from '../../../../lib/canvas-math.js'
 
-const ZoneCircle = styled.div.attrs({
-    style: props => ({
-        left: `${props.position.x / 8160}%`,
-        top: `${props.position.y / 8160}%`,
-        width: `${props.radius / 8160 * 2}%`,
-        height: `${props.radius / 8160 * 2}%`,
-    }),
-})`
-    z-index: 3;
-    border: 1px solid ${props => props.color};
-    position: absolute;
-    border-radius: 3000px
-    transform: translate(-50%, -50%);
-`
+const ZoneCircle = ({ pubgMapSize, mapSize, mapScale, circle, color, background }) => {
+    return (
+        <Circle
+            x={toScale(pubgMapSize, mapSize, circle.x)}
+            y={toScale(pubgMapSize, mapSize, circle.y)}
+            fill={background}
+            stroke={color}
+            width={toScale(pubgMapSize, mapSize, circle.radius * 2)}
+            height={toScale(pubgMapSize, mapSize, circle.radius * 2)}
+            strokeWidth={1 / mapScale}
+        />
+    )
+}
 
-export default ZoneCircle
+export const Safezone = props =>
+    <ZoneCircle {...props} color="white" />
+
+export const Bluezone = props =>
+    <ZoneCircle {...props} color="blue" />
+
+export const Redzone = props =>
+    <ZoneCircle {...props} color="#FF000044" background="#FF000044" />

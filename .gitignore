@@ -35,3 +35,4 @@ build/
 /target
 
 FrontEnd/node_modules
+.env.local

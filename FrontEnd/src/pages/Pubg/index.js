@@ -1,6 +1,12 @@
 import React, { Component } from 'react';
 import styled from 'styled-components'
 
+import ReplayPubg from "../../components/Replay/Pubg";
+import Telemetry from "../../models/Telemetry"
+import ReplayWorker from "../../models/Replay.worker.js";
+import jsonData from 'assets/originalPubg.json'
+import DocumentTitle from 'react-document-title'
+
 const InfoList = styled.div`
     font-size: 1.2rem;
     font-weight: 400;
@@ -10,20 +16,171 @@ const InfoList = styled.div`
 `
 
 
+const MatchContainer = styled.div`
+    display: grid;
+    grid-template-columns: 1fr 250px;
+    border: 0px solid black;
+    overflow: hidden;
+`
+
+const MapContainer = styled.div`
+    grid-column: 1;
+    position: relative;
+    padding-bottom: 100%;
+`
+
+const Message = styled.p`
+    text-align: center;
+`
+
+let telemetryUrl = jsonData.match.telemetryUrl;
+
+
 class Pubg extends Component{
+    state = {
+        rawTelemetry: null,
+        telemetry: null,
+        telemetryLoaded: false,
+        telemetryError: false,
+        rosters: null,
+        globalState: null,
+        match: null
+    }
+
+
+    componentDidMount() {
+        console.log(typeof this.state.telemetry);
+        this.loadTelemetry();
+    }
+
+    loadTelemetry = async () => {
+        // console.log('Fetching telemetry')
+        // const res = await fetch(telemetryUrl)
+        // const telemetry = await res.json()
+        // console.log('setting telemetry', telemetry)
+        // this.setState({ telemetry })
+
+        this.cancelTelemetry();
+
+        const { match: { params } } = this.props;
+
+        console.log(`Loading telemetry for match ${params.matchId}`);
+
+        this.setState({ telemetry: null, telemetryLoaded: false, telemetryError: false });
+
+        this.telemetryWorker = new ReplayWorker();
+
+        this.telemetryWorker.addEventListener('message', ({ data }) => {
+            const { success, error, state, globalState, rawReplayData, match } = data
+
+            if (!success) {
+                console.error(`Error loading telemetry: ${error}`)
+
+                this.setState(prevState => ({
+                    telemetryError: true,
+                }))
+
+                return
+            }
+
+            const telemetry = Telemetry(state)
+            this.setState(prevState => ({
+                rawTelemetry: rawReplayData,
+                telemetry,
+                match,
+                telemetryLoaded: true,
+                rosters: telemetry.finalRoster(params.playerId),
+                globalState,
+            }))
+
+            console.log(success)
+        })
+
+        this.telemetryWorker.postMessage({
+            game: 'pubg',
+            platform: params.shardId,
+            matchId: params.matchId,
+            focusedPlayer: params.playerId,
+        })
+    }
+
+    // startAutoplay = () => {
+    //     this.autoplayInterval = setInterval(() => {
+    //         this.setState(prevState => ({ secondsSinceEpoch: prevState.secondsSinceEpoch + 1 }))
+    //     }, 10)
+    // }
+
+    cancelTelemetry = () => {
+        if (this.telemetryWorker) {
+            this.telemetryWorker.terminate()
+            this.telemetryWorker = null
+        }
+    }
+
     render() {
-        //const {match} = this.props
-        return(
-            <div>
-                <h2>Pubg</h2>
-                <InfoList>
-                    <div>PlayerID : {this.props.match.params.playerId}</div>
-                    <div>PlatformID : {this.props.match.params.platformId}</div>
-                    <div>MatchID : {this.props.match.params.matchId}</div>
-                </InfoList>
-                </div>
+        const { match: { params } } = this.props
+        const { match, telemetry, rawTelemetry, telemetryLoaded, telemetryError, rosters, globalState } = this.state
+
+        let content
+
+        if (telemetryError) {
+            content = <Message>An error occurred :(</Message>
+        } /*else if (!match) {
+            content = <Message>Match not found</Message>
+        }*/ else if (!telemetryLoaded) {
+            content = <Message>Loading telemetry...</Message>
+        } else {
+            content = <ReplayPubg
+                match={match}
+                rawTelemetry={rawTelemetry}
+                telemetry={telemetry}
+                rosters={rosters}
+                globalState={globalState}
+                playerName={params.playerId}
+            />
+           // content = <Message>{rawTelemetry.map(object => <div>{object._T}</div>)}</Message>
+        }
+
+        return (
+            <React.Fragment>
+                <DocumentTitle title="PUBG Replay UI" />
+                {content}
+            </React.Fragment>
         )
     }
+
+    // render() {
+    //     const {telemetry, secondsSinceEpoch } = this.state;
+    //     const { match: { params } } = this.props
+    //     // console.log(jsonData)
+    //     return(
+    //         <div>
+    //             <MatchContainer>
+    //                 <MapContainer>
+    //                     {/*<Map
+    //                         jsonData={jsonData}
+    //                         telemetry={telemetry}
+    //                         secondsSinceEpoch = {secondsSinceEpoch}
+    //                     />*/}
+    //                 </MapContainer>
+    //             </MatchContainer>
+    //         </div>
+    //     )
+    // }
+
+    // render() {
+    //     //const {match} = this.props
+    //     return(
+    //         <div>
+    //             <h2>Pubg</h2>
+    //             <InfoList>
+    //                 <div>PlayerID : {this.props.match.params.playerId}</div>
+    //                 <div>PlatformID : {this.props.match.params.platformId}</div>
+    //                 <div>MatchID : {this.props.match.params.matchId}</div>
+    //             </InfoList>
+    //             </div>
+    //     )
+    // }
 }
 
 export default Pubg;

@@ -2,7 +2,7 @@ import React, {Component, Fragment} from 'react';
 import { Route, Switch } from 'react-router-dom'
 import Menu  from 'components/Menu'
 import Pubg from 'pages/Pubg/index.js'
-import Match from 'pages/Pubg/Match.js'
+// import Match from 'pages/Pubg/Match.js'
 //import Matchtest from 'pages/Pubg/Matchtest.js'
 import Lol from 'pages/Lol'
 import About from 'pages/About'
@@ -29,6 +29,7 @@ const MainContainer = styled.div`
     grid-row: 2;
 `
 
+
 const RouteTo = ({component: Component, ...rest }) =>
     <Route
         {...rest}
@@ -46,11 +47,12 @@ class Router extends Component {
             <BrowserRouter>
                 <PaddingWrapper>
                     <Wrapper>
-                        <Route exact path="/" component={Home}/>
-                        <Route exact path="/about" component={About}/>
+                        <RouteTo exact path="/" component={Home}/>
+                       {/* <Route exact path="/about" component={About}/>*/}
                         <Switch>
-                            <RouteTo path="/pubg/:telemetryUrl" component={Match}/>
-                            <RouteTo path="/pubg" component={Pubg}/>
+                            {/*<RouteTo path="/pubg/:telemetryUrl" component={Match}/>*/}
+                            <RouteTo path="/pubg" exact component={Pubg}/>
+                            <RouteTo path="/pubg/:playerId/:shardId/:matchId" component={Pubg}/>
                         </Switch>
                         <Switch>
                             <RouteTo path="/lol/:playerId/:platformrId:/matchId" component={Lol}/>
