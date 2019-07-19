@@ -1,6 +1,9 @@
 import React from 'react'
 import { map, clamp, sortBy } from 'lodash'
 import { Stage, Layer } from 'react-konva'
+import { Graphics } from 'pixi.js';
+//import { PixiComponent } from '@inlet/react-pixi';
+
 import styled from 'styled-components'
 import { Safezone, Bluezone, Redzone } from './ZoneCircle.js'
 import PlayerDot from './PlayerDot.js'
@@ -30,7 +33,6 @@ const StageWrapper = styled.div`
         padding-bottom: 100%;
     }
 `
-
 const StyledStage = styled(Stage)`
     div.konvajs-content {
         overflow: hidden;
@@ -54,6 +56,8 @@ const ZoomOutButton = MapButton.extend`
     bottom: 15px;
     right: 15px;
 `*/
+
+
 
 class Map extends React.Component {
     state = { mapScale: 1, offsetX: 0, offsetY: 0 }
@@ -146,6 +150,28 @@ class Map extends React.Component {
         })
 
         return (
+
+
+            <StageWrapper id="StageWrapper">
+                <StyledStage
+                    width={mapSize}
+                    height={mapSize}
+                    scale={scale}
+                    x={offsetX}
+                    y={offsetY}
+                    dragBoundFunc={this.dragBoundFunc}
+                    onDragEnd={this.handleDragEnd}
+                    onWheel={this.handleMousewheel}
+                    draggable="true"
+                    hitGraphEnabled={false}
+                >
+                    <BackgroundLayer mapName={mapName} mapSize={mapSize} />
+                </StyledStage>
+            </StageWrapper>
+
+
+/*
+
             <StageWrapper id="StageWrapper">
                 <StyledStage
                     width={mapSize}
@@ -213,12 +239,14 @@ class Map extends React.Component {
                         )}
                     </Layer>}
                 </StyledStage>
-                {telemetry && <AliveCount players={telemetry.players} />}{/*
+                {telemetry && <AliveCount players={telemetry.players} />}{/!*
                 <ZoomControls>
                     <ZoomInButton onClick={() => this.handleZoom(1.3)}>+</ZoomInButton>
                     <ZoomOutButton onClick={() => this.handleZoom(1 / 1.3)}>-</ZoomOutButton>
-                </ZoomControls>*/}
+                </ZoomControls>*!/}
             </StageWrapper>
+*/
+
         )
     }
 }

@@ -6,6 +6,7 @@ import Telemetry from "../../models/Telemetry"
 import ReplayWorker from "../../models/Replay.worker.js";
 import jsonData from 'assets/originalPubg.json'
 import DocumentTitle from 'react-document-title'
+import parseTelemetry from "../../models/Telemetry.parser";
 
 const InfoList = styled.div`
     font-size: 1.2rem;
@@ -32,8 +33,6 @@ const MapContainer = styled.div`
 const Message = styled.p`
     text-align: center;
 `
-
-let telemetryUrl = jsonData.match.telemetryUrl;
 
 
 class Pubg extends Component{
@@ -63,10 +62,32 @@ class Pubg extends Component{
         this.cancelTelemetry();
 
         const { match: { params } } = this.props;
+        this.setState({ telemetry: null, telemetryLoaded: false, telemetryError: false });
+
+        if(typeof params.matchId === "undefined") {
+            console.log(`Loading telemetry for local match for test.`);
+            const match = jsonData.match
+            const rawReplayData = jsonData.rawTelemetry
+            const { state, globalState } = parseTelemetry(match, rawReplayData, "NaLDo627")
+
+            const telemetry = Telemetry(state)
+            this.setState(prevState => ({
+                rawTelemetry: rawReplayData,
+                telemetry,
+                match,
+                telemetryLoaded: true,
+                rosters: telemetry.finalRoster("NaLDo627"),
+                globalState,
+                playerName: "NaLDo627"
+            }))
+
+            console.log("success")
+            return;
+        }
 
         console.log(`Loading telemetry for match ${params.matchId}`);
 
-        this.setState({ telemetry: null, telemetryLoaded: false, telemetryError: false });
+
 
         this.telemetryWorker = new ReplayWorker();
 
@@ -91,6 +112,7 @@ class Pubg extends Component{
                 telemetryLoaded: true,
                 rosters: telemetry.finalRoster(params.playerId),
                 globalState,
+                playerName: params.playerId
             }))
 
             console.log(success)
@@ -119,7 +141,7 @@ class Pubg extends Component{
 
     render() {
         const { match: { params } } = this.props
-        const { match, telemetry, rawTelemetry, telemetryLoaded, telemetryError, rosters, globalState } = this.state
+        const { match, telemetry, rawTelemetry, telemetryLoaded, telemetryError, rosters, globalState, playerName } = this.state
 
         let content
 
@@ -136,7 +158,7 @@ class Pubg extends Component{
                 telemetry={telemetry}
                 rosters={rosters}
                 globalState={globalState}
-                playerName={params.playerId}
+                playerName={playerName}
             />
            // content = <Message>{rawTelemetry.map(object => <div>{object._T}</div>)}</Message>
         }
