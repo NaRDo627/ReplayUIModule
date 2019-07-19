@@ -82,6 +82,8 @@ export default function parseTelemetry(matchData, telemetry, focusedPlayerName) 
                 kills: 0,
                 damageDealt: 0,
                 items: [],
+                inParachute: true,
+                vehicle: ""
             }
 
             latestPlayerStates[p.name] = curState.players[p.name]
@@ -207,6 +209,26 @@ export default function parseTelemetry(matchData, telemetry, focusedPlayerName) 
                         victimName: d.victim.name,
                     })
                 }
+            }
+
+            // [190719][HKPARK] 차량 관련 이벤트 추가
+            if (d._T === 'LogVehicleRide') {
+                const characterName = d.character.name
+                const vehicleType = d.vehicle.vehicleType
+
+                setNewPlayerState(characterName, { vehicle: vehicleType })
+            }
+
+            if (d._T === 'LogVehicleLeave') {
+                const characterName = d.character.name
+
+                setNewPlayerState(characterName, { vehicle: "" })
+            }
+
+            // [190719][HKPARK] 낙하산 관련 이벤트 추가
+            if (d._T === 'LogParachuteLanding') {
+                const characterName = d.character.name
+                setNewPlayerState(characterName, { inParachute: false })
             }
 
             if (d._T === 'LogPlayerTakeDamage') {

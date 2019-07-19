@@ -1,8 +1,11 @@
 import React from 'react'
 import { map, clamp, sortBy } from 'lodash'
-import { Stage, Layer } from 'react-konva'
+//import { Stage, Layer } from 'react-konva'
 import { Graphics } from 'pixi.js';
+import { Container, Stage } from '@inlet/react-pixi'
 //import { PixiComponent } from '@inlet/react-pixi';
+import Figure from './PlayerFigure'
+import MapSprite from "./MapSprite"
 
 import styled from 'styled-components'
 import { Safezone, Bluezone, Redzone } from './ZoneCircle.js'
@@ -150,9 +153,63 @@ class Map extends React.Component {
         })
 
         return (
-
-
             <StageWrapper id="StageWrapper">
+
+                    <StyledStage
+                        width={mapSize}
+                        height={mapSize}
+                        /* scale={scale}
+                         x={offsetX}
+                         y={offsetY}
+                         dragBoundFunc={this.dragBoundFunc}
+                         onDragEnd={this.handleDragEnd}
+                         onWheel={this.handleMousewheel}
+                         draggable="true"
+                         hitGraphEnabled={false}*/
+                    >
+                        <Container scale={scale}
+                                   x={offsetX}
+                                   y={offsetY}
+                                   /*dragBoundFunc={this.dragBoundFunc}
+                                   dragend={this.handleDragEnd}*/
+                                   sortableChildren={true}
+                            /*   onWheel={this.handleMousewheel}*/>
+                            <MapSprite mapName={mapName} mapSize={mapSize} mapScale={mapScale} />
+                            {telemetry.safezone && <Safezone
+                                mapSize={mapSize}
+                                pubgMapSize={pubgMapSize}
+                                mapScale={mapScale}
+                                circle={telemetry.safezone}
+                            />}
+                            {telemetry.bluezone && <Bluezone
+                                mapSize={mapSize}
+                                pubgMapSize={pubgMapSize}
+                                mapScale={mapScale}
+                                circle={telemetry.bluezone}
+                            />}
+                            {telemetry.redzone && <Redzone
+                                mapSize={mapSize}
+                                pubgMapSize={pubgMapSize}
+                                mapScale={mapScale}
+                                circle={telemetry.redzone}
+                            />}
+                            {map(sortedPlayers, player =>
+                                <Figure
+                                options={options}
+                                player={player}
+                                mapSize={mapSize}
+                                pubgMapSize={pubgMapSize}
+                                mapScale={mapScale}
+                                key={`dot-${player.name}`}
+                                marks={marks}
+                                showName={marks.isPlayerTracked(player.name)}
+                                />
+                                )}
+                        </Container>
+                    </StyledStage>
+            </StageWrapper>
+
+           /* <StageWrapper id="StageWrapper">
                 <StyledStage
                     width={mapSize}
                     height={mapSize}
@@ -166,8 +223,10 @@ class Map extends React.Component {
                     hitGraphEnabled={false}
                 >
                     <BackgroundLayer mapName={mapName} mapSize={mapSize} />
+
                 </StyledStage>
-            </StageWrapper>
+
+            </StageWrapper>*/
 
 
 /*
