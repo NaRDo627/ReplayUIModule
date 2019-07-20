@@ -37,6 +37,8 @@ const StageWrapper = styled.div`
     }
 `
 const StyledStage = styled(Stage)`
+    position: absolute;
+    overflow: hidden;
     div.konvajs-content {
         overflow: hidden;
         border-radius: 4px;
@@ -78,14 +80,17 @@ class Map extends React.Component {
     }
 
     handleDragEnd = e => {
+        console.log(e)
         this.setState({
             offsetX: e.target.x(),
             offsetY: e.target.y(),
         })
     }
 
-    dragBoundFunc = pos => {
-        let { x, y } = pos
+    dragBoundFunc = e => {
+        console.log(e)
+        let x = e.layerX
+        let y = e.layerY
         if (CLAMP_MAP) {
             x = clamp(x, -(this.state.mapScale - 1) * this.props.mapSize, 0)
             y = clamp(y, -(this.state.mapScale - 1) * this.props.mapSize, 0)
@@ -99,10 +104,10 @@ class Map extends React.Component {
         return { x, y }
     }
 
-    handleMousewheel = e => {
-        e.evt.preventDefault()
-        const scaleDelta = e.evt.deltaY > 0 ? 1 / SCALE_STEP : SCALE_STEP
-        this.handleZoom(scaleDelta, e.evt.layerX, e.evt.layerY)
+    handleMousewheel =  e => {
+        e.preventDefault();
+        const scaleDelta = e.deltaY > 0 ? 1 / SCALE_STEP : SCALE_STEP;
+        this.handleZoom(scaleDelta, e.layerX, e.layerY);
     }
 
     handleZoom = (scaleDelta, layerX, layerY) => {
@@ -130,6 +135,16 @@ class Map extends React.Component {
         })
     }
 
+    componentDidMount() {
+        document.getElementById("StageWrapper").addEventListener("wheel", this.handleMousewheel, {passive:false})
+        document.getElementById("StageWrapper").addEventListener("mouseup", this.handleDragEnd, {passive:false})
+        document.getElementById("StageWrapper").addEventListener("mousedown", this.dragBoundFunc, {passive:false})
+    }
+
+    componentWillUnmount() {
+
+    }
+
     render() {
         const { match: { mapName }, telemetry, mapSize, marks, msSinceEpoch, options } = this.props
         const { mapScale, offsetX, offsetY } = this.state
@@ -154,10 +169,13 @@ class Map extends React.Component {
 
         return (
             <StageWrapper id="StageWrapper">
-
+                <div /*onWheel={e => {e.preventDefault(); this.handleMousewheel(e)}}*/
+                    /* onDragEnd={this.handleDragEnd}*/
+                 /*    dragBoundFunc={this.dragBoundFunc}*/>
                     <StyledStage
                         width={mapSize}
                         height={mapSize}
+                        autoResize={true}
                         /* scale={scale}
                          x={offsetX}
                          y={offsetY}
@@ -207,6 +225,7 @@ class Map extends React.Component {
                                 )}
                         </Container>
                     </StyledStage>
+                </div>
             </StageWrapper>
 
            /* <StageWrapper id="StageWrapper">

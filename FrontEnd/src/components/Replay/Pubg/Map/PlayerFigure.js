@@ -74,8 +74,7 @@ const PlayerLabel = ({ visible, player, strokeColor }) => {
 }
 */
 
-const HealthBar = ({player, x, y}) => {
-
+const HealthBar = ({player, x, y, mapSize}) => {
     if(player.health === 0)
         return null;
 
@@ -89,44 +88,35 @@ const HealthBar = ({player, x, y}) => {
                 // Draw Health Bar
                 g.lineStyle(2, 0x000000, 1)
                 g.beginFill(0x000000, 0.7);
-                g.drawRect(x-12, y-12, 25, 3)
+                g.drawRect(x-(mapSize / 60), y-(mapSize / 68), mapSize / 28, mapSize / 241)
                 g.endFill()
 
                 g.lineStyle(0)
                 g.beginFill(healthColor, 1);
-                g.drawRect(x-12, y-12, health, 3)
+                g.drawRect(x-(mapSize / 60), y-(mapSize / 68), ((mapSize / 28) / 25) * health, mapSize / 241)
                 g.endFill()
             }}
         />
     )
 }
 
-const Player = ({options, player, marks, mapScale, x, y}) => {
+const Player = ({options, player, marks, mapScale, mapSize, x, y}) => {
     const playerColor = parseInt(getPlayerColor(options, marks, player).substr(1, 6), 16);
     const playerColorAlpha = parseInt(getPlayerColor(options, marks, player).substring(7), 16) / 0xFF;
     const statusColor = parseInt(getStatusColor(options, marks, player).substr(1, 6), 16);
-    const diameter = marks.isPlayerHovered(player.name) ? 11 : 8
+    const diameter = marks.isPlayerHovered(player.name) ? (mapSize / 55) : (mapSize / 65)
     const scaledDiameter = diameter * clamp(mapScale / 1.4, 1, 1.3)
 
     // Step 1. 낙하산에 타고 있는가?
     if(player.inParachute) {
         return (
             <Sprite
-                x={x-10}
-                y={y-10}
-                width={20}
-                height={20}
+                x={x-(mapSize / 70)}
+                y={y-(mapSize / 70)}
+                width={(mapSize * 2 / 50)}
+                height={(mapSize * 2 / 50)}
                 image={parachute}
-                zIndex={(player.status !== 'dead')? 2 : 1}
-                interactive={true}
-                mouseover={() => {marks.setHoveredPlayer(player.name)}}
-                mouseout={() => {marks.setHoveredPlayer(null)}}
-                click={() => { const toToggle = [player.name]
-                    if (marks.isPlayerTracked(player.name)) {
-                        marks.setHoveredPlayer(null)
-                    }
-
-                    marks.toggleTrackedPlayer(...toToggle)}}/>
+            />
         );
     }
 
@@ -141,20 +131,11 @@ const Player = ({options, player, marks, mapScale, x, y}) => {
         return (
             <Sprite
                 image={vehicleType}
-                x={x-10}
-                y={y-10}
-                width={20}
-                height={20}
-                zIndex={(player.status !== 'dead')? 2 : 1}
-                interactive={true}
-                mouseover={() => {marks.setHoveredPlayer(player.name)}}
-                mouseout={() => {marks.setHoveredPlayer(null)}}
-                click={() => { const toToggle = [player.name]
-                    if (marks.isPlayerTracked(player.name)) {
-                        marks.setHoveredPlayer(null)
-                    }
-
-                    marks.toggleTrackedPlayer(...toToggle)}}/>
+                x={x-(mapSize / 70)}
+                y={y-(mapSize / 70)}
+                width={(mapSize * 2 / 50)}
+                height={(mapSize * 2 / 50)}
+            />
         );
     }
 
@@ -181,16 +162,6 @@ const Player = ({options, player, marks, mapScale, x, y}) => {
                     g.endFill()
                 }
             }}
-
-            interactive={true}
-            mouseover={() => {marks.setHoveredPlayer(player.name)}}
-            mouseout={() => {marks.setHoveredPlayer(null)}}
-            click={() => { const toToggle = [player.name]
-                if (marks.isPlayerTracked(player.name)) {
-                    marks.setHoveredPlayer(null)
-                }
-
-                marks.toggleTrackedPlayer(...toToggle)}}
         />
     )
 }
@@ -203,12 +174,22 @@ const PlayerFigure = ({ options, player, pubgMapSize, mapSize, marks, mapScale, 
     return (
         <Container
             zIndex={(player.status !== 'dead')? 2 : 1}
+            interactive={true}
+            mouseover={() => {marks.setHoveredPlayer(player.name)}}
+            mouseout={() => {marks.setHoveredPlayer(null)}}
+            click={() => { const toToggle = [player.name]
+                if (marks.isPlayerTracked(player.name)) {
+                    marks.setHoveredPlayer(null)
+                }
+
+                marks.toggleTrackedPlayer(...toToggle)}}
         >
             <Player
                 options={options}
                 player={player}
                 marks={marks}
                 mapScale={mapScale}
+                mapSize={mapSize}
                 x={x}
                 y={y}
             />
@@ -216,6 +197,7 @@ const PlayerFigure = ({ options, player, pubgMapSize, mapSize, marks, mapScale, 
                 player={player}
                 x={x}
                 y={y}
+                mapSize={mapSize}
             />
         </Container>
 
