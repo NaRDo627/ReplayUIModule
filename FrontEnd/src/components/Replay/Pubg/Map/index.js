@@ -52,6 +52,9 @@ const ZoomControls = styled.div`
     bottom: 0px;
 `
 
+
+let isDrag = false;
+
 /*const ZoomInButton = MapButton.extend`
     bottom: 40px;
     right: 15px;
@@ -61,8 +64,6 @@ const ZoomOutButton = MapButton.extend`
     bottom: 15px;
     right: 15px;
 `*/
-
-
 
 class Map extends React.Component {
     state = { mapScale: 1, offsetX: 0, offsetY: 0 }
@@ -79,29 +80,34 @@ class Map extends React.Component {
         return {}
     }
 
-    handleDragEnd = e => {
-        console.log(e)
-        this.setState({
-            offsetX: e.target.x(),
-            offsetY: e.target.y(),
+    endDrag = e => {
+        isDrag = false
+    }
+
+    actualDrag = e => {
+        e.preventDefault()
+        
+        if(!isDrag)
+            return false
+
+        this.setState(prevState => {
+            let offsetX =  prevState.offsetX + e.movementX
+            let offsetY = prevState.offsetY + e.movementY
+
+            if (CLAMP_MAP) {
+                offsetX = clamp(offsetX, -(this.state.mapScale - 1) * this.props.mapSize, 0)
+                offsetY = clamp(offsetY, -(this.state.mapScale - 1) * this.props.mapSize, 0)
+            }
+
+            return {
+                offsetX,
+                offsetY,
+            }
         })
     }
 
-    dragBoundFunc = e => {
-        console.log(e)
-        let x = e.layerX
-        let y = e.layerY
-        if (CLAMP_MAP) {
-            x = clamp(x, -(this.state.mapScale - 1) * this.props.mapSize, 0)
-            y = clamp(y, -(this.state.mapScale - 1) * this.props.mapSize, 0)
-        }
-
-        this.setState({
-            offsetX: x,
-            offsetY: y,
-        })
-
-        return { x, y }
+    startDrag = e => {
+        isDrag = true
     }
 
     handleMousewheel =  e => {
@@ -127,6 +133,8 @@ class Map extends React.Component {
                 offsetY = clamp(offsetY, -(newScale - 1) * this.props.mapSize, 0)
             }
 
+            console.log(offsetX, offsetY)
+
             return {
                 mapScale: newScale,
                 offsetX,
@@ -137,8 +145,9 @@ class Map extends React.Component {
 
     componentDidMount() {
         document.getElementById("StageWrapper").addEventListener("wheel", this.handleMousewheel, {passive:false})
-        document.getElementById("StageWrapper").addEventListener("mouseup", this.handleDragEnd, {passive:false})
-        document.getElementById("StageWrapper").addEventListener("mousedown", this.dragBoundFunc, {passive:false})
+        document.getElementById("StageWrapper").addEventListener("mouseup", this.endDrag)
+        document.getElementById("StageWrapper").addEventListener("mousedown", this.startDrag)
+        document.getElementById("StageWrapper").addEventListener("mousemove", this.actualDrag, {passive:false})
     }
 
     componentWillUnmount() {
@@ -175,7 +184,6 @@ class Map extends React.Component {
                     <StyledStage
                         width={mapSize}
                         height={mapSize}
-                        autoResize={true}
                         /* scale={scale}
                          x={offsetX}
                          y={offsetY}
