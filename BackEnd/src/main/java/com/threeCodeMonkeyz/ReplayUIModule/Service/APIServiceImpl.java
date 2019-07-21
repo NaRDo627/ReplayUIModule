@@ -1,13 +1,11 @@
 package com.threeCodeMonkeyz.ReplayUIModule.Service;
 
 import com.google.gson.*;
-import com.threeCodeMonkeyz.ReplayUIModule.Model.PubgDataset;
-import com.threeCodeMonkeyz.ReplayUIModule.Model.PubgMatch;
-import com.threeCodeMonkeyz.ReplayUIModule.Model.PubgPlayer;
-import com.threeCodeMonkeyz.ReplayUIModule.Model.PubgStat;
+import com.threeCodeMonkeyz.ReplayUIModule.Model.*;
 import org.apache.commons.jcs.utils.zip.CompressionUtil;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
@@ -16,8 +14,10 @@ import java.util.List;
 @Service
 public class APIServiceImpl implements APIService {
 
-    private String VERSION = "1";
-    private String GAME = "battleGround";
+    private String PUBGVERSION = "1";
+    private String PUBGGAME = "battleGround";
+    private String LOLVERSION = "1";
+    private String LOLGAME = "lol";
 
     @Override
     public ResponseEntity<String> getLolData(String matchId) throws Exception {
@@ -27,14 +27,65 @@ public class APIServiceImpl implements APIService {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("Origin", "https://developer.riotgames.com");
         httpHeaders.add("Accept-Charset", "application/x-www-form-urlencoded; charset=UTF-8");
-        httpHeaders.add("X-Riot-Token", "RGAPI-cdc0ad51-60cb-453a-866d-df1072bae73a");
+        httpHeaders.add("X-Riot-Token", "RGAPI-ae172935-1ffb-4a27-be59-e4c93cccc8ba");
         httpHeaders.add("Accept-Language", "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7");
         httpHeaders.add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36");
 
         String url = "https://kr.api.riotgames.com/lol/match/v4/timelines/by-match/" + matchId;
 
-        return restTemplate.exchange(url, HttpMethod.GET, new HttpEntity(httpHeaders), String.class);
+        ResponseEntity<String> responseEntity;
+        JsonObject error = new JsonObject();
+        error.addProperty("statusCode", "400");
+        error.addProperty("error", "bad request");
+        error.addProperty("message", "wrong parameter");
+        try {
+            responseEntity =  restTemplate.exchange(url, HttpMethod.GET, new HttpEntity(httpHeaders), String.class);
+        } catch (RestClientException e) { // 에러인 경우 RestClientException
+            return new ResponseEntity<>(error.toString(), HttpStatus.BAD_REQUEST);
+        }
+        String rawTimeLineData = responseEntity.getBody();
+        JsonParser Parser = new JsonParser();
+        JsonArray replayDataAry = Parser.parse(rawTimeLineData).getAsJsonObject().get("frames").getAsJsonArray();
 
+        url = "https://kr.api.riotgames.com/lol/match/v4/matches/" + matchId;
+        try {
+            responseEntity =  restTemplate.exchange(url, HttpMethod.GET, new HttpEntity(httpHeaders), String.class);
+        } catch (RestClientException e) { // 에러인 경우 RestClientException
+            return new ResponseEntity<>(error.toString(), HttpStatus.BAD_REQUEST);
+        }
+
+        String rawMatchData = responseEntity.getBody();
+        JsonArray participantsIdentitiesAry = Parser.parse(rawMatchData).getAsJsonObject().get("participantIdentities").getAsJsonArray();
+        JsonObject matchDataObject = Parser.parse(rawMatchData).getAsJsonObject();
+
+        List<JsonObject> lolPlayerList = new ArrayList<>();
+        for(int i=0;i<participantsIdentitiesAry.size();i++){
+            lolPlayerList.add(participantsIdentitiesAry.get(i).getAsJsonObject());
+        }
+        LolMatch lolMatch = new LolMatch();
+        lolMatch.setPlayers(lolPlayerList);
+        lolMatch.setId(matchDataObject.get("gameId").getAsString());
+        lolMatch.setShardId(matchDataObject.get("platformId").getAsString());
+        lolMatch.setGameMode(matchDataObject.get("gameMode").getAsString());
+        lolMatch.setPlayedAt(matchDataObject.get("gameCreation").getAsString());
+        lolMatch.setMapName(matchDataObject.get("mapId").getAsString());
+        lolMatch.setDurationSeconds(matchDataObject.get("gameDuration").getAsInt());
+
+        List<JsonObject> replayDataList = new ArrayList<>();
+        if (replayDataAry != null) {
+            for (int i = 0; i < replayDataAry.size(); i++) {
+                replayDataList.add(replayDataAry.get(i).getAsJsonObject());
+            }
+        }
+
+        LolDataset lolDataset = new LolDataset();
+        lolDataset.setGame(LOLGAME);
+        lolDataset.setVersion(LOLVERSION);
+        lolDataset.setMatch(lolMatch);
+        lolDataset.setRawReplayData(replayDataList);
+        GsonBuilder builder = new GsonBuilder();
+        Gson gson = builder.create();
+        return new ResponseEntity<>(gson.toJson(lolDataset), HttpStatus.OK);
     }
 
     @Override
@@ -44,14 +95,26 @@ public class APIServiceImpl implements APIService {
         httpHeaders.add("Accept", "application/vnd.api+json");
 
         String url = "https://api.pubg.com/shards/" + platform + "/matches/" + matchId;
-        ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.GET, new HttpEntity(httpHeaders), String.class);
+        //ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.GET, new HttpEntity(httpHeaders), String.class);
+        //return restTemplate.exchange(url, HttpMethod.GET, new HttpEntity(httpHeaders), String.class);
+        ResponseEntity<String> responseEntity;
+        try {
+             responseEntity =  restTemplate.exchange(url, HttpMethod.GET, new HttpEntity(httpHeaders), String.class);
+        } catch (RestClientException e) { // 에러인 경우 RestClientException
+            JsonObject object = new JsonObject();
+            object.addProperty("statusCode", "400");
+            object.addProperty("error", "bad request");
+            object.addProperty("message", "wrong parameter");
+            return new ResponseEntity<>(object.toString(), HttpStatus.BAD_REQUEST);
+        }
+
         String data = responseEntity.getBody();
         JsonParser Parser = new JsonParser();
-        JsonArray dataArray = (JsonArray) Parser.parse(data).getAsJsonObject().get("data").getAsJsonObject().get("relationships").getAsJsonObject().get("assets").getAsJsonObject().get("data");
+        JsonArray dataArray = Parser.parse(data).getAsJsonObject().get("data").getAsJsonObject().get("relationships").getAsJsonObject().get("assets").getAsJsonObject().get("data").getAsJsonArray();
         JsonObject dataObject = (JsonObject) dataArray.get(0);
         String id = dataObject.get("id").toString();
         System.out.println(id);
-        JsonArray includedArray = (JsonArray) Parser.parse(data).getAsJsonObject().get("included");
+        JsonArray includedArray = Parser.parse(data).getAsJsonObject().get("included").getAsJsonArray();
         for (int i = 0; i < includedArray.size(); i++) {
             JsonObject includedObject = (JsonObject) includedArray.get(i);
             if (includedObject.get("id") != null && includedObject.get("id").toString().equals(id)) { //string null 체크?
@@ -69,12 +132,11 @@ public class APIServiceImpl implements APIService {
         String telemetry = new String(CompressionUtil.decompressGzipByteArray(telemetryGzip));
         JsonArray jsonArrayTelemetry = Parser.parse(telemetry).getAsJsonArray();
 
-       GsonBuilder builder = new GsonBuilder();
-       Gson gson = builder.create();
+
         List<PubgPlayer> players = new ArrayList<>();
         List<String> pId = new ArrayList<>();
         for (int i = 0; i < includedArray.size(); i++) {
-            JsonObject includedObject = (JsonObject) includedArray.get(i);
+            JsonObject includedObject = includedArray.get(i).getAsJsonObject();
             
             if (!includedObject.get("type").getAsString().equals("participant"))
                 continue;
@@ -91,7 +153,7 @@ public class APIServiceImpl implements APIService {
             pId.add(includedObject.get("id").getAsString());
         }
         for (int i = 0; i < includedArray.size(); i++) {
-            JsonObject includedObject = (JsonObject) includedArray.get(i);
+            JsonObject includedObject = includedArray.get(i).getAsJsonObject();;
             
             if (!includedObject.get("type").getAsString().equals("roster")) 
                 continue;
@@ -124,18 +186,22 @@ public class APIServiceImpl implements APIService {
         match.setPlayers(players);
 
         PubgDataset dataset = new PubgDataset();
-        dataset.setVersion(VERSION);
-        dataset.setGame(GAME);
+        dataset.setVersion(PUBGVERSION);
+        dataset.setGame(PUBGGAME);
         dataset.setMatch(match);
-        List<JsonObject> listdata = new ArrayList<>();
+        List<JsonObject> listData = new ArrayList<>();
 
         if (jsonArrayTelemetry != null) {
             for (int i = 0; i < jsonArrayTelemetry.size(); i++) {
-                listdata.add((JsonObject) jsonArrayTelemetry.get(i));
+                listData.add(jsonArrayTelemetry.get(i).getAsJsonObject());
             }
         }
-        dataset.setRawReplayData(listdata);
+        dataset.setRawReplayData(listData);
+        GsonBuilder builder = new GsonBuilder();
+        Gson gson = builder.create();
         return new ResponseEntity<>(gson.toJson(dataset), HttpStatus.OK);
+
+
     }
 }
 
