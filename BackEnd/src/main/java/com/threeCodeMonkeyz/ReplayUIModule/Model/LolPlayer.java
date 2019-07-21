@@ -5,7 +5,7 @@ public class LolPlayer {
     private String matchHistoryUri;
     private String platformId;
     private String currentAccountId;
-    private int profileIcon;
+    private Integer profileIcon;
     private String summonerId;
     private String accountId;
 

@@ -41,13 +41,13 @@ public class APIController {
     }
 
     @CrossOrigin
-    @RequestMapping(value ="/*" ,method = RequestMethod.GET)
+    @RequestMapping(value ="/**" ,method = RequestMethod.GET)
     public ResponseEntity<String> error() throws Exception{
         JsonObject object = new JsonObject();
         object.addProperty("statusCode", "404");
         object.addProperty("error", "Not Found");
         object.addProperty("message", "Not Found");
-        return new ResponseEntity<>(object.toString(), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(object.toString(), HttpStatus.NOT_FOUND);
     }
 
 

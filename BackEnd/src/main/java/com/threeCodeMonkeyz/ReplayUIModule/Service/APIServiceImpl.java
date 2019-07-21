@@ -5,6 +5,7 @@ import com.threeCodeMonkeyz.ReplayUIModule.Model.*;
 import org.apache.commons.jcs.utils.zip.CompressionUtil;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -27,21 +28,30 @@ public class APIServiceImpl implements APIService {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("Origin", "https://developer.riotgames.com");
         httpHeaders.add("Accept-Charset", "application/x-www-form-urlencoded; charset=UTF-8");
-        httpHeaders.add("X-Riot-Token", "RGAPI-ae172935-1ffb-4a27-be59-e4c93cccc8ba");
+        httpHeaders.add("X-Riot-Token", "RGAPI-03ea093a-6b13-4bd8-8901-f8bd91f73301");
         httpHeaders.add("Accept-Language", "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7");
         httpHeaders.add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36");
 
         String url = "https://kr.api.riotgames.com/lol/match/v4/timelines/by-match/" + matchId;
 
         ResponseEntity<String> responseEntity;
-        JsonObject error = new JsonObject();
-        error.addProperty("statusCode", "400");
-        error.addProperty("error", "bad request");
-        error.addProperty("message", "wrong parameter");
-        try {
+
+        try{
             responseEntity =  restTemplate.exchange(url, HttpMethod.GET, new HttpEntity(httpHeaders), String.class);
-        } catch (RestClientException e) { // 에러인 경우 RestClientException
-            return new ResponseEntity<>(error.toString(), HttpStatus.BAD_REQUEST);
+        }
+        catch (HttpClientErrorException e) {
+            JsonObject error = new JsonObject();
+            if(e.getStatusCode()==HttpStatus.FORBIDDEN){
+                error.addProperty("statusCode", "403");
+                error.addProperty("error", "Forbidden");
+                error.addProperty("message", "api key error");
+            }
+            else {
+                error.addProperty("statusCode", "404");
+                error.addProperty("error", "Data not found");
+                error.addProperty("message", "matchId error");
+            }
+            return new ResponseEntity<>(error.toString(),e.getStatusCode());
         }
         String rawTimeLineData = responseEntity.getBody();
         JsonParser Parser = new JsonParser();
@@ -50,8 +60,20 @@ public class APIServiceImpl implements APIService {
         url = "https://kr.api.riotgames.com/lol/match/v4/matches/" + matchId;
         try {
             responseEntity =  restTemplate.exchange(url, HttpMethod.GET, new HttpEntity(httpHeaders), String.class);
-        } catch (RestClientException e) { // 에러인 경우 RestClientException
-            return new ResponseEntity<>(error.toString(), HttpStatus.BAD_REQUEST);
+        }
+        catch (HttpClientErrorException e) {
+            JsonObject error = new JsonObject();
+            if(e.getStatusCode()==HttpStatus.FORBIDDEN){
+                error.addProperty("statusCode", "403");
+                error.addProperty("error", "Forbidden");
+                error.addProperty("message", "api key error");
+            }
+            else {
+                error.addProperty("statusCode", "404");
+                error.addProperty("error", "Data not found");
+                error.addProperty("message", "matchId error ");
+            }
+            return new ResponseEntity<>(error.toString(),e.getStatusCode());
         }
 
         String rawMatchData = responseEntity.getBody();
@@ -99,19 +121,23 @@ public class APIServiceImpl implements APIService {
         //return restTemplate.exchange(url, HttpMethod.GET, new HttpEntity(httpHeaders), String.class);
         ResponseEntity<String> responseEntity;
         try {
-             responseEntity =  restTemplate.exchange(url, HttpMethod.GET, new HttpEntity(httpHeaders), String.class);
-        } catch (RestClientException e) { // 에러인 경우 RestClientException
-            JsonObject object = new JsonObject();
-            object.addProperty("statusCode", "400");
-            object.addProperty("error", "bad request");
-            object.addProperty("message", "wrong parameter");
-            return new ResponseEntity<>(object.toString(), HttpStatus.BAD_REQUEST);
+            responseEntity = restTemplate.exchange(url, HttpMethod.GET, new HttpEntity(httpHeaders), String.class);
+
+        } catch (HttpClientErrorException e) { //error인 경우가 matchid 틀렸을 경우 밖에 없음
+            JsonObject error = new JsonObject();
+            error.addProperty("statusCode", "404");
+            error.addProperty("error", "Not Found");
+            error.addProperty("message", "MatchId error");
+            return new ResponseEntity<>(error.toString(), e.getStatusCode());
         }
+
 
         String data = responseEntity.getBody();
         JsonParser Parser = new JsonParser();
-        JsonArray dataArray = Parser.parse(data).getAsJsonObject().get("data").getAsJsonObject().get("relationships").getAsJsonObject().get("assets").getAsJsonObject().get("data").getAsJsonArray();
-        JsonObject dataObject = (JsonObject) dataArray.get(0);
+        //JsonArray dataArray = Parser.parse(data).getAsJsonObject().get("data").getAsJsonObject().get("relationships").getAsJsonObject().get("assets").getAsJsonObject().get("data").getAsJsonArray();
+        JsonObject pubgDataObject = Parser.parse(data).getAsJsonObject().get("data").getAsJsonObject();
+        JsonArray assetDataArray = pubgDataObject.get("relationships").getAsJsonObject().get("assets").getAsJsonObject().get("data").getAsJsonArray();
+        JsonObject dataObject = (JsonObject) assetDataArray.get(0);
         String id = dataObject.get("id").toString();
         System.out.println(id);
         JsonArray includedArray = Parser.parse(data).getAsJsonObject().get("included").getAsJsonArray();

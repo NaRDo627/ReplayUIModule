@@ -8,7 +8,7 @@ public class LolMatch {
     private String gameMode;
     private String playedAt;
     private String mapName;
-    private int durationSeconds;
+    private Integer durationSeconds;
     private List players;
 
     public String getId() {
