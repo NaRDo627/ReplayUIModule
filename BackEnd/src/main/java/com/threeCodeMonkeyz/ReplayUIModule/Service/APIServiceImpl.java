@@ -3,6 +3,7 @@ package com.threeCodeMonkeyz.ReplayUIModule.Service;
 import com.google.gson.*;
 import com.threeCodeMonkeyz.ReplayUIModule.Model.*;
 import org.apache.commons.jcs.utils.zip.CompressionUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
@@ -20,6 +21,10 @@ public class APIServiceImpl implements APIService {
     private String LOLVERSION = "1";
     private String LOLGAME = "lol";
 
+    @Value("${lol.api.key}")
+    private String apiKey;
+
+
     @Override
     public ResponseEntity<String> getLolData(String matchId) throws Exception {
         RestTemplate restTemplate = new RestTemplate();
@@ -28,7 +33,7 @@ public class APIServiceImpl implements APIService {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("Origin", "https://developer.riotgames.com");
         httpHeaders.add("Accept-Charset", "application/x-www-form-urlencoded; charset=UTF-8");
-        httpHeaders.add("X-Riot-Token", "RGAPI-03ea093a-6b13-4bd8-8901-f8bd91f73301");
+        httpHeaders.add("X-Riot-Token", apiKey);
         httpHeaders.add("Accept-Language", "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7");
         httpHeaders.add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36");
 
