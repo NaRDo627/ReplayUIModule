@@ -51,6 +51,19 @@ const RosterContainer = styled.div`
     }
 `
 
+const KillLogContainer = styled.div`
+    grid-column: 2;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    height: ${props => props.mapSize + 48}px;
+    padding-right: 10px;
+
+    @media (max-width: 700px) {
+        grid-column: 1;
+        grid-row: 2;
+    }
+`
+
 const MatchHeader = styled.div`
     display: grid;
     grid-template-columns: max-content 1fr max-content;
@@ -229,6 +242,15 @@ class MatchPlayer extends React.Component {
                                     rawTelemetry={rawTelemetry}
                                 />*/}
                             </MapContainer>
+                           {/* <KillLogContainer mapSize={mapSize}>
+                                <RosterHeader>Name / Kills / Damage</RosterHeader>
+                                <Roster
+                                    match={match}
+                                    telemetry={currentTelemetry}
+                                    rosters={rosters}
+                                    marks={this.marks}
+                                />
+                            </KillLogContainer>*/}
                             <RosterContainer mapSize={mapSize}>
                                 <RosterHeader>Name / Kills / Damage</RosterHeader>
                                 <Roster

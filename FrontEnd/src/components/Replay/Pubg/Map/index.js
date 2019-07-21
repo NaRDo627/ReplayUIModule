@@ -14,6 +14,7 @@ import BackgroundLayer from './BackgroundLayer.js'
 import CarePackage from './CarePackage.js'
 import Tracer from './Tracer.js'
 import AliveCount from './AliveCount.js'
+import KillLog from "./KillLog";
 //import MapButton from '../../../../components/MapButton.js'
 
 const SCALE_STEP = 1.2
@@ -86,7 +87,7 @@ class Map extends React.Component {
 
     actualDrag = e => {
         e.preventDefault()
-        
+
         if(!isDrag)
             return false
 
@@ -231,6 +232,9 @@ class Map extends React.Component {
                                 showName={marks.isPlayerTracked(player.name)}
                                 />
                                 )}
+                            {telemetry && <KillLog players={telemetry.players}
+                                                   mapSize={mapSize}
+                                                   killLogs={telemetry.killLogs} />}
                         </Container>
                     </StyledStage>
                 </div>

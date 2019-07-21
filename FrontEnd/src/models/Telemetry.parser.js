@@ -11,6 +11,7 @@ const blankIntervalState = () => ({
     safezone: null,
     tracers: [],
     carePackages: [],
+    killLogs: []
 })
 
 export default function parseTelemetry(matchData, telemetry, focusedPlayerName) {
@@ -111,9 +112,15 @@ export default function parseTelemetry(matchData, telemetry, focusedPlayerName) 
                 // We've crossed over an interval boundary. Save off current interval state and clear it.
                 // Note that we don't necessarily get a datapoint at each interval boundary, so we want to
                 // make sure we're storing the state at the right interval and adjust accordingly.
+                // [190721][HKPARK] KillLog 객체 복사 - 4초가 안 지난 것들만
                 state[curStateInterval] = curState
+                const curKillLogs = curState.killLogs.
+                    filter(log => 5000 > msSinceEpoch - log.msSinceEpoch )
+                    .map(log => log)
+                    .slice()
                 curState = blankIntervalState()
                 curStateInterval = currentInterval
+                curState.killLogs = curKillLogs
             }
 
             if (get(d, 'character.name')) {
@@ -209,6 +216,15 @@ export default function parseTelemetry(matchData, telemetry, focusedPlayerName) 
                         victimName: d.victim.name,
                     })
                 }
+
+                // [190721][HKPARK] KillLog 관련 추가
+                curState.killLogs.push({
+                    killerName: getKilledBy(d),
+                    victimName: (d.victim)? d.victim.name : getKilledBy(d),
+                    reasonCategory: d.damageTypeCategory,
+                    reasonName: d.damageCauserName,
+                    msSinceEpoch
+                })
             }
 
             // [190719][HKPARK] 차량 관련 이벤트 추가
