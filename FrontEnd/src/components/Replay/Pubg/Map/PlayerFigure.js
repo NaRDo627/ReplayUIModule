@@ -104,7 +104,7 @@ const Player = ({options, player, marks, mapScale, mapSize, x, y}) => {
     const playerColor = parseInt(getPlayerColor(options, marks, player).substr(1, 6), 16);
     const playerColorAlpha = parseInt(getPlayerColor(options, marks, player).substring(7), 16) / 0xFF;
     const statusColor = parseInt(getStatusColor(options, marks, player).substr(1, 6), 16);
-    const diameter = marks.isPlayerHovered(player.name) ? (mapSize / 55) : (mapSize / 65)
+    const diameter = marks.isPlayerHovered(player.name) ? (mapSize / 70) : (mapSize / 80)
     const scaledDiameter = diameter * clamp(mapScale / 1.4, 1, 1.3)
 
     // Step 1. 낙하산에 타고 있는가?

@@ -134,8 +134,6 @@ class Map extends React.Component {
                 offsetY = clamp(offsetY, -(newScale - 1) * this.props.mapSize, 0)
             }
 
-            console.log(offsetX, offsetY)
-
             return {
                 mapScale: newScale,
                 offsetX,
@@ -179,9 +177,6 @@ class Map extends React.Component {
 
         return (
             <StageWrapper id="StageWrapper">
-                <div /*onWheel={e => {e.preventDefault(); this.handleMousewheel(e)}}*/
-                    /* onDragEnd={this.handleDragEnd}*/
-                 /*    dragBoundFunc={this.dragBoundFunc}*/>
                     <StyledStage
                         width={mapSize}
                         height={mapSize}
@@ -232,15 +227,25 @@ class Map extends React.Component {
                                 showName={marks.isPlayerTracked(player.name)}
                                 />
                                 )}
-                            {telemetry && <KillFeed focusPlayer={marks.focusedPlayer()}
-                                                    teammates={telemetry.players[marks.focusedPlayer()].teammates}
-                                                    mapSize={mapSize}
-                                                    killLogs={telemetry.killLogs}
-                                                    options={options}
-                                                    />}
+                            {telemetry.tracers.map(tracer =>
+                                <Tracer
+                                    key={tracer.key}
+                                    mapSize={mapSize}
+                                    pubgMapSize={pubgMapSize}
+                                    mapScale={mapScale}
+                                    players={telemetry.players}
+                                    tracer={tracer}
+                                    msSinceEpoch={msSinceEpoch}
+                                />
+                            )}
                         </Container>
+                        {telemetry && <KillFeed focusPlayer={marks.focusedPlayer()}
+                                                teammates={telemetry.players[marks.focusedPlayer()].teammates}
+                                                mapSize={mapSize}
+                                                killLogs={telemetry.killLogs}
+                                                options={options}
+                        />}
                     </StyledStage>
-                </div>
             </StageWrapper>
 
            /* <StageWrapper id="StageWrapper">

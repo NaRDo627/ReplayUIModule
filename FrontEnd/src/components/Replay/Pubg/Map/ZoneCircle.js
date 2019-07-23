@@ -14,7 +14,7 @@ const ZoneCircle = ({ pubgMapSize, mapSize, mapScale, circle, color, background 
         <Graphics
             draw={g => {
                 g.clear()
-                g.lineStyle(1, lineColor, 1)
+                g.lineStyle(1, lineColor, (color === "ff0000")? 0x44 / 0xff : 1)
                 g.beginFill(backgroundColor, (color === "ff0000")? 0x44 / 0xff : 0);
                 g.drawCircle(x, y, scaledDiameter);
                 g.endFill()

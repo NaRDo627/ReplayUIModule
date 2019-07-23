@@ -203,13 +203,13 @@ class MatchPlayer extends React.Component {
                     render={({ msSinceEpoch, timeControls, currentTelemetry }) =>
                         <MatchContainer id="MatchContainer">
                             <MapContainer id="MapContainer" isDotHovered={!!this.marks.hoveredPlayer()}>
-                                <MatchHeader>{/*
+                                <MatchHeader>
                                     <MatchInfo
                                         match={match}
                                         marks={this.marks}
                                         rawTelemetry={rawTelemetry}
                                         playerName={prevPlayerName}
-                                    />*/}
+                                    />
                                     <TimeSlider
                                         value={msSinceEpoch}
                                         stopAutoplay={timeControls.stopAutoplay}
