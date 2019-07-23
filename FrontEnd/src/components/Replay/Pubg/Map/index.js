@@ -14,7 +14,7 @@ import BackgroundLayer from './BackgroundLayer.js'
 import CarePackage from './CarePackage.js'
 import Tracer from './Tracer.js'
 import AliveCount from './AliveCount.js'
-import KillLog from "./KillLog";
+import KillFeed from "./KillFeed";
 //import MapButton from '../../../../components/MapButton.js'
 
 const SCALE_STEP = 1.2
@@ -232,9 +232,12 @@ class Map extends React.Component {
                                 showName={marks.isPlayerTracked(player.name)}
                                 />
                                 )}
-                            {telemetry && <KillLog players={telemetry.players}
-                                                   mapSize={mapSize}
-                                                   killLogs={telemetry.killLogs} />}
+                            {telemetry && <KillFeed focusPlayer={marks.focusedPlayer()}
+                                                    teammates={telemetry.players[marks.focusedPlayer()].teammates}
+                                                    mapSize={mapSize}
+                                                    killLogs={telemetry.killLogs}
+                                                    options={options}
+                                                    />}
                         </Container>
                     </StyledStage>
                 </div>
