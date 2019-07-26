@@ -2,7 +2,6 @@ import React from 'react'
 import { toScale } from '../../../../lib/canvas-math.js'
 import {Container, Sprite, Graphics} from '@inlet/react-pixi'
 import {clamp} from "lodash";
-//import {Arc, Group, Label, Tag, Text} from "react-konva";
 import parachute from '../../../../assets/open-parachute.png'
 import vehicleCar from '../../../../assets/jeep.png'
 import vehicleBoat from '../../../../assets/boat.png'
@@ -45,6 +44,27 @@ const getStatusColor = ({ colors }, marks, player) => {
     const base = getBaseStatusColor({ colors }, marks, player)
     return `${base}B0`
 }
+
+const PlayerLabel = ({ visible, player, strokeColor }) => {
+    if (!visible) return null
+
+    return (
+       <Container offsetY={-11}>
+           <Graphics
+           draw={g => {
+               g.clear();
+
+               g.lineStyle(1, 0x000000, 0.5)
+               g.beginFill(0x000000, 0.5);
+               g.drawRect(0, 0, 30, 10)
+               g.endFill()
+           }}>
+
+           </Graphics>
+       </Container>
+    )
+}
+
 /*
 
 const PlayerLabel = ({ visible, player, strokeColor }) => {
@@ -173,7 +193,7 @@ const PlayerFigure = ({ options, player, pubgMapSize, mapSize, marks, mapScale, 
 
     return (
         <Container
-            zIndex={(player.status !== 'dead')? 2 : 1}
+            zIndex={(marks.focusedPlayer() === player.name)? 3 : (player.status !== 'dead')? 2 : 1}
             interactive={true}
             mouseover={() => {marks.setHoveredPlayer(player.name)}}
             mouseout={() => {marks.setHoveredPlayer(null)}}

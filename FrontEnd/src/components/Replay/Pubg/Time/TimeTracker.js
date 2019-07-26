@@ -130,6 +130,16 @@ class TimeTracker extends React.Component {
         this.setState({ msSinceEpoch: 1000 })
     }
 
+    skip30sForward = () => {
+        const curMsSinceEpoch = this.state.msSinceEpoch
+        this.setState({ msSinceEpoch: curMsSinceEpoch + 30000 })
+    }
+
+    skip30sReverse = () => {
+        const curMsSinceEpoch = this.state.msSinceEpoch
+        this.setState({ msSinceEpoch: curMsSinceEpoch - 30000 })
+    }
+
     render() {
         const { telemetry } = this.props
         const renderProps = {
@@ -144,6 +154,8 @@ class TimeTracker extends React.Component {
                 setAutoplaySpeed: this.setAutoplaySpeed,
                 setMsSinceEpoch: this.setMsSinceEpoch,
                 rewindToStart: this.rewindToStart,
+                skip30sForward: this.skip30sForward,
+                skip30sReverse: this.skip30sReverse,
             },
         }
 

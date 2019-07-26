@@ -3,16 +3,14 @@ import moment from 'moment'
 import styled from 'styled-components'
 import { ordinalSuffix } from 'ordinal-js'
 
-const StyledMatchInfo = styled.ul`
-    font-size: 1.3rem;
-    line-height: 1.8rem;
+const StyledMatchInfo = styled.div`
+    font-size: 1.2rem;
+    line-height: 1.3rem;
     margin-bottom: 0;
     margin-right: 20px;
     list-style-type: none;
-
-    li {
-        margin-bottom: 0;
-    }
+    grid-template-columns: 180px auto;
+    display: grid;
 
     @media (max-width: 700px) {
         grid-column: 1;
@@ -30,6 +28,17 @@ const StyledMatchInfo = styled.ul`
     }
 `
 
+const StyledPlayedAt = styled.div`
+    display: inline-block;
+    grid-column: 1;
+`
+
+const StyledMatchEvaluation = styled.div`
+    display: inline-block;
+    text-align: right;
+    grid-column: 2;
+`
+
 class MatchInfo extends React.PureComponent {
     render() {
         const { match, marks } = this.props
@@ -39,11 +48,13 @@ class MatchInfo extends React.PureComponent {
 
         return (
             <StyledMatchInfo>
-                <li>{playedAt}</li>
-                <li>
+                <StyledPlayedAt> {playedAt}</StyledPlayedAt>
+                <StyledMatchEvaluation>
                     <strong>{stats.winPlace}</strong>{ordinalSuffix(stats.winPlace)} place,&nbsp;
                     <strong>{stats.kills}</strong> kills
-                </li>
+                    &nbsp;-&nbsp;
+                    Too Bad! :/
+                </StyledMatchEvaluation>
             </StyledMatchInfo>
         )
     }

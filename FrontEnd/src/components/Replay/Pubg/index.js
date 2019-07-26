@@ -8,6 +8,8 @@ import TimeTracker from './Time/TimeTracker.js'
 import TimeSlider from './Time/TimeSlider.js'
 import AutoplayControls from './Time/AutoplayControls.js'
 import MatchInfo from './MatchInfo.js'
+import KillFeed from "./Map/KillFeed";
+import PlayControls from "./Time/PlayControls";
 // import HelpModal from './HelpModal.js'
 // import DownloadButton from './DownloadButton.js'
 
@@ -17,29 +19,29 @@ import MatchInfo from './MatchInfo.js'
 
 const MatchContainer = styled.div`
     display: grid;
-    grid-template-columns: 1fr 180px;
+    grid-template-columns: 180px auto 180px;
     grid-column-gap: 10px;
     border: 0px solid #eee;
     overflow: visible;
     margin: 0 auto;
-    max-width: calc(100vh + 10px);
+    max-width: calc(110vh + 10px);
 
     @media (max-width: 700px) {
-        grid-template-columns: 1fr 0px;
+        grid-template-columns: 0px 1fr 0px;
         grid-column-gap: 0;
         grid-row-gap: 15px;
     }
 `
 
 const MapContainer = styled.div`
-    grid-column: 1;
+    grid-column: 2;
     position: relative;
     cursor: ${props => props.isDotHovered ? 'pointer' : 'normal'};
     display: grid;
 `
 
 const RosterContainer = styled.div`
-    grid-column: 2;
+    grid-column: 1;
     overflow-y: scroll;
     overflow-x: hidden;
     height: ${props => props.mapSize + 48}px;
@@ -51,8 +53,8 @@ const RosterContainer = styled.div`
     }
 `
 
-const KillLogContainer = styled.div`
-    grid-column: 2;
+const KillFeedContainer = styled.div`
+    grid-column: 3;
     overflow-y: scroll;
     overflow-x: hidden;
     height: ${props => props.mapSize + 48}px;
@@ -65,9 +67,21 @@ const KillLogContainer = styled.div`
 `
 
 const MatchHeader = styled.div`
+    margin: 0 20px 10px 20px;
+
+    @media (max-width: 700px) {
+        grid-template-columns: 0px 1fr max-content;
+        grid-row: 2;
+        margin-top: 10px;
+        margin-bottom: 0;
+    }
+`
+
+const ControllerContainer = styled.div`
     display: grid;
-    grid-template-columns: max-content 1fr max-content;
-    margin-bottom: 10px;
+    grid-template-columns: 100px 1fr max-content;
+       grid-column-gap: 10px;
+    margin: 10px 10px 0px 10px;
 
     @media (max-width: 700px) {
         grid-template-columns: 0px 1fr max-content;
@@ -79,8 +93,14 @@ const MatchHeader = styled.div`
 
 const RosterHeader = styled.div`
     text-align: center;
-    font-size: 1.1rem;
-    font-weight: 400;
+    font-size: 1.2rem;
+    font-weight: 700;
+`
+
+const KillFeedHeader = styled.div`
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: 700;
 `
 
 class MatchPlayer extends React.Component {
@@ -202,6 +222,15 @@ class MatchPlayer extends React.Component {
                     telemetry={telemetry}
                     render={({ msSinceEpoch, timeControls, currentTelemetry }) =>
                         <MatchContainer id="MatchContainer">
+                            <RosterContainer mapSize={mapSize}>
+                                <RosterHeader>Name / Kills / Damage</RosterHeader>
+                                <Roster
+                                    match={match}
+                                    telemetry={currentTelemetry}
+                                    rosters={rosters}
+                                    marks={this.marks}
+                                />
+                            </RosterContainer>
                             <MapContainer id="MapContainer" isDotHovered={!!this.marks.hoveredPlayer()}>
                                 <MatchHeader>
                                     <MatchInfo
@@ -209,6 +238,24 @@ class MatchPlayer extends React.Component {
                                         marks={this.marks}
                                         rawTelemetry={rawTelemetry}
                                         playerName={prevPlayerName}
+                                    />
+                                </MatchHeader>
+                                <Map
+                                    match={match}
+                                    telemetry={currentTelemetry}
+                                    mapSize={mapSize}
+                                    marks={this.marks}
+                                    msSinceEpoch={msSinceEpoch}
+                                    options={options}
+                                />
+                                <ControllerContainer>
+                                    <PlayControls
+                                        autoplay={timeControls.autoplay}
+                                        toggleAutoplay={timeControls.toggleAutoplay}
+                                        isFinished={(match.durationSeconds + 5) === (msSinceEpoch / 1000)}
+                                        rewindToStart={timeControls.rewindToStart}
+                                        skip30sForward={timeControls.skip30sForward}
+                                        skip30sReverse={timeControls.skip30sReverse}
                                     />
                                     <TimeSlider
                                         value={msSinceEpoch}
@@ -226,15 +273,8 @@ class MatchPlayer extends React.Component {
                                         isFinished={(match.durationSeconds + 5) === (msSinceEpoch / 1000)}
                                         rewindToStart={timeControls.rewindToStart}
                                     />
-                                </MatchHeader>
-                                <Map
-                                    match={match}
-                                    telemetry={currentTelemetry}
-                                    mapSize={mapSize}
-                                    marks={this.marks}
-                                    msSinceEpoch={msSinceEpoch}
-                                    options={options}
-                                />
+                                </ControllerContainer>
+
                                 {/*<HelpModal mapSize={mapSize} />
                                 <DownloadButton
                                     match={match}
@@ -242,7 +282,16 @@ class MatchPlayer extends React.Component {
                                     rawTelemetry={rawTelemetry}
                                 />*/}
                             </MapContainer>
-                           {/* <KillLogContainer mapSize={mapSize}>
+                            <KillFeedContainer mapSize={mapSize}>
+                                <KillFeedHeader>Kill Feeds</KillFeedHeader>
+                                {currentTelemetry && <KillFeed focusPlayer={this.marks.focusedPlayer()}
+                                                        teammates={currentTelemetry.players[this.marks.focusedPlayer()].teammates}
+                                                        mapSize={mapSize}
+                                                        killLogs={currentTelemetry.killLogs}
+                                                        options={options}
+                                />}
+                            </KillFeedContainer>
+{/*                            <RosterContainer mapSize={mapSize}>
                                 <RosterHeader>Name / Kills / Damage</RosterHeader>
                                 <Roster
                                     match={match}
@@ -250,16 +299,7 @@ class MatchPlayer extends React.Component {
                                     rosters={rosters}
                                     marks={this.marks}
                                 />
-                            </KillLogContainer>*/}
-                            <RosterContainer mapSize={mapSize}>
-                                <RosterHeader>Name / Kills / Damage</RosterHeader>
-                                <Roster
-                                    match={match}
-                                    telemetry={currentTelemetry}
-                                    rosters={rosters}
-                                    marks={this.marks}
-                                />
-                            </RosterContainer>
+                            </RosterContainer>*/}
                         </MatchContainer>
                     }
                 />

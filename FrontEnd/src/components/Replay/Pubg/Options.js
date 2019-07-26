@@ -6,7 +6,7 @@ export const STORAGE_KEY = 'optionsV2'
 export const DEFAULT_OPTIONS = {
     colors: {
         dot: {
-            focused: '#8D79F3',
+            focused: '#9DA9FA',
             teammate: '#31D499',
             enemy: '#FFFFFF',
             dead: '#B12020',

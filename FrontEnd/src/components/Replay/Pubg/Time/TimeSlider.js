@@ -22,18 +22,6 @@ const SliderContainer = styled.div`
 const StyledSlider = styled(Slider)`
     padding-top: 5px;
     margin-top: 12px;
-    
-    div.rc-slider-step {
-        background-color: green;
-        height: 6px;
-    }
-    
-    div.rc-slider-handle {
-        color: green;
-        background-color: green;
-        width: 16px;
-        height: 16px;
-    }
 `
 
 const TimePositionedElement = styled.div.attrs({
@@ -56,7 +44,7 @@ const HoverableTimePositionedElement = TimePositionedElement`
         display: block;
         position: absolute;
         font-size: 12px;
-        top: -35px;
+        bottom: -35px;
         background-color: white;
         white-space: nowrap;
         border: 1px solid #ddd;

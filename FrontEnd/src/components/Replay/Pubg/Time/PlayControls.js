@@ -10,17 +10,36 @@ const StyledSlider = styled(Slider)`
     min-width: 80px;
 `
 
+const PrevButton = styled.button`
+    padding: 0;
+    font-size: 2rem;
+    border: 0;
+    margin: 0 5px;
+    width: 20px;
+    grid-column: 1;
+`
+
 const ControlButton = styled.button`
     padding: 0;
     font-size: 2rem;
     border: 0;
-    margin: 0 10px;
-    width: 25px;
-    grid-column: 1;
+    margin: 0 5px;
+    width: 20px;
+    grid-column: 2;
+`
+
+const NextButton = styled.button`
+    padding: 0;
+    font-size: 2rem;
+    border: 0;
+    margin: 0 5px;
+    width: 20px;
+    grid-column: 3;
 `
 
 const ControlsWrapper = styled.div`
     display: grid;
+    grid-template-columns: auto auto auto;
 
     @media (max-width: 700px) {
         grid-column: 3;
@@ -54,50 +73,38 @@ const RewindButton = ({ rewindToStart }) => {
     )
 }
 
-class AutoplayControls extends React.PureComponent {
+class PlayControls extends React.PureComponent {
     render() {
         const {
             autoplay,
-            autoplaySpeed,
-            changeSpeed,
             isFinished,
             toggleAutoplay,
             rewindToStart,
+            skip30sForward,
+            skip30sReverse
         } = this.props
 
         return (
             <ControlsWrapper>
-
-                {/*<div>
+                <div>
+                    <PrevButton className="button" type="submit" onClick={skip30sReverse}>
+                        <i className={`fi-rewind`} />
+                    </PrevButton>
                     {!isFinished &&
-                        <ControlButton className="button" type="submit" onClick={toggleAutoplay}>
-                            <i className={`fi-${autoplay ? 'pause' : 'play'}`} />
-                        </ControlButton>
+                    <ControlButton className="button" type="submit" onClick={toggleAutoplay}>
+                        <i className={`fi-${autoplay ? 'pause' : 'play'}`} />
+                    </ControlButton>
                     }
                     {isFinished &&
-                        <RewindButton rewindToStart={rewindToStart} />
+                    <RewindButton rewindToStart={rewindToStart} />
                     }
+                    <NextButton className="button" type="submit" onClick={skip30sForward}>
+                        <i className={`fi-fast-forward`} />
+                    </NextButton>
                 </div>
-                */}
-                <SliderContainer>
-                    <StyledSlider
-                        min={1}
-                        max={40}
-                        value={autoplaySpeed}
-                        onChange={changeSpeed}
-                        tipFormatter={v => `${v}x`}
-                        tipProps={{
-                            visible: true,
-                            placement: 'top',
-                            align: { offset: [0, 8] },
-                            overlayStyle: { zIndex: 1 },
-                        }}
-                    />
-                    <Tooltip value={autoplaySpeed} max={40}>{autoplaySpeed}x</Tooltip>
-                </SliderContainer>
             </ControlsWrapper>
         )
     }
 }
 
-export default AutoplayControls
+export default PlayControls

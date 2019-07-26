@@ -37,6 +37,7 @@ const StageWrapper = styled.div`
         padding-bottom: 100%;
     }
 `
+
 const StyledStage = styled(Stage)`
     position: absolute;
     overflow: hidden;
@@ -239,12 +240,13 @@ class Map extends React.Component {
                                 />
                             )}
                         </Container>
-                        {telemetry && <KillFeed focusPlayer={marks.focusedPlayer()}
+                        {telemetry && <AliveCount players={telemetry.players} />}
+                        {/*{telemetry && <KillFeed focusPlayer={marks.focusedPlayer()}
                                                 teammates={telemetry.players[marks.focusedPlayer()].teammates}
                                                 mapSize={mapSize}
                                                 killLogs={telemetry.killLogs}
                                                 options={options}
-                        />}
+                        />}*/}
                     </StyledStage>
             </StageWrapper>
 

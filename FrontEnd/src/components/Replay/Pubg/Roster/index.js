@@ -40,7 +40,7 @@ const PlayerItem = styled.li`
 
     i {
         margin-left: 5px;
-        font-size: 1.1rem;
+        font-size: 1rem;
         line-height: 0.5rem;
     }
 `
@@ -55,14 +55,31 @@ const PlayerDatapoint = styled.div`
     text-align: right;
 `
 
+function arrayContainsArray (superset, subset) {
+    if (0 === subset.length) {
+        return false;
+    }
+    return subset.every(function (value) {
+        return (superset.indexOf(value) >= 0);
+    });
+}
+
 const Roster = ({ match, telemetry, marks, rosters }) => {
     return (
         <Options.Context.Consumer>
             {({ options }) => rosters.map(r => {
+
+                if(!r.includes(marks.focusedPlayer()) && !arrayContainsArray(r, telemetry.players[marks.focusedPlayer()].teammates) &&
+                    !marks.trackedPlayers().some(tracked => r.indexOf(tracked) >= 0)
+                /*    !marks.isPlayerTracked(p.name) && !marks.isPlayerTeamTracked(p.name, telemetry)*/)
+                    return null;
+
                 return (
                     <TeamGroup key={`roster-${r[0]}`}>
                         {r.map(playerName => {
                             const p = telemetry.players[playerName]
+
+
 
                             return (
                                 <PlayerItem

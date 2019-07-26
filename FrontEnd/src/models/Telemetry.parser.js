@@ -113,11 +113,12 @@ export default function parseTelemetry(matchData, telemetry, focusedPlayerName) 
                 // Note that we don't necessarily get a datapoint at each interval boundary, so we want to
                 // make sure we're storing the state at the right interval and adjust accordingly.
                 // [190721][HKPARK] KillFeed 객체 복사 - 4초가 안 지난 것들만
+                // [190726][HKPARK] KillFeed 모두 복사하는걸로 변경
                 state[curStateInterval] = curState
-                const curKillLogs = curState.killLogs.
-                    filter(log => 5000 > msSinceEpoch - log.msSinceEpoch )
+                const curKillLogs = curState.killLogs.slice()
+                    /*filter(log => 5000 > msSinceEpoch - log.msSinceEpoch )
                     .map(log => log)
-                    .slice()
+                    slice()*/
                 curState = blankIntervalState()
                 curStateInterval = currentInterval
                 curState.killLogs = curKillLogs
@@ -321,10 +322,17 @@ export default function parseTelemetry(matchData, telemetry, focusedPlayerName) 
     }
 
     { // --- Step Two: Ensure there are no gaps in the state array
+        let lastLog = null;
         for (let i = 0; i < state.length; i++) {
+
             if (!state[i]) {
                 state[i] = blankIntervalState()
+
+                // [190726][HKPARK] 마지막으로 확인된 로그를 복사
+                state[i].killLogs = lastLog
             }
+            else
+                lastLog = state[i].killLogs.slice()
         }
     }
 
