@@ -54,7 +54,7 @@ const RewindButton = ({ rewindToStart }) => {
     )
 }
 
-class AutoplayControls extends React.PureComponent {
+class SpeedControl extends React.PureComponent {
     render() {
         const {
             autoplay,
@@ -100,4 +100,4 @@ class AutoplayControls extends React.PureComponent {
     }
 }
 
-export default AutoplayControls
+export default SpeedControl

@@ -62,6 +62,8 @@ const KillMarker = HoverableTimePositionedElement.extend`
     width: 12px;
     text-align: center;
     height: ${props => props.count > 1 ? 10 : 10}px;
+    cursor:pointer;
+        
     background: linear-gradient(to right,
         transparent 0%,
         transparent calc(50% - 0.41px),
@@ -82,7 +84,7 @@ const KillMarker = HoverableTimePositionedElement.extend`
     }
 
     &:hover:before {
-        content: "${props => props.victimNames}";
+        content: "You Killed: ${props => props.victimNames}";
     }
 `
 
@@ -95,6 +97,7 @@ const DeathMarker = HoverableTimePositionedElement.extend`
     background: url('${ripIcon}');
     background-size: 19px;
     background-repeat: no-repeat;
+    cursor:pointer;
 
     &:after {
         content: "";
@@ -108,7 +111,7 @@ const DeathMarker = HoverableTimePositionedElement.extend`
 
 class TimeSlider extends React.PureComponent {
     render() {
-        const { value, stopAutoplay, onChange, durationSeconds, globalState, options } = this.props
+        const { value, stopAutoplay, onChange, durationSeconds, globalState, options, skipTo } = this.props
 
         const groupedKills = globalState && globalState.kills.reduce((acc, kill, idx) => {
             if (idx === 0) return [[kill]]
@@ -144,6 +147,8 @@ class TimeSlider extends React.PureComponent {
                         durationSeconds={durationSeconds}
                         color={options.colors.roster.dead}
                         victimNames={kills.map(k => k.victimName).join(', ')}
+                        onClick={skipTo.bind(this, kills[0].msSinceEpoch)}
+                        onMouseDown={stopAutoplay.bind(this)}
                     />
                 )}
                 {globalState && globalState.death &&
@@ -151,6 +156,8 @@ class TimeSlider extends React.PureComponent {
                         value={globalState.death.msSinceEpoch}
                         durationSeconds={durationSeconds}
                         killerName={globalState.death.killedBy}
+                        onClick={skipTo.bind(this, globalState.death.msSinceEpoch)}
+                        onMouseDown={stopAutoplay.bind(this)}
                     />
                 }
             </SliderContainer>

@@ -6,10 +6,11 @@ import Map from './Map/index.js'
 import Roster from './Roster/index.js'
 import TimeTracker from './Time/TimeTracker.js'
 import TimeSlider from './Time/TimeSlider.js'
-import AutoplayControls from './Time/AutoplayControls.js'
+import SpeedControl from './Time/SpeedControl.js'
 import MatchInfo from './MatchInfo.js'
-import KillFeed from "./Map/KillFeed";
+import KillFeed from "./KillFeed";
 import PlayControls from "./Time/PlayControls";
+import MapOptions from "./MapOptions";
 // import HelpModal from './HelpModal.js'
 // import DownloadButton from './DownloadButton.js'
 
@@ -53,17 +54,30 @@ const RosterContainer = styled.div`
     }
 `
 
-const KillFeedContainer = styled.div`
+const KillFeedAndMapOptionContainer = styled.div`
     grid-column: 3;
-    overflow-y: scroll;
-    overflow-x: hidden;
+  
     height: ${props => props.mapSize + 48}px;
+    grid-template-rows: ${props => props.mapSize + 48 - 100}px 100px;
     padding-right: 10px;
-
+    
     @media (max-width: 700px) {
         grid-column: 1;
         grid-row: 2;
     }
+`
+
+const KillFeedContainer = styled.div`
+    overflow-y: scroll;
+    overflow-x: hidden;
+    height: ${props => props.mapSize + 48 - 100}px;
+    grid-row: 1
+`
+
+const MapOptionContainer = styled.div`
+    display: grid;
+    grid-row: 2
+    height: 100px;
 `
 
 const MatchHeader = styled.div`
@@ -172,20 +186,20 @@ class MatchPlayer extends React.Component {
         this.updateMapSize()
     }
 
+    setOption = (key, val) => {
+        this.setState(prevState => {
+            const newOptions = cloneDeep(prevState.options)
+            set(newOptions, key, val)
+            localStorage.setItem(Options.STORAGE_KEY, JSON.stringify(newOptions))
+            return { options: newOptions }
+        })
+    }
+
     loadOptions = () => {
         const localOptions = JSON.parse(localStorage.getItem(Options.STORAGE_KEY) || '{}')
         const options = merge(Options.DEFAULT_OPTIONS, localOptions)
 
-        const setOption = (key, val) => {
-            this.setState(prevState => {
-                const newOptions = cloneDeep(prevState.options)
-                set(newOptions, key, val)
-                localStorage.setItem(Options.STORAGE_KEY, JSON.stringify(newOptions))
-                return { options: newOptions }
-            })
-        }
-
-        this.setState({ options, setOption })
+        this.setState({ options, setOption: this.setOption })
     }
 
     updateMapSize = () => {
@@ -264,8 +278,9 @@ class MatchPlayer extends React.Component {
                                         durationSeconds={match.durationSeconds + 5}
                                         globalState={globalState}
                                         options={options}
+                                        skipTo={timeControls.skipTo}
                                     />
-                                    <AutoplayControls
+                                    <SpeedControl
                                         autoplay={timeControls.autoplay}
                                         autoplaySpeed={timeControls.autoplaySpeed}
                                         toggleAutoplay={timeControls.toggleAutoplay}
@@ -282,24 +297,24 @@ class MatchPlayer extends React.Component {
                                     rawTelemetry={rawTelemetry}
                                 />*/}
                             </MapContainer>
-                            <KillFeedContainer mapSize={mapSize}>
-                                <KillFeedHeader>Kill Feeds</KillFeedHeader>
-                                {currentTelemetry && <KillFeed focusPlayer={this.marks.focusedPlayer()}
-                                                        teammates={currentTelemetry.players[this.marks.focusedPlayer()].teammates}
-                                                        mapSize={mapSize}
-                                                        killLogs={currentTelemetry.killLogs}
-                                                        options={options}
-                                />}
-                            </KillFeedContainer>
-{/*                            <RosterContainer mapSize={mapSize}>
-                                <RosterHeader>Name / Kills / Damage</RosterHeader>
-                                <Roster
-                                    match={match}
-                                    telemetry={currentTelemetry}
-                                    rosters={rosters}
-                                    marks={this.marks}
-                                />
-                            </RosterContainer>*/}
+                            <KillFeedAndMapOptionContainer mapSize={mapSize}>
+                                <KillFeedContainer mapSize={mapSize}>
+                                    <KillFeedHeader>Kill Feeds</KillFeedHeader>
+                                    {currentTelemetry && <KillFeed focusPlayer={this.marks.focusedPlayer()}
+                                                                   teammates={currentTelemetry.players[this.marks.focusedPlayer()].teammates}
+                                                                   mapSize={mapSize}
+                                                                   killLogs={currentTelemetry.killLogs}
+                                                                   options={options}
+                                                                   skipTo={timeControls.skipTo}
+                                                                   stopAutoplay={timeControls.stopAutoplay}
+                                                                   msSinceEpoch={msSinceEpoch}
+                                    />}
+                                </KillFeedContainer>
+                                <MapOptionContainer>
+                                    <MapOptions options={options} setOption={setOption} />
+                                </MapOptionContainer>
+                            </KillFeedAndMapOptionContainer>
+
                         </MatchContainer>
                     }
                 />

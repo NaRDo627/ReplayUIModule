@@ -1,14 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
-import Slider from 'rc-slider'
 import 'rc-slider/assets/index.css'
 
-const StyledSlider = styled(Slider)`
-    padding-top: 5px;
-    margin-top: 12px;
-    grid-column: 2;
-    min-width: 80px;
-`
 
 const PrevButton = styled.button`
     padding: 0;
@@ -46,25 +39,6 @@ const ControlsWrapper = styled.div`
     }
 `
 
-const SliderContainer = styled.div`
-    position: relative;
-    grid-column: 2;
-    margin-right: 10px;
-`
-
-const Tooltip = styled.div.attrs({
-    style: ({ value, max }) => ({
-        left: `${value / max * 100}%`,
-    }),
-})`
-    position: absolute;
-    top: -8px;
-    font-size: 12px;
-    margin-left: -35px;
-    width: 70px;
-    text-align: center;
-`
-
 const RewindButton = ({ rewindToStart }) => {
     return (
         <ControlButton className="button" type="submit" onClick={rewindToStart}>
@@ -72,6 +46,7 @@ const RewindButton = ({ rewindToStart }) => {
         </ControlButton>
     )
 }
+
 
 class PlayControls extends React.PureComponent {
     render() {

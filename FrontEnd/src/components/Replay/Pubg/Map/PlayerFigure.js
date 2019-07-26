@@ -1,10 +1,11 @@
 import React from 'react'
 import { toScale } from '../../../../lib/canvas-math.js'
-import {Container, Sprite, Graphics} from '@inlet/react-pixi'
+import {Container, Sprite, Graphics, Text} from '@inlet/react-pixi'
 import {clamp} from "lodash";
 import parachute from '../../../../assets/open-parachute.png'
 import vehicleCar from '../../../../assets/jeep.png'
 import vehicleBoat from '../../../../assets/boat.png'
+import * as PIXI from "pixi.js"
 
 const getBasePlayerColor = ({ colors }, marks, player) => {
     if (marks.focusedPlayer() === player.name) {
@@ -45,56 +46,42 @@ const getStatusColor = ({ colors }, marks, player) => {
     return `${base}B0`
 }
 
-const PlayerLabel = ({ visible, player, strokeColor }) => {
+const PlayerLabel = ({ visible, player, colorStr }) => {
     if (!visible) return null
 
+    const width = (player.name.length >= 13)? 95 : 55;
+
     return (
-       <Container offsetY={-11}>
+       <Container position={[-20, 10]}>
            <Graphics
            draw={g => {
                g.clear();
 
-               g.lineStyle(1, 0x000000, 0.5)
-               g.beginFill(0x000000, 0.5);
-               g.drawRect(0, 0, 30, 10)
+               g.lineStyle(1, 0x0D0D0D, 0.8)
+               g.beginFill(0x0D0D0D, 0.8);
+               g.drawRect(0, 0, width, 15)
                g.endFill()
-           }}>
+           }} />
 
-           </Graphics>
+           <Text text={`${player.name}`}
+                 x={5}
+                 y={0}
+                 style={new PIXI.TextStyle({
+                     fontSize: 7,
+                     fontWeight: 200,
+                     lineHeight: 13,
+                     wordWrapWidth:  width,
+                     fill: colorStr,
+                 })} />
        </Container>
     )
 }
 
-/*
+const HealthBar = ({options, player, mapSize}) => {
+    //console.log(options)
+    if(!options.showHealthBar)
+        return null;
 
-const PlayerLabel = ({ visible, player, strokeColor }) => {
-    if (!visible) return null
-
-    return (
-        <Label offsetY={-11}>
-            <Tag
-                fill="#000000A0"
-                pointerDirection="up"
-                pointerHeight={7}
-                pointerWidth={11}
-                stroke={strokeColor}
-                strokeWidth={0.5}
-                cornerRadius={4}
-            />
-            <Text
-                fill={strokeColor}
-                lineHeight={1}
-                padding={5}
-                text={player.name}
-                fontSize={10}
-                align="center"
-            />
-        </Label>
-    )
-}
-*/
-
-const HealthBar = ({player, x, y, mapSize}) => {
     if(player.health === 0)
         return null;
 
@@ -108,19 +95,19 @@ const HealthBar = ({player, x, y, mapSize}) => {
                 // Draw Health Bar
                 g.lineStyle(2, 0x000000, 1)
                 g.beginFill(0x000000, 0.7);
-                g.drawRect(x-(mapSize / 60), y-(mapSize / 68), mapSize / 28, mapSize / 241)
+                g.drawRect(-(mapSize / 60), -(mapSize / 68), mapSize / 28, mapSize / 241)
                 g.endFill()
 
                 g.lineStyle(0)
                 g.beginFill(healthColor, 1);
-                g.drawRect(x-(mapSize / 60), y-(mapSize / 68), ((mapSize / 28) / 25) * health, mapSize / 241)
+                g.drawRect(-(mapSize / 60), -(mapSize / 68), ((mapSize / 28) / 25) * health, mapSize / 241)
                 g.endFill()
             }}
         />
     )
 }
 
-const Player = ({options, player, marks, mapScale, mapSize, x, y}) => {
+const Player = ({options, player, marks, mapScale, mapSize}) => {
     const playerColor = parseInt(getPlayerColor(options, marks, player).substr(1, 6), 16);
     const playerColorAlpha = parseInt(getPlayerColor(options, marks, player).substring(7), 16) / 0xFF;
     const statusColor = parseInt(getStatusColor(options, marks, player).substr(1, 6), 16);
@@ -131,8 +118,8 @@ const Player = ({options, player, marks, mapScale, mapSize, x, y}) => {
     if(player.inParachute) {
         return (
             <Sprite
-                x={x-(mapSize / 70)}
-                y={y-(mapSize / 70)}
+                x={-(mapSize / 70)}
+                y={-(mapSize / 70)}
                 width={(mapSize * 2 / 50)}
                 height={(mapSize * 2 / 50)}
                 image={parachute}
@@ -151,8 +138,8 @@ const Player = ({options, player, marks, mapScale, mapSize, x, y}) => {
         return (
             <Sprite
                 image={vehicleType}
-                x={x-(mapSize / 70)}
-                y={y-(mapSize / 70)}
+                x={-(mapSize / 70)}
+                y={-(mapSize / 70)}
                 width={(mapSize * 2 / 50)}
                 height={(mapSize * 2 / 50)}
             />
@@ -168,8 +155,7 @@ const Player = ({options, player, marks, mapScale, mapSize, x, y}) => {
                     // Draw Figure
                     g.lineStyle(1, 0x000000, 1)
                     g.beginFill(playerColor, playerColorAlpha);
-                    //      g.drawRoundedRect(x-7, y, 15, 10, 5)
-                    g.drawCircle(x, y, scaledDiameter / 2);
+                    g.drawCircle(0, 0, scaledDiameter / 2);
                     g.endFill()
 
                 }
@@ -177,8 +163,7 @@ const Player = ({options, player, marks, mapScale, mapSize, x, y}) => {
                     // Draw Status
                     g.lineStyle(1, 0x000000, 0.7)
                     g.beginFill(statusColor, 0.7);
-                    //     g.drawRoundedRect(x-7, y, 15, 10, 5)
-                    g.drawCircle(x, y, scaledDiameter / 2);
+                    g.drawCircle(0, 0, scaledDiameter / 2);
                     g.endFill()
                 }
             }}
@@ -193,6 +178,8 @@ const PlayerFigure = ({ options, player, pubgMapSize, mapSize, marks, mapScale, 
 
     return (
         <Container
+            position={[x, y]}
+            scale={{ x: 1 / mapScale, y: 1 / mapScale }}
             zIndex={(marks.focusedPlayer() === player.name)? 3 : (player.status !== 'dead')? 2 : 1}
             interactive={true}
             mouseover={() => {marks.setHoveredPlayer(player.name)}}
@@ -210,14 +197,16 @@ const PlayerFigure = ({ options, player, pubgMapSize, mapSize, marks, mapScale, 
                 marks={marks}
                 mapScale={mapScale}
                 mapSize={mapSize}
-                x={x}
-                y={y}
             />
             <HealthBar
                 player={player}
-                x={x}
-                y={y}
                 mapSize={mapSize}
+                options={options}
+            />
+            <PlayerLabel
+                player={player}
+                visible={showName || marks.isPlayerHovered(player.name)}
+                colorStr={getPlayerColor(options, marks, player)}
             />
         </Container>
 

@@ -152,6 +152,7 @@ class Pubg extends Component{
         }*/ else if (!telemetryLoaded) {
             content = <Message>Loading telemetry...</Message>
         } else {
+            console.log(match)
             content = <ReplayPubg
                 match={match}
                 rawTelemetry={rawTelemetry}

@@ -23,7 +23,7 @@ const TeamGroup = styled.ul`
     list-style-type: none;
     border: 1px solid #ddd;
     border-radius: 4px;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     font-weight: 400;
     margin: 5px 0;
     padding: 4px;
@@ -70,8 +70,7 @@ const Roster = ({ match, telemetry, marks, rosters }) => {
             {({ options }) => rosters.map(r => {
 
                 if(!r.includes(marks.focusedPlayer()) && !arrayContainsArray(r, telemetry.players[marks.focusedPlayer()].teammates) &&
-                    !marks.trackedPlayers().some(tracked => r.indexOf(tracked) >= 0)
-                /*    !marks.isPlayerTracked(p.name) && !marks.isPlayerTeamTracked(p.name, telemetry)*/)
+                    !marks.trackedPlayers().some(tracked => r.indexOf(tracked) >= 0))
                     return null;
 
                 return (

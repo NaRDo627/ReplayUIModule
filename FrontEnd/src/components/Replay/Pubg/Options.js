@@ -23,6 +23,7 @@ export const DEFAULT_OPTIONS = {
             knocked: '#E6B476',
         },
     },
+    showHealthBar: true
 }
 
 const DEV_OPTIONS = {

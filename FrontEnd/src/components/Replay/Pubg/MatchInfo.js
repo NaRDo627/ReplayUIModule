@@ -45,6 +45,7 @@ class MatchInfo extends React.PureComponent {
 
         const playedAt = moment(match.playedAt).format('MMM Do h:mm a')
         const { stats } = match.players.find(p => p.name === marks.focusedPlayer())
+        const message = (stats.winPlace > 10)? "Too bad :/" : (stats.winPlace > 1)? "Top 10 Reached! ;)" : "Winner winner chicken dinner!! XD"
 
         return (
             <StyledMatchInfo>
@@ -53,7 +54,7 @@ class MatchInfo extends React.PureComponent {
                     <strong>{stats.winPlace}</strong>{ordinalSuffix(stats.winPlace)} place,&nbsp;
                     <strong>{stats.kills}</strong> kills
                     &nbsp;-&nbsp;
-                    Too Bad! :/
+                    {message}
                 </StyledMatchEvaluation>
             </StyledMatchInfo>
         )

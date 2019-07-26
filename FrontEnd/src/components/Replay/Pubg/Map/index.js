@@ -1,21 +1,14 @@
 import React from 'react'
 import { map, clamp, sortBy } from 'lodash'
-//import { Stage, Layer } from 'react-konva'
-import { Graphics } from 'pixi.js';
 import { Container, Stage } from '@inlet/react-pixi'
-//import { PixiComponent } from '@inlet/react-pixi';
 import Figure from './PlayerFigure'
 import MapSprite from "./MapSprite"
 
 import styled from 'styled-components'
 import { Safezone, Bluezone, Redzone } from './ZoneCircle.js'
-import PlayerDot from './PlayerDot.js'
-import BackgroundLayer from './BackgroundLayer.js'
 import CarePackage from './CarePackage.js'
 import Tracer from './Tracer.js'
 import AliveCount from './AliveCount.js'
-import KillFeed from "./KillFeed";
-//import MapButton from '../../../../components/MapButton.js'
 
 const SCALE_STEP = 1.2
 const MIN_SCALE = 1
@@ -56,16 +49,6 @@ const ZoomControls = styled.div`
 
 
 let isDrag = false;
-
-/*const ZoomInButton = MapButton.extend`
-    bottom: 40px;
-    right: 15px;
-`
-
-const ZoomOutButton = MapButton.extend`
-    bottom: 15px;
-    right: 15px;
-`*/
 
 class Map extends React.Component {
     state = { mapScale: 1, offsetX: 0, offsetY: 0 }
@@ -181,22 +164,12 @@ class Map extends React.Component {
                     <StyledStage
                         width={mapSize}
                         height={mapSize}
-                        /* scale={scale}
-                         x={offsetX}
-                         y={offsetY}
-                         dragBoundFunc={this.dragBoundFunc}
-                         onDragEnd={this.handleDragEnd}
-                         onWheel={this.handleMousewheel}
-                         draggable="true"
-                         hitGraphEnabled={false}*/
                     >
                         <Container scale={scale}
                                    x={offsetX}
                                    y={offsetY}
-                                   /*dragBoundFunc={this.dragBoundFunc}
-                                   dragend={this.handleDragEnd}*/
                                    sortableChildren={true}
-                            /*   onWheel={this.handleMousewheel}*/>
+                        >
                             <MapSprite mapName={mapName} mapSize={mapSize} mapScale={mapScale} />
                             {telemetry.safezone && <Safezone
                                 mapSize={mapSize}
@@ -216,6 +189,15 @@ class Map extends React.Component {
                                 mapScale={mapScale}
                                 circle={telemetry.redzone}
                             />}
+                            {telemetry.carePackages.map(carePackage =>
+                                <CarePackage
+                                    key={carePackage.key}
+                                    mapSize={mapSize}
+                                    pubgMapSize={pubgMapSize}
+                                    mapScale={mapScale}
+                                    carePackage={carePackage}
+                                />
+                            )}
                             {map(sortedPlayers, player =>
                                 <Figure
                                 options={options}
@@ -241,112 +223,8 @@ class Map extends React.Component {
                             )}
                         </Container>
                         {telemetry && <AliveCount players={telemetry.players} />}
-                        {/*{telemetry && <KillFeed focusPlayer={marks.focusedPlayer()}
-                                                teammates={telemetry.players[marks.focusedPlayer()].teammates}
-                                                mapSize={mapSize}
-                                                killLogs={telemetry.killLogs}
-                                                options={options}
-                        />}*/}
                     </StyledStage>
             </StageWrapper>
-
-           /* <StageWrapper id="StageWrapper">
-                <StyledStage
-                    width={mapSize}
-                    height={mapSize}
-                    scale={scale}
-                    x={offsetX}
-                    y={offsetY}
-                    dragBoundFunc={this.dragBoundFunc}
-                    onDragEnd={this.handleDragEnd}
-                    onWheel={this.handleMousewheel}
-                    draggable="true"
-                    hitGraphEnabled={false}
-                >
-                    <BackgroundLayer mapName={mapName} mapSize={mapSize} />
-
-                </StyledStage>
-
-            </StageWrapper>*/
-
-
-/*
-
-            <StageWrapper id="StageWrapper">
-                <StyledStage
-                    width={mapSize}
-                    height={mapSize}
-                    scale={scale}
-                    x={offsetX}
-                    y={offsetY}
-                    dragBoundFunc={this.dragBoundFunc}
-                    onDragEnd={this.handleDragEnd}
-                    onWheel={this.handleMousewheel}
-                    draggable="true"
-                    hitGraphEnabled={false}
-                >
-                    <BackgroundLayer mapName={mapName} mapSize={mapSize} />
-                    {telemetry && <Layer>
-                        {telemetry.safezone && <Safezone
-                            mapSize={mapSize}
-                            pubgMapSize={pubgMapSize}
-                            mapScale={mapScale}
-                            circle={telemetry.safezone}
-                        />}
-                        {telemetry.bluezone && <Bluezone
-                            mapSize={mapSize}
-                            pubgMapSize={pubgMapSize}
-                            mapScale={mapScale}
-                            circle={telemetry.bluezone}
-                        />}
-                        {telemetry.redzone && <Redzone
-                            mapSize={mapSize}
-                            pubgMapSize={pubgMapSize}
-                            mapScale={mapScale}
-                            circle={telemetry.redzone}
-                        />}
-                        {telemetry.carePackages.map(carePackage =>
-                            <CarePackage
-                                key={carePackage.key}
-                                mapSize={mapSize}
-                                pubgMapSize={pubgMapSize}
-                                mapScale={mapScale}
-                                carePackage={carePackage}
-                            />
-                        )}
-                        {map(sortedPlayers, player =>
-                            <PlayerDot
-                                options={options}
-                                player={player}
-                                mapSize={mapSize}
-                                pubgMapSize={pubgMapSize}
-                                mapScale={mapScale}
-                                key={`dot-${player.name}`}
-                                marks={marks}
-                                showName={marks.isPlayerTracked(player.name)}
-                            />
-                        )}
-                        {telemetry.tracers.map(tracer =>
-                            <Tracer
-                                key={tracer.key}
-                                mapSize={mapSize}
-                                pubgMapSize={pubgMapSize}
-                                mapScale={mapScale}
-                                players={telemetry.players}
-                                tracer={tracer}
-                                msSinceEpoch={msSinceEpoch}
-                            />
-                        )}
-                    </Layer>}
-                </StyledStage>
-                {telemetry && <AliveCount players={telemetry.players} />}{/!*
-                <ZoomControls>
-                    <ZoomInButton onClick={() => this.handleZoom(1.3)}>+</ZoomInButton>
-                    <ZoomOutButton onClick={() => this.handleZoom(1 / 1.3)}>-</ZoomOutButton>
-                </ZoomControls>*!/}
-            </StageWrapper>
-*/
-
         )
     }
 }

@@ -4,6 +4,8 @@ import { toScale } from '../../../../lib/canvas-math'
 import cpFlying from '../../../../assets/CarePackage_Flying.png'
 import cpNormal from '../../../../assets/CarePackage_Normal.png'
 import dict from '../../../../assets/itemId.json'
+import {Container, Graphics, Sprite} from "@inlet/react-pixi";
+import * as PIXI from "pixi.js";
 
 const Items = ({ visible, items }) => {
     if (!visible) return null
@@ -13,81 +15,64 @@ const Items = ({ visible, items }) => {
         .join('\n')
 
     return (
-        <Label offsetY={-11}>
-            <Tag
-                fill="#000000A0"
-                pointerDirection="up"
-                pointerHeight={7}
-                pointerWidth={11}
-                stroke="#FFFFFF"
-                strokeWidth={0.5}
-                cornerRadius={4}
-            />
-            <Text
-                fill="#FFFFFF"
-                lineHeight={1}
-                padding={5}
-                text={itemsText}
-                fontSize={10}
-                align="left"
-            />
-        </Label>
+        <Container position={[-20, 30]}>
+            <Graphics
+                draw={g => {
+                    g.clear();
+
+                    g.lineStyle(1, 0x000000, 0.8)
+                    g.beginFill(0x000000, 0.8);
+                    g.drawRect(0, 0, 180, 110)
+                    g.endFill()
+                }} />
+
+            <Text text={`${itemsText}`}
+                  x={5}
+                  y={0}
+                  style={new PIXI.TextStyle({
+                      fontSize: 7,
+                      fill: '#FFFFFF',
+                  })} />
+        </Container>
     )
 }
 
 class CarePackage extends React.Component {
-    state = { flyingImage: null, normalImage: null }
-
-    componentDidMount() {
-        const flyingImage = new window.Image()
-        flyingImage.src = cpFlying
-        flyingImage.onload = () => {
-            this.setState({ flyingImage })
-        }
-
-        const normalImage = new window.Image()
-        normalImage.src = cpNormal
-        normalImage.onload = () => {
-            this.setState({ normalImage })
-        }
-    }
+    state = { flyingImage: null, normalImage: null, isHovered: false }
 
     render() {
         const { pubgMapSize, mapSize, mapScale, carePackage } = this.props
         if (!carePackage) return null
 
+        const flyingImage = require(`../../../../assets/CarePackage_Flying.png`);
+        const normalImage = require(`../../../../assets/CarePackage_Normal.png`);
+
         // react-konva uses the deprecated string refs from React.
         // TODO: Investigate upgrade path
         /* eslint-disable react/no-string-refs */
         return (
-            <Group
+            <Container
                 x={toScale(pubgMapSize, mapSize, carePackage.location.x)}
                 y={toScale(pubgMapSize, mapSize, carePackage.location.y)}
                 scale={{ x: 1 / mapScale, y: 1 / mapScale }}
-                ref="group"
+                interactive={true}
+                mouseover={() => {
+                    this.setState({ isHovered: true })
+                }}
+                mouseout={() => {
+                    this.setState({ isHovered: false })
+                }}
             >
-                <Image
-                    image={carePackage.state === 'spawned' ? this.state.flyingImage : this.state.normalImage}
+                <Sprite
+                    image={carePackage.state === 'spawned' ? flyingImage : normalImage}
                     width={18}
                     height={carePackage.state === 'spawned' ? 32 : 17}
-                    offsetX={9}
-                    offsetY={carePackage.state === 'spawned' ? 23 : 8}
-                    onMouseOver={() => {
-                        this.refs.group.moveToTop()
-                        this.setState({ isHovered: true })
-                    }}
-                    onMouseOut={() => {
-                        this.refs.group.moveToBottom()
-                        this.refs.group.moveUp()
-                        this.refs.group.moveUp()
-                        this.refs.group.moveUp()
-                        this.setState({ isHovered: false })
-                    }}
+                    x={0}
+                    y={carePackage.state === 'spawned' ? -6 : 9}
                 />
                 <Items visible={this.state.isHovered} items={carePackage.items} />
-            </Group>
+            </Container>
         )
-        /* eslint-enable react/no-string-refs */
     }
 }
 

@@ -140,6 +140,10 @@ class TimeTracker extends React.Component {
         this.setState({ msSinceEpoch: curMsSinceEpoch - 30000 })
     }
 
+    skipTo = newMsSinceEpoch => {
+        this.setState({ msSinceEpoch: newMsSinceEpoch })
+    }
+
     render() {
         const { telemetry } = this.props
         const renderProps = {
@@ -156,6 +160,7 @@ class TimeTracker extends React.Component {
                 rewindToStart: this.rewindToStart,
                 skip30sForward: this.skip30sForward,
                 skip30sReverse: this.skip30sReverse,
+                skipTo: this.skipTo,
             },
         }
 
