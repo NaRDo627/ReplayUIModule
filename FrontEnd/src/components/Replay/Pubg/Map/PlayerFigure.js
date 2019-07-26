@@ -49,7 +49,7 @@ const getStatusColor = ({ colors }, marks, player) => {
 const PlayerLabel = ({ visible, player, colorStr }) => {
     if (!visible) return null
 
-    const width = (player.name.length >= 13)? 95 : 55;
+    const width = player.name.length * 8;
 
     return (
        <Container position={[-20, 10]}>
