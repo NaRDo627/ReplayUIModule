@@ -76,12 +76,12 @@ class Menu extends Component {
                     </HomeLink>
                 </div>
                 <LeftLinks>
-                        <Link to ="/lol">Lol</Link>
+                    <Link to ="/lol">Lol</Link>
                     <Link to ="/pubg">Pubg</Link>
                 </LeftLinks>
-                <RightLinks>
+               {/* <RightLinks>
                     <Link to ="/about">About</Link>
-                </RightLinks>
+                </RightLinks>*/}
             </TopMenuContainer>
             
         );

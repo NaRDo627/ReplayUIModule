@@ -1,8 +1,16 @@
-import React from 'react';
+import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import Root from './Root'
+import Router from './router'
 import * as serviceWorker from './serviceWorker';
 
-ReactDOM.render(<Root />, document.getElementById('root'));
+class ReplayUIApp extends Component {
+    render() {
+        return (
+            <Router />
+            )
+    }
+}
+
+ReactDOM.render(<ReplayUIApp />, document.getElementById('root'));
 serviceWorker.unregister();
