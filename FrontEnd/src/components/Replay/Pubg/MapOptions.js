@@ -15,8 +15,13 @@ const LogGroup = styled.div`
 
 class MapOptions extends React.Component {
     handleChecked = e => {
-        this.props.setOption('showHealthBar', e.target.checked)
-        this.setState({showHealthBar:  e.target.checked})
+        if(e.target.value === "showHealthBar"){
+            this.props.setOption('showHealthBar', e.target.checked)
+            this.setState({showHealthBar:  e.target.checked})
+        } else if(e.target.value === "showAllRosters")  {
+            this.props.setOption('showAllRosters', e.target.checked)
+            this.setState({showAllRosters:  e.target.checked})
+        }
     }
 
 
@@ -26,9 +31,17 @@ class MapOptions extends React.Component {
                 options<br/>
                 <label>
                     <input type="checkbox"
+                           value={"showHealthBar"}
                            checked={this.props.options.showHealthBar}
                            onChange={this.handleChecked} />
                     showHealthBar
+                </label>
+                <label>
+                    <input type="checkbox"
+                           value={"showAllRosters"}
+                           checked={this.props.options.showAllRosters}
+                           onChange={this.handleChecked} />
+                    showAllRosters
                 </label>
             </LogGroup>
         )

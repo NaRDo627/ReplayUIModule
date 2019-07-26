@@ -69,7 +69,7 @@ const Roster = ({ match, telemetry, marks, rosters }) => {
         <Options.Context.Consumer>
             {({ options }) => rosters.map(r => {
 
-                if(!r.includes(marks.focusedPlayer()) && !arrayContainsArray(r, telemetry.players[marks.focusedPlayer()].teammates) &&
+                if(!options.showAllRosters && !r.includes(marks.focusedPlayer()) && !arrayContainsArray(r, telemetry.players[marks.focusedPlayer()].teammates) &&
                     !marks.trackedPlayers().some(tracked => r.indexOf(tracked) >= 0))
                     return null;
 
