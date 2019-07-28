@@ -4,31 +4,9 @@ import styled from 'styled-components'
 import ReplayPubg from "../../components/Replay/Pubg";
 import Telemetry from "../../models/Telemetry"
 import ReplayWorker from "../../models/Replay.worker.js";
-import jsonData from 'assets/originalPubg.json'
+import jsonData from '../../assets/Pubg/originalPubg.json'
 import DocumentTitle from 'react-document-title'
 import parseTelemetry from "../../models/Telemetry.parser";
-
-const InfoList = styled.div`
-    font-size: 1.2rem;
-    font-weight: 400;
-    color: #714868;
-    position: relative;
-    align-self: center;
-`
-
-
-const MatchContainer = styled.div`
-    display: grid;
-    grid-template-columns: 1fr 250px;
-    border: 0px solid black;
-    overflow: hidden;
-`
-
-const MapContainer = styled.div`
-    grid-column: 1;
-    position: relative;
-    padding-bottom: 100%;
-`
 
 const Message = styled.p`
     text-align: center;

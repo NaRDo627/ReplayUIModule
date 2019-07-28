@@ -17,7 +17,12 @@ async function handleMessage({ data: { game, platform, matchId, focusedPlayer } 
             const { state, globalState } = parseTelemetry(pubgData.match, pubgData.rawReplayData, focusedPlayer)
             postMessage({ success: true, state, globalState, rawReplayData: pubgData.rawReplayData, match: pubgData.match })
         } else if (game === "lol") {
+            const reqUrl = `${process.env.REACT_APP_API}/api/lol/${platform}/${matchId}`;
+            const res = await fetch(reqUrl);
+            const pubgData = await res.json();
 
+            console.log("fetch successful");
+            console.log(pubgData.match);
         } else
             throw "Unknown or unsupported game for ReplayUI";
     } catch (error) {

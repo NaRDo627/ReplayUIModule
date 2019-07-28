@@ -4,12 +4,12 @@ import styled from 'styled-components'
 import * as Options from './Options.js'
 import Map from './Map/index.js'
 import Roster from './Roster/index.js'
-import TimeTracker from './Time/TimeTracker.js'
-import TimeSlider from './Time/TimeSlider.js'
-import SpeedControl from './Time/SpeedControl.js'
+import TimeTracker from '../Time/TimeTracker.js'
+import TimeSlider from '../Time/TimeSlider.js'
+import SpeedControl from '../Time/SpeedControl.js'
 import MatchInfo from './MatchInfo.js'
 import KillFeed from "./KillFeed";
-import PlayControls from "./Time/PlayControls";
+import PlayControls from "../Time/PlayControls";
 import MapOptions from "./MapOptions";
 // import HelpModal from './HelpModal.js'
 // import DownloadButton from './DownloadButton.js'

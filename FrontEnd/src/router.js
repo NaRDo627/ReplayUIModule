@@ -55,7 +55,7 @@ class Router extends Component {
                             <RouteTo path="/pubg" exact component={Pubg}/>
                         </Switch>
                         <Switch>
-                            <RouteTo path="/lol/:playerId/:platformrId:/matchId" component={Lol}/>
+                            <RouteTo path="/lol/:playerId/:regionId:/matchId" component={Lol}/>
                             <RouteTo path="/lol/:playerId" component={Lol}/>
                             <RouteTo path="/lol" component={Lol}/>
                         </Switch>

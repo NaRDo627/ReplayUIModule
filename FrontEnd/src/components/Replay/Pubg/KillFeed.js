@@ -1,7 +1,7 @@
 import React from 'react'
 import { map } from 'lodash'
 import styled from 'styled-components'
-import dict from '../../../assets/damageCauserName.json'
+import dict from '../../../assets/Pubg/damageCauserName.json'
 
 const importAll = req => {
 
@@ -52,8 +52,8 @@ const VictimPlayerName = styled.div`
 `
 
 
-const weaponIcons = importAll(require.context('../../../assets/item/Weapon', true, /.png$/))
-const feedIcons = importAll(require.context('../../../assets/icons', true, /.png$/))
+const weaponIcons = importAll(require.context('../../../assets/Pubg/item/Weapon', true, /.png$/))
+const feedIcons = importAll(require.context('../../../assets/Pubg/icons', true, /.png$/))
 const public_url = (process.env.NODE_ENV === 'production')? process.env.PUBLIC_URL : "http://localhost:3000"
 
 class KillFeed extends React.Component {

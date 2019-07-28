@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react'
 import styled from 'styled-components'
 import { groupBy, isEmpty, sortBy } from 'lodash'
-import dict from '../../../../assets/itemId.json'
+import dict from '../../../../assets/Pubg/itemId.json'
 
 const importAll = req => {
     return req.keys().reduce((prev, r) => {
@@ -19,7 +19,7 @@ const importAll = req => {
     }, {})
 }
 
-const images = importAll(require.context('../../../../assets/item', true, /.png$/))
+const images = importAll(require.context('../../../../assets/Pubg/item', true, /.png$/))
 
 const LoadoutWrapper = styled.div`
     width: 220px;
