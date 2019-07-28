@@ -46,15 +46,20 @@ public class APIServiceImpl implements APIService {
             responseEntity =  restTemplate.exchange(url, HttpMethod.GET, new HttpEntity(httpHeaders), String.class);
         }
         catch (HttpClientErrorException e) {
-            return new ResponseEntity<>(e.getMessage(),e.getStatusCode());
+            JsonObject errorObject = new JsonObject();
+            errorObject.addProperty("statusCode", e.getStatusCode().toString());
+            errorObject.addProperty("message", e.getMessage());
+            return new ResponseEntity<>(errorObject.toString(),e.getStatusCode());
         }
-        catch(Exception e){ // region코드 틀리면 어떻게 처리?
-            JsonObject object = new JsonObject();
-            object.addProperty("statusCode", "404");
-            object.addProperty("error", "Not Found");
-            object.addProperty("message", "Not Found");
-            return new ResponseEntity<>(object.toString(), HttpStatus.NOT_FOUND);
+
+        catch(Exception e){
+            JsonObject errorObject = new JsonObject();
+            errorObject.addProperty("statusCode", "404");
+            errorObject.addProperty("message", "NOT_FOUND");
+            return new ResponseEntity<>(errorObject.toString(), HttpStatus.NOT_FOUND);
         }
+
+
 
         String rawTimeLineData = responseEntity.getBody();
         JsonParser Parser = new JsonParser();
@@ -66,14 +71,16 @@ public class APIServiceImpl implements APIService {
             responseEntity =  restTemplate.exchange(url, HttpMethod.GET, new HttpEntity(httpHeaders), String.class);
         }
         catch (HttpClientErrorException e) {
-            return new ResponseEntity<>(e.getMessage(),e.getStatusCode());
+            JsonObject errorObject = new JsonObject();
+            errorObject.addProperty("statusCode", e.getStatusCode().toString());
+            errorObject.addProperty("message ", e.getMessage());
+            return new ResponseEntity<>(errorObject.toString(),e.getStatusCode());
         }
-        catch(Exception e){ // region코드 틀리면 어떻게 처리?
-            JsonObject object = new JsonObject();
-            object.addProperty("statusCode", "404");
-            object.addProperty("error", "Not Found");
-            object.addProperty("message", "Not Found");
-            return new ResponseEntity<>(object.toString(), HttpStatus.NOT_FOUND);
+        catch(Exception e){
+            JsonObject errorObject = new JsonObject();
+            errorObject.addProperty("statusCode", "404");
+            errorObject.addProperty("message","NOT_FOUND");
+            return new ResponseEntity<>(errorObject.toString(), HttpStatus.NOT_FOUND);
         }
 
         String rawMatchData = responseEntity.getBody();
@@ -122,11 +129,19 @@ public class APIServiceImpl implements APIService {
         ResponseEntity<String> responseEntity;
         try {
             responseEntity = restTemplate.exchange(url, HttpMethod.GET, new HttpEntity(httpHeaders), String.class);
-
-        } catch (HttpClientErrorException e) {
-            return new ResponseEntity<>(e.getMessage(), e.getStatusCode());
         }
-
+       catch (HttpClientErrorException e) {
+                JsonObject errorObject = new JsonObject();
+                errorObject.addProperty("statusCode", e.getStatusCode().toString());
+                errorObject.addProperty("message", e.getMessage());
+                return new ResponseEntity<>(errorObject.toString(),e.getStatusCode());
+        }
+        catch(Exception e) {
+            JsonObject errorObject = new JsonObject();
+            errorObject.addProperty("statusCode", "404");
+            errorObject.addProperty("message ", "NOT_FOUND");
+            return new ResponseEntity<>(errorObject.toString(), HttpStatus.NOT_FOUND);
+        }
 
         String data = responseEntity.getBody();
         JsonParser Parser = new JsonParser();

@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 
 @RestController
@@ -38,17 +39,5 @@ public class APIController {
     public ResponseEntity<String> getPubgData(@PathVariable("platform") String platform,@PathVariable("matchId") String matchId) throws Exception{
         return apiService.getPubgData(platform,matchId);
     }
-
-    @CrossOrigin
-    @RequestMapping(value ="/**" ,method = RequestMethod.GET)
-    public ResponseEntity<String> error() throws Exception{
-        JsonObject object = new JsonObject();
-        object.addProperty("statusCode", "404");
-        object.addProperty("error", "Not Found");
-        object.addProperty("message", "Not Found");
-        return new ResponseEntity<>(object.toString(), HttpStatus.NOT_FOUND);
-    }
-
-
 
 }
