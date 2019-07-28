@@ -104,12 +104,6 @@ class Pubg extends Component{
         })
     }
 
-    // startAutoplay = () => {
-    //     this.autoplayInterval = setInterval(() => {
-    //         this.setState(prevState => ({ secondsSinceEpoch: prevState.secondsSinceEpoch + 1 }))
-    //     }, 10)
-    // }
-
     cancelTelemetry = () => {
         if (this.telemetryWorker) {
             this.telemetryWorker.terminate()
@@ -149,39 +143,6 @@ class Pubg extends Component{
             </React.Fragment>
         )
     }
-
-    // render() {
-    //     const {telemetry, secondsSinceEpoch } = this.state;
-    //     const { match: { params } } = this.props
-    //     // console.log(jsonData)
-    //     return(
-    //         <div>
-    //             <MatchContainer>
-    //                 <MapContainer>
-    //                     {/*<Map
-    //                         jsonData={jsonData}
-    //                         telemetry={telemetry}
-    //                         secondsSinceEpoch = {secondsSinceEpoch}
-    //                     />*/}
-    //                 </MapContainer>
-    //             </MatchContainer>
-    //         </div>
-    //     )
-    // }
-
-    // render() {
-    //     //const {match} = this.props
-    //     return(
-    //         <div>
-    //             <h2>Pubg</h2>
-    //             <InfoList>
-    //                 <div>PlayerID : {this.props.match.params.playerId}</div>
-    //                 <div>PlatformID : {this.props.match.params.platformId}</div>
-    //                 <div>MatchID : {this.props.match.params.matchId}</div>
-    //             </InfoList>
-    //             </div>
-    //     )
-    // }
 }
 
 export default Pubg;

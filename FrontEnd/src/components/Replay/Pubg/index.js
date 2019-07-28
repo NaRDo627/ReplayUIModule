@@ -233,14 +233,14 @@ class MatchPlayer extends React.Component {
                 <TimeTracker
                     options={options}
                     durationSeconds={match.durationSeconds + 5}
-                    telemetry={telemetry}
-                    render={({ msSinceEpoch, timeControls, currentTelemetry }) =>
+                    replayData={telemetry}
+                    render={({ msSinceEpoch, timeControls, currentReplayData }) =>
                         <MatchContainer id="MatchContainer">
                             <RosterContainer mapSize={mapSize}>
                                 <RosterHeader>Name / Kills / Damage</RosterHeader>
                                 <Roster
                                     match={match}
-                                    telemetry={currentTelemetry}
+                                    telemetry={currentReplayData}
                                     rosters={rosters}
                                     marks={this.marks}
                                 />
@@ -256,7 +256,7 @@ class MatchPlayer extends React.Component {
                                 </MatchHeader>
                                 <Map
                                     match={match}
-                                    telemetry={currentTelemetry}
+                                    telemetry={currentReplayData}
                                     mapSize={mapSize}
                                     marks={this.marks}
                                     msSinceEpoch={msSinceEpoch}
@@ -300,10 +300,10 @@ class MatchPlayer extends React.Component {
                             <KillFeedAndMapOptionContainer mapSize={mapSize}>
                                 <KillFeedContainer mapSize={mapSize}>
                                     <KillFeedHeader>Kill Feeds</KillFeedHeader>
-                                    {currentTelemetry && <KillFeed focusPlayer={this.marks.focusedPlayer()}
-                                                                   teammates={currentTelemetry.players[this.marks.focusedPlayer()].teammates}
+                                    {currentReplayData && <KillFeed focusPlayer={this.marks.focusedPlayer()}
+                                                                   teammates={currentReplayData.players[this.marks.focusedPlayer()].teammates}
                                                                    mapSize={mapSize}
-                                                                   killLogs={currentTelemetry.killLogs}
+                                                                   killLogs={currentReplayData.killLogs}
                                                                    options={options}
                                                                    skipTo={timeControls.skipTo}
                                                                    stopAutoplay={timeControls.stopAutoplay}

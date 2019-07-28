@@ -55,7 +55,7 @@ const HoverableTimePositionedElement = TimePositionedElement`
     }
 `
 
-const KillMarker = HoverableTimePositionedElement.extend`
+const Marker = HoverableTimePositionedElement.extend`
     position: absolute;
     top: 23px;
     margin-left: -6px;
@@ -82,13 +82,21 @@ const KillMarker = HoverableTimePositionedElement.extend`
         text-align: center;
         font-size: 11px;
     }
+`
 
+const KillMarker = Marker.extend`
     &:hover:before {
         content: "You Killed: ${props => props.victimNames}";
     }
 `
 
-const DeathMarker = HoverableTimePositionedElement.extend`
+const DeathMarker = Marker.extend`
+    &:hover:before {
+        content: "Killed By: ${props => props.killerName}";
+    }
+`
+
+const DeathMarkerIcon = HoverableTimePositionedElement.extend`
     position: absolute;
     top: 26px;
     margin-left: -10px;
@@ -128,6 +136,21 @@ class TimeSlider extends React.PureComponent {
             return acc
         }, null)
 
+        const groupedDeaths = (globalState.deaths && globalState.deaths.reduce((acc, kill, idx) => {
+            if (idx === 0) return [[kill]]
+
+            const [previousKill] = acc[acc.length - 1]
+            const shouldGroupWithPrevious = kill.msSinceEpoch - previousKill.msSinceEpoch < 1000
+
+            if (shouldGroupWithPrevious) {
+                acc[acc.length - 1].push(kill)
+            } else {
+                acc.push([kill])
+            }
+
+            return acc
+        }, null))
+
         return (
             <SliderContainer>
                 <StyledSlider
@@ -145,20 +168,34 @@ class TimeSlider extends React.PureComponent {
                         value={kills[0].msSinceEpoch}
                         count={kills.length}
                         durationSeconds={durationSeconds}
-                        color={options.colors.roster.dead}
+                        color={'#F12020'}
                         victimNames={kills.map(k => k.victimName).join(', ')}
                         onClick={skipTo.bind(this, kills[0].msSinceEpoch)}
                         onMouseDown={stopAutoplay.bind(this)}
                     />
                 )}
-                {globalState && globalState.death &&
-                    <DeathMarker
+                {globalState && globalState.death && groupedDeaths && typeof(groupedDeaths) === 'number' &&
+                    <DeathMarkerIcon
                         value={globalState.death.msSinceEpoch}
                         durationSeconds={durationSeconds}
                         killerName={globalState.death.killedBy}
                         onClick={skipTo.bind(this, globalState.death.msSinceEpoch)}
                         onMouseDown={stopAutoplay.bind(this)}
                     />
+                }
+                {globalState && globalState.deaths && groupedDeaths && typeof(groupedDeaths) !== 'number' &&
+                    groupedDeaths.map((deaths, idx) =>
+                            <DeathMarker
+                                key={`deathmarker-${idx}`} // eslint-disable-line react/no-array-index-key
+                                value={deaths[0].msSinceEpoch}
+                                count={deaths.length}
+                                durationSeconds={durationSeconds}
+                                color={'#5D69FF'}
+                                killerName={deaths[0].killedBy}
+                                onClick={skipTo.bind(this, deaths[0].msSinceEpoch)}
+                                onMouseDown={stopAutoplay.bind(this)}
+                            />
+                    )
                 }
             </SliderContainer>
         )

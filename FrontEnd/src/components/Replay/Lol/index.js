@@ -3,16 +3,16 @@ import { xor, union, difference, merge, cloneDeep, set } from 'lodash'
 import styled from 'styled-components'
 import * as Options from "./Options";
 import TimeTracker from "../Time/TimeTracker";
-import Roster from "../Pubg/Roster";
+import SummonerList from "./SummonerList";
 import MatchInfo from "../Pubg/MatchInfo";
-import Map from "../Pubg/Map";
+import Map from "./Map";
 import PlayControls from "../Time/PlayControls";
 import TimeSlider from "../Time/TimeSlider";
 import SpeedControl from "../Time/SpeedControl";
-import KillFeed from "../Pubg/KillFeed";
+import KillFeed from "./KillFeed";
 import MapOptions from "../Pubg/MapOptions";
 // import * as Options from './Options.js'
-// import Roster from './Roster/index.js'
+// import SummonerList from './SummonerList/index.js'
 // import TimeTracker from './Time/TimeTracker.js'
 // import Map from './Map/index.js'
 // import TimeSlider from './Time/TimeSlider.js'
@@ -115,7 +115,7 @@ const ControllerContainer = styled.div`
     }
 `
 
-const RosterHeader = styled.div`
+const SummonerListHeader = styled.div`
     text-align: center;
     font-size: 1.2rem;
     font-weight: 700;
@@ -142,6 +142,7 @@ class MatchPlayer extends React.Component {
             options: Options.DEFAULT_OPTIONS,
             setOption: null,
         }
+
     }
 
     marks = {
@@ -169,11 +170,56 @@ class MatchPlayer extends React.Component {
         },
     }
 
+
+    componentDidMount() {
+        window.addEventListener('resize', this.updateMapSize.bind(this))
+        this.updateMapSize()
+        this.loadOptions()
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        this.updateMapSize()
+    }
+
+    setOption = (key, val) => {
+        this.setState(prevState => {
+            const newOptions = cloneDeep(prevState.options)
+            set(newOptions, key, val)
+            localStorage.setItem(Options.STORAGE_KEY, JSON.stringify(newOptions))
+            return { options: newOptions }
+        })
+    }
+
+    loadOptions = () => {
+        const localOptions = JSON.parse(localStorage.getItem(Options.STORAGE_KEY) || '{}')
+        const options = merge(Options.DEFAULT_OPTIONS, localOptions)
+
+        this.setState({ options, setOption: this.setOption })
+    }
+
+    updateMapSize = () => {
+        const stageWrapper = document.getElementById('StageWrapper')
+
+        if (stageWrapper) {
+            this.setState(ps => {
+                if (ps.mapSize !== stageWrapper.clientWidth) {
+                    return { mapSize: stageWrapper.clientWidth }
+                }
+
+                return null
+            })
+        }
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('resize', this.updateMapSize.bind(this))
+    }
+
     render() {
-        const { match, rawTelemetry, telemetry, globalState } = this.props
+        const { match, rawTimeline, timeline, globalState } = this.props
         const { mapSize, options, setOption, prevPlayerName } = this.state
 
-        console.log(telemetry)
+        console.log(timeline)
         console.log(globalState)
 
         return (
@@ -181,19 +227,20 @@ class MatchPlayer extends React.Component {
                 <TimeTracker
                     options={options}
                     durationSeconds={match.durationSeconds + 5}
-                    telemetry={telemetry}
-                    render={({ msSinceEpoch, timeControls, currentTelemetry }) =>
+                    replayData={timeline}
+                    autoplaySpeed={20}
+                    render={({ msSinceEpoch, timeControls, currentReplayData }) =>
                         <MatchContainer id="MatchContainer">
                             <RosterContainer mapSize={mapSize}>
-                                {/*
-                                <RosterHeader>Name / Kills / Damage</RosterHeader>
-                                <Roster
+                                <SummonerListHeader>Summoner / K / D / A</SummonerListHeader>
+
+                                <SummonerList
                                     match={match}
-                                    telemetry={currentTelemetry}
-                                    rosters={rosters}
+                                    currentTimeline={currentReplayData}
                                     marks={this.marks}
+                                    players={Object.values(currentReplayData.players)}
                                 />
-                                */}
+
                             </RosterContainer>
                             <MapContainer id="MapContainer" isDotHovered={!!this.marks.hoveredPlayer()}>
                                 <MatchHeader>
@@ -208,7 +255,7 @@ class MatchPlayer extends React.Component {
                                 </MatchHeader>
                                 <Map
                                     match={match}
-                                    telemetry={currentTelemetry}
+                                    timeline={currentReplayData}
                                     mapSize={mapSize}
                                     marks={this.marks}
                                     msSinceEpoch={msSinceEpoch}
@@ -239,17 +286,17 @@ class MatchPlayer extends React.Component {
                                         changeSpeed={timeControls.setAutoplaySpeed}
                                         isFinished={(match.durationSeconds + 5) === (msSinceEpoch / 1000)}
                                         rewindToStart={timeControls.rewindToStart}
+                                        minSpeed={10}
+                                        maxSpeed={50}
                                     />
                                 </ControllerContainer>
                             </MapContainer>
                             <KillFeedAndMapOptionContainer mapSize={mapSize}>
-                                {/*
                                 <KillFeedContainer mapSize={mapSize}>
                                     <KillFeedHeader>Kill Feeds</KillFeedHeader>
-                                    {currentTelemetry && <KillFeed focusPlayer={this.marks.focusedPlayer()}
-                                                                   teammates={currentTelemetry.players[this.marks.focusedPlayer()].teammates}
+                                    {currentReplayData && <KillFeed focusPlayer={this.marks.focusedPlayer()}
                                                                    mapSize={mapSize}
-                                                                   killLogs={currentTelemetry.killLogs}
+                                                                   killLogs={currentReplayData.killLogs}
                                                                    options={options}
                                                                    skipTo={timeControls.skipTo}
                                                                    stopAutoplay={timeControls.stopAutoplay}
@@ -257,16 +304,16 @@ class MatchPlayer extends React.Component {
                                     />}
                                 </KillFeedContainer>
                                 <MapOptionContainer>
-                                    <MapOptions options={options} setOption={setOption} />
+                                   {/* <MapOptions options={options} setOption={setOption} />*/}
+                                   options
                                 </MapOptionContainer>
-                                */}
                             </KillFeedAndMapOptionContainer>
 
 
                             {/*
                             <RosterContainer mapSize={mapSize}>
                                 <RosterHeader>Name / Kills / Damage</RosterHeader>
-                                <Roster
+                                <SummonerList
                                     match={match}
                                     telemetry={currentTelemetry}
                                     rosters={rosters}
@@ -466,7 +513,7 @@ class MatchPlayer extends React.Component {
                         <MatchContainer id="MatchContainer">
                             <RosterContainer mapSize={mapSize}>
                                 <RosterHeader>Name / Kills / Damage</RosterHeader>
-                                <Roster
+                                <SummonerList
                                     match={match}
                                     telemetry={currentTelemetry}
                                     rosters={rosters}

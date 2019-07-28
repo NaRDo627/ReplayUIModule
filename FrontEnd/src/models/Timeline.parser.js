@@ -9,7 +9,7 @@ const blankIntervalState = () => ({
 
 export default function parseTimeline(matchData, timeline, focusedPlayerName) {
     const epoch = new Date(Number(matchData.playedAt));
-    const state = Array(matchData.durationSeconds + 5)
+    const state = Array(matchData.durationSeconds + 9)
     const globalState = { kills: [], assists: [], deaths: [] }
     const latestPlayerStates = {}
     let curState = blankIntervalState()
@@ -33,14 +33,15 @@ export default function parseTimeline(matchData, timeline, focusedPlayerName) {
         setNewPlayerState(participantId, { [path]: latestPlayerStates[participantId][path] + delta })
     }
 
+    const getSummonerNameById = (participantId) => (participantId === 0)? 'Minion' : matchData.players[Number(participantId)-1].player.summonerName
+
     let focusedPlayerId = 1;
     { // --- Step Zero: Initialize state
         // [190727][HKPARK] 1~5 까지 1팀, 6~10까지 2팀으로 한다.
-
         matchData.players.forEach(p => {
             curState.players[p.participantId + ""] = {
                 name: p.player.summonerName,
-                teamNumber: (p.participantId < 6)? 1 : 2,
+                teamId: (p.participantId < 6)? 100 : 200,
                 level: 1,
                 xp: 0,
                 kills: 0,
@@ -54,7 +55,6 @@ export default function parseTimeline(matchData, timeline, focusedPlayerName) {
                 skillLvlSlot2: 0,
                 skillLvlSlot3: 0,
                 skillLvlSlot4: 0,
-
             }
 
             latestPlayerStates[p.participantId + ""] = curState.players[p.participantId + ""]
@@ -62,7 +62,7 @@ export default function parseTimeline(matchData, timeline, focusedPlayerName) {
             if(p.player.summonerName === focusedPlayerName)
                 focusedPlayerId = p.participantId
         })
-        console.log(focusedPlayerId)
+
         state[0] = curState
     }
 
@@ -71,7 +71,6 @@ export default function parseTimeline(matchData, timeline, focusedPlayerName) {
 
     //    let matchStarted = false
         let curStateInterval = 0
-        let lastTimestamp = 0
         timeline.forEach((d, i) => {
             // [190728][HKPARK] 현재 발생한 이벤트를 처리 후, 현재 타임라인 정보를 업데이트 한다.
             d.events.forEach((e, i) => {
@@ -98,29 +97,29 @@ export default function parseTimeline(matchData, timeline, focusedPlayerName) {
                 //
 
                 if (e.type === 'CHAMPION_KILL') {
-                    if (e && e.killerId) {
+                    if (e.killerId) {
                         incrementPlayerStateVal(e.killerId, 'kills', 1)
                     }
-                    if (e && e.victimId) {
+                    if (e.victimId) {
                         incrementPlayerStateVal(e.victimId, 'deaths', 1)
                     }
 
-                    if (e && e.victimId === focusedPlayerId) {
+                    if (e.victimId && e.victimId === focusedPlayerId) {
                         globalState.deaths.push({
                             msSinceEpoch,
-                            killerId: e.killerId,
+                            killedBy: getSummonerNameById(e.killerId),
                         })
                     }
 
-                    if (e && e.killerId === focusedPlayerId) {
+                    if (e.killerId && e.killerId === focusedPlayerId) {
                         globalState.kills.push({
                             msSinceEpoch,
-                            victimId: e.victimId,
+                            victimName: getSummonerNameById(e.victimId),
                         })
                     }
 
                     // assist
-                    if (e && e.assistingParticipantIds) {
+                    if (e.assistingParticipantIds) {
                         e.assistingParticipantIds.map(p => {
                             incrementPlayerStateVal(p, 'assists', 1)
 
@@ -133,15 +132,14 @@ export default function parseTimeline(matchData, timeline, focusedPlayerName) {
                         })
                     }
 
-                    // pos update
+                    // pos update - victim goes home
                     setNewPlayerLocation(e.killerId, { x: e.position.x, y: e.position.y })
-                    setNewPlayerLocation(e.victimId, { x: e.position.x, y: e.position.y })
+                    setNewPlayerLocation(e.victimId, { x: state[0].playerLocations[e.victimId].x, y: state[0].playerLocations[e.victimId].y })
 
-                    // [190721][HKPARK] KillFeed 관련 추가
                     curState.killLogs.push({
                         killType: "CHAMPION_KILL",
-                        killerId: e.killerId,
-                        victimId: e.victimId,
+                        killerName: getSummonerNameById(e.killerId),
+                        victimName: getSummonerNameById(e.victimId),
                         msSinceEpoch
                     })
                 }
@@ -149,13 +147,13 @@ export default function parseTimeline(matchData, timeline, focusedPlayerName) {
 
                 if (e.type === 'BUILDING_KILL') {
                     // pos update
+                    if(e.killerId)
                     setNewPlayerLocation(e.killerId, { x: e.position.x, y: e.position.y })
-                    setNewPlayerLocation(e.victimId, { x: e.position.x, y: e.position.y })
 
                     curState.killLogs.push({
                         killType: "BUILDING_KILL",
-                        killerId: e.killerId,
-                        victimId: e.buildingType,
+                        killerName: getSummonerNameById(e.killerId),
+                        victimName: e.buildingType,
                         msSinceEpoch
                     })
                 }
@@ -163,12 +161,11 @@ export default function parseTimeline(matchData, timeline, focusedPlayerName) {
                 if (e.type === 'ELITE_MONSTER_KILL') {
                     // pos update
                     setNewPlayerLocation(e.killerId, { x: e.position.x, y: e.position.y })
-                    setNewPlayerLocation(e.victimId, { x: e.position.x, y: e.position.y })
 
                     curState.killLogs.push({
                         killType: "ELITE_MONSTER_KILL",
-                        killerId: e.killerId,
-                        victimId: (e.monsterSubType)? e.monsterSubType: e.monsterType,
+                        killerName: getSummonerNameById(e.killerId),
+                        victimName: (e.monsterSubType)? e.monsterSubType: e.monsterType,
                         msSinceEpoch
                     })
                 }
@@ -198,7 +195,7 @@ export default function parseTimeline(matchData, timeline, focusedPlayerName) {
                 }
             })
 
-            // Players Pos Update
+            // Players pos update per frame
             for(let i = 1; i <= 10; i++) {
                 const level = d.participantFrames[String(i)].level
                 const xp = d.participantFrames[String(i)].xp
@@ -236,6 +233,37 @@ export default function parseTimeline(matchData, timeline, focusedPlayerName) {
                 lastState = JSON.parse(JSON.stringify(state[i])); // deep copy
         }
     }
+
+    // --- Step Three: Expand Destroyed Buildings
+
+    /*const distance = ({ location: { x: x1, y: y1 } }, { location: { x: x2, y: y2 } }) =>
+        Math.sqrt(((x2 - x1) ** 2) + ((y2 - y1) ** 2))
+
+    let activePackages = []
+
+    for (let i = 0; i < state.length; i++) {
+        const s = state[i]
+
+        s.carePackages.forEach(cp => { // eslint-disable-line no-loop-func
+            if (cp.state === 'spawned') {
+                activePackages = [...activePackages, cp]
+            }
+
+            if (cp.state === 'landed') {
+                const cpDistances = activePackages
+                    .filter(p => p.state === 'spawned')
+                    .map(p => ({ key: p.key, distance: distance(cp, p) }))
+
+                const matchingCp = minBy(cpDistances, 'distance')
+                if (matchingCp) {
+                    activePackages = cloneDeep(activePackages)
+                    activePackages.find(p => p.key === matchingCp.key).state = 'landed'
+                }
+            }
+        })
+
+        s.carePackages = activePackages
+    }*/
 
 
     console.log(epoch)
