@@ -1,9 +1,7 @@
 import React from 'react'
 import { Group, Image, Label, Tag, Text } from 'react-konva'
 import { toScale } from '../../../../lib/canvas-math'
-import cpFlying from '../../../../assets/CarePackage_Flying.png'
-import cpNormal from '../../../../assets/CarePackage_Normal.png'
-import dict from '../../../../assets/itemId.json'
+import dict from '../../../../assets/Pubg/itemId.json'
 import {Container, Graphics, Sprite} from "@inlet/react-pixi";
 import * as PIXI from "pixi.js";
 
@@ -44,8 +42,8 @@ class CarePackage extends React.Component {
         const { pubgMapSize, mapSize, mapScale, carePackage } = this.props
         if (!carePackage) return null
 
-        const flyingImage = require(`../../../../assets/CarePackage_Flying.png`);
-        const normalImage = require(`../../../../assets/CarePackage_Normal.png`);
+        const flyingImage = require(`../../../../assets/Pubg/CarePackage_Flying.png`);
+        const normalImage = require(`../../../../assets/Pubg/CarePackage_Normal.png`);
 
         // react-konva uses the deprecated string refs from React.
         // TODO: Investigate upgrade path

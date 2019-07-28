@@ -1,7 +1,5 @@
 import React from 'react'
 import styled from 'styled-components'
-import 'rc-slider/assets/index.css'
-
 
 const PrevButton = styled.button`
     padding: 0;

@@ -7,7 +7,7 @@ class MapSprite extends React.Component {
     state = { image: null }
 
     render() {
-        const mapImage = require(`../../../../assets/Pubg/${this.props.mapName}.jpg`);
+        const mapImage = require(`../../../../assets/${this.props.mapName}.jpg`);
         return (
             <Container>
                 <Sprite image={mapImage} height={this.props.mapSize} width={this.props.mapSize} zIndex={0} />
