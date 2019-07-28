@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -26,7 +27,7 @@ public class APIServiceImpl implements APIService {
 
 
     @Override
-    public ResponseEntity<String> getLolData(String matchId) throws Exception {
+    public ResponseEntity<String> getLolData(String region,String matchId) throws Exception {
         RestTemplate restTemplate = new RestTemplate();
 
         /* 헤더정보세팅 */
@@ -37,7 +38,7 @@ public class APIServiceImpl implements APIService {
         httpHeaders.add("Accept-Language", "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7");
         httpHeaders.add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36");
 
-        String url = "https://kr.api.riotgames.com/lol/match/v4/timelines/by-match/" + matchId;
+        String url = "https://"+region+".api.riotgames.com/lol/match/v4/timelines/by-match/" + matchId;
 
         ResponseEntity<String> responseEntity;
 
@@ -45,40 +46,34 @@ public class APIServiceImpl implements APIService {
             responseEntity =  restTemplate.exchange(url, HttpMethod.GET, new HttpEntity(httpHeaders), String.class);
         }
         catch (HttpClientErrorException e) {
-            JsonObject error = new JsonObject();
-            if(e.getStatusCode()==HttpStatus.FORBIDDEN){
-                error.addProperty("statusCode", "403");
-                error.addProperty("error", "Forbidden");
-                error.addProperty("message", "api key error");
-            }
-            else {
-                error.addProperty("statusCode", "404");
-                error.addProperty("error", "Data not found");
-                error.addProperty("message", "matchId error");
-            }
-            return new ResponseEntity<>(error.toString(),e.getStatusCode());
+            return new ResponseEntity<>(e.getMessage(),e.getStatusCode());
         }
+        catch(Exception e){ // region코드 틀리면 어떻게 처리?
+            JsonObject object = new JsonObject();
+            object.addProperty("statusCode", "404");
+            object.addProperty("error", "Not Found");
+            object.addProperty("message", "Not Found");
+            return new ResponseEntity<>(object.toString(), HttpStatus.NOT_FOUND);
+        }
+
         String rawTimeLineData = responseEntity.getBody();
         JsonParser Parser = new JsonParser();
         JsonArray replayDataAry = Parser.parse(rawTimeLineData).getAsJsonObject().get("frames").getAsJsonArray();
 
-        url = "https://kr.api.riotgames.com/lol/match/v4/matches/" + matchId;
+        url = "https://"+region+".api.riotgames.com/lol/match/v4/matches/" + matchId;
+
         try {
             responseEntity =  restTemplate.exchange(url, HttpMethod.GET, new HttpEntity(httpHeaders), String.class);
         }
         catch (HttpClientErrorException e) {
-            JsonObject error = new JsonObject();
-            if(e.getStatusCode()==HttpStatus.FORBIDDEN){
-                error.addProperty("statusCode", "403");
-                error.addProperty("error", "Forbidden");
-                error.addProperty("message", "api key error");
-            }
-            else {
-                error.addProperty("statusCode", "404");
-                error.addProperty("error", "Data not found");
-                error.addProperty("message", "matchId error ");
-            }
-            return new ResponseEntity<>(error.toString(),e.getStatusCode());
+            return new ResponseEntity<>(e.getMessage(),e.getStatusCode());
+        }
+        catch(Exception e){ // region코드 틀리면 어떻게 처리?
+            JsonObject object = new JsonObject();
+            object.addProperty("statusCode", "404");
+            object.addProperty("error", "Not Found");
+            object.addProperty("message", "Not Found");
+            return new ResponseEntity<>(object.toString(), HttpStatus.NOT_FOUND);
         }
 
         String rawMatchData = responseEntity.getBody();
@@ -128,12 +123,8 @@ public class APIServiceImpl implements APIService {
         try {
             responseEntity = restTemplate.exchange(url, HttpMethod.GET, new HttpEntity(httpHeaders), String.class);
 
-        } catch (HttpClientErrorException e) { //error인 경우가 matchid 틀렸을 경우 밖에 없음
-            JsonObject error = new JsonObject();
-            error.addProperty("statusCode", "404");
-            error.addProperty("error", "Not Found");
-            error.addProperty("message", "MatchId error");
-            return new ResponseEntity<>(error.toString(), e.getStatusCode());
+        } catch (HttpClientErrorException e) {
+            return new ResponseEntity<>(e.getMessage(), e.getStatusCode());
         }
 
 
@@ -159,6 +150,10 @@ public class APIServiceImpl implements APIService {
         // int size = url.length();
         // url = url.substring(1,size-1); //앞 뒤에 %22(")가 붙음 왜 그런진 모르겠음 (url을 toString으로 가져오면 생김,getAsString으로 해결)
         // httpHeaders.add("Accept-Encoding","gzip"); gzip 안붙여도 왜 되지..?
+
+
+
+        //여기에는 어떤 exception 넣어야되지?
         byte[] telemetryGzip = restTemplate.exchange(url, HttpMethod.GET, new HttpEntity(httpHeaders), byte[].class).getBody();
         String telemetry = new String(CompressionUtil.decompressGzipByteArray(telemetryGzip));
         JsonArray jsonArrayTelemetry = Parser.parse(telemetry).getAsJsonArray();

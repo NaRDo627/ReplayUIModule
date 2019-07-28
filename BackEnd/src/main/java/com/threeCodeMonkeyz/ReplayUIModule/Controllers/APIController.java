@@ -28,10 +28,9 @@ public class APIController {
     }
 
     @CrossOrigin
-    @RequestMapping(value ="/lol/{matchId}",method = RequestMethod.GET)
-    public ResponseEntity<String> getLolData(@PathVariable("matchId") String matchId) throws Exception{
-        return apiService.getLolData(matchId);
-
+    @RequestMapping(value ="/lol/{region}/{matchId}",method = RequestMethod.GET)
+    public ResponseEntity<String> getLolData(@PathVariable("region") String region,@PathVariable("matchId") String matchId) throws Exception{
+        return apiService.getLolData(region,matchId);
     }
 
     @CrossOrigin
