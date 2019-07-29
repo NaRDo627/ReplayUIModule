@@ -1,5 +1,7 @@
 import moment from 'moment'
 import { get, remove, minBy, cloneDeep } from 'lodash'
+import championDict from '../assets/Lol/champion.json'
+import itemDict from '../assets/Lol/item.json'
 
 const blankIntervalState = () => ({
     players: {},
@@ -35,6 +37,9 @@ export default function parseTimeline(matchData, timeline, focusedPlayerName) {
     }
 
     const getSummonerNameById = (participantId) => (participantId === 0)? 'Minion' : matchData.players[Number(participantId)-1].player.summonerName
+    const getChampionNameByKey = (championKey) => Object.values(championDict.data)
+                                                .find(n => n.key === String(championKey)).id;
+
 
     let focusedPlayerId = 1;
     { // --- Step Zero: Initialize state
@@ -43,6 +48,7 @@ export default function parseTimeline(matchData, timeline, focusedPlayerName) {
             curState.players[p.participantId + ""] = {
                 name: p.player.summonerName,
                 teamId: (p.participantId < 6)? 100 : 200,
+                championName: getChampionNameByKey(p.championId),
                 level: 1,
                 xp: 0,
                 kills: 0,
@@ -139,8 +145,11 @@ export default function parseTimeline(matchData, timeline, focusedPlayerName) {
 
                     curState.killLogs.push({
                         killType: "CHAMPION_KILL",
-                        killerName: getSummonerNameById(e.killerId),
-                        victimName: getSummonerNameById(e.victimId),
+                     /*   killerName: getSummonerNameById(e.killerId),
+                        victimName: getSummonerNameById(e.victimId),*/
+                        killerTeamId: (e.killerId !== 0)? curState.players[e.killerId + ""].teamId : "Minion",
+                        killerName: (e.killerId !== 0)? curState.players[e.killerId + ""].championName : "Minion",
+                        victimName: curState.players[e.victimId + ""].championName,
                         msSinceEpoch
                     })
                 }
@@ -159,7 +168,9 @@ export default function parseTimeline(matchData, timeline, focusedPlayerName) {
 
                     curState.killLogs.push({
                         killType: "BUILDING_KILL",
-                        killerName: getSummonerNameById(e.killerId),
+                       // killerName: getSummonerNameById(e.killerId),
+                        killerTeamId: (e.killerId !== 0)? curState.players[e.killerId + ""].teamId : "Minion",
+                        killerName: (e.killerId !== 0)? curState.players[e.killerId + ""].championName : "Minion",
                         victimName: e.buildingType,
                         msSinceEpoch
                     })
@@ -178,7 +189,9 @@ export default function parseTimeline(matchData, timeline, focusedPlayerName) {
 
                     curState.killLogs.push({
                         killType: "ELITE_MONSTER_KILL",
-                        killerName: getSummonerNameById(e.killerId),
+                   //     killerName: getSummonerNameById(e.killerId),
+                        killerTeamId: (e.killerId !== 0)? curState.players[e.killerId + ""].teamId : "Minion",
+                        killerName: (e.killerId !== 0)? curState.players[e.killerId + ""].championName : "Minion",
                         victimName: (e.monsterSubType)? e.monsterSubType: e.monsterType,
                         msSinceEpoch
                     })

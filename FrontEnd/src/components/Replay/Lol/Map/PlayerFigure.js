@@ -4,6 +4,7 @@ import {Container, Sprite, Graphics, Text} from '@inlet/react-pixi'
 import {clamp} from "lodash";
 
 import * as PIXI from "pixi.js"
+import parachute from "../../../../assets/Pubg/open-parachute.png";
 
 const getBasePlayerColor = ({ colors }, marks, player) => {
     if (marks.focusedPlayer() === player.name) {
@@ -40,10 +41,10 @@ const getStatusColor = ({ colors }, marks, player) => {
 const PlayerLabel = ({ visible, player, colorStr }) => {
     if (!visible) return null
 
-    const width = player.name.length * 8;
+    const width = player.name.length * 10;
 
     return (
-       <Container position={[-20, 10]}>
+       <Container position={[-30, 10]}>
            <Graphics
            draw={g => {
                g.clear();
@@ -69,45 +70,43 @@ const PlayerLabel = ({ visible, player, colorStr }) => {
 }
 
 
-const Player = ({options, player, marks, mapSize}) => {
-
+const Player = ({options, player, colorHex}) => {
+    const champName = player.championName;
+    const champion = require(`../../../../assets/Lol/champion/${champName}.png`);
     return (
-        <Graphics
-            draw={g => {
-                g.clear();
+        <Container>
+            <Sprite
+                x={-13}
+                y={-13}
+                width={26}
+                height={26}
+                image={champion}
+            />
+            <Graphics
+                draw={g => {
+                    g.clear();
 
-                if(player.health !== 0) {
-                    // Draw Figure
-                    g.lineStyle(1, 0xffffff, 1)
-                    g.beginFill(0xffffff, 1);
-                    g.drawCircle(0, 0, 10);
-                    g.endFill()
-
-                }
-                else {
-                    // Draw Status
-                    g.lineStyle(1, 0xffffff, 0.7)
-                    g.beginFill(0xffffff, 1);
-                    g.drawCircle(0, 0, 10);
-                    g.endFill()
-                }
-            }}
-        />
+                    g.lineStyle(2, colorHex, 0.7)
+              //      g.beginFill(colorHex, 0.7);
+                    g.drawRect(-13, -13, 26, 26);
+                //    g.endFill()
+                }}
+            />
+        </Container>
     )
 }
 
 
 const PlayerFigure = ({ options, player, lolMapSize, mapSize, marks, showName }) => {
-/*    const x=toScale(lolMapSize, mapSize, player.location.x)
-    const y=toScale(lolMapSize, mapSize, player.location.y)*/
-
     const x=toScale(lolMapSize.x, mapSize, player.location.x)
     const y=mapSize-toScale(lolMapSize.y, mapSize, player.location.y)
+    const playerColor = (marks.focusedPlayer() === player.name)?
+        0x20FF20 : (player.teamId === 100)? 0x2020FF : 0xFF2020;
 
     return (
         <Container
             position={[x, y]}
-            zIndex={(marks.focusedPlayer() === player.name)? 3 : (player.status !== 'dead')? 2 : 1}
+            zIndex={(marks.focusedPlayer() === player.name)? 5 : 4}
             interactive={true}
             mouseover={() => {marks.setHoveredPlayer(player.name)}}
             mouseout={() => {marks.setHoveredPlayer(null)}}
@@ -123,6 +122,7 @@ const PlayerFigure = ({ options, player, lolMapSize, mapSize, marks, showName })
                 player={player}
                 marks={marks}
                 mapSize={mapSize}
+                colorHex={playerColor}
             />
 
             <PlayerLabel

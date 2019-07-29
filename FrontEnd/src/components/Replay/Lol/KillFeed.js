@@ -21,7 +21,9 @@ const importAll = req => {
 }
 
 
-const LogGroup = styled.ul`
+const LogGroup = styled.div`
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
     list-style-type: none;
     border: 1px solid #ddd;
     border-radius: 4px;
@@ -29,22 +31,25 @@ const LogGroup = styled.ul`
     font-weight: 400;
     margin: 5px 0;
     padding: 4px;
-    background: grey;
+    background: linear-gradient( to right, ${props => props.colorStart}, ${props => props.colorEnd});
     cursor: pointer;
 `
 
 const KillerPlayerName = styled.div`
+    grid-column: 1;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     text-align: left;
 `
 
-const PlayerDatapoint = styled.div`
+const KillIcon = styled.div`
+    grid-column: 2;
     text-align: center;
 `
 
 const VictimPlayerName = styled.div`
+    grid-column: 3;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -53,7 +58,9 @@ const VictimPlayerName = styled.div`
 
 
 const weaponIcons = importAll(require.context('../../../assets/Pubg/item/Weapon', true, /.png$/))
-const feedIcons = importAll(require.context('../../../assets/Pubg/icons', true, /.png$/))
+const champions = importAll(require.context('../../../assets/Lol/champion', true, /.png$/))
+const objects = importAll(require.context('../../../assets/Lol/misc', true, /.png$/))
+const killedIcon = require("../../../assets/Lol/sword.png")
 const public_url = (process.env.NODE_ENV === 'production')? process.env.PUBLIC_URL : "http://localhost:3000"
 
 class KillFeed extends React.Component {
@@ -77,116 +84,49 @@ class KillFeed extends React.Component {
             return next.msSinceEpoch - prev.msSinceEpoch
         })
 
-
         return (
             <React.Fragment>
                 {map(killLogs, (log, i) =>
                     <LogGroup key={`killfeed-${log.msSinceEpoch}`}
                               onMouseDown={stopAutoplay.bind(this)}
                               onClick={skipTo.bind(this, log.msSinceEpoch)}
+                              colorStart={(log.killerName === focusPlayer)? options.colors.dot.focused : (log.killerTeamId === 100)? "skyblue" : "Tomato"}
+                              colorEnd={(log.killerName === focusPlayer)? options.colors.dot.focused : (log.killerTeamId === 100)? "Tomato" : "skyblue"}
                     >
-                        <KillerPlayerName style={{
-                            color: (log.killerName === focusPlayer)? options.colors.dot.focused : '#ffffff'
-                        }}>
-                            {log.killerName}
+                        <KillerPlayerName>
+                            {log.killerName === "Minion" &&
+                            <img
+                                src={objects[log.killerName]}
+                                alt={log.killerName}
+                                width={40}
+                            />}
+                            {log.killerName !== "Minion" &&
+                            <img
+                                src={champions[log.killerName]}
+                                alt={log.killerName}
+                                width={40}
+                            />}
                         </KillerPlayerName>
-                        <PlayerDatapoint>
-                            Killed
-                          {/*  {
-                                (log.reasonCategory === "Damage_Gun" || log.reasonCategory === "Damage_Melee") &&
-                                <img
-                                    src={public_url + weaponIcons[dict[log.reasonName]]}
-                                    alt={public_url + weaponIcons[dict[log.reasonName]]}
-                                    width={70}
-                                />
-                            }
-                            {
-                                (log.reasonCategory === "Damage_BlueZone") &&
-                                <img
-                                    src={feedIcons["Bluezone"]}
-                                    alt={feedIcons["Bluezone"]}
-                                    width={70}
-                                />
-                            }
-                            {
-                                (log.reasonCategory === "Damage_Drown") &&
-                                <img
-                                    src={feedIcons["Drown"]}
-                                    alt={feedIcons["Drown"]}
-                                    width={70}
-                                />
-                            }
-                            {
-                                (log.reasonCategory === "Damage_Explosion_RedZone") &&
-                                <img
-                                    src={feedIcons["Redzone"]}
-                                    alt={feedIcons["Redzone"]}
-                                    width={70}
-                                />
-                            }
-                            {
-                                (log.reasonCategory === "Damage_Explosion_JerryCan" ||
-                                    log.reasonCategory === "Damage_Explosion_Grenade") &&
-                                <img
-                                    src={public_url + weaponIcons[dict["ProjGrenade_C"]]}
-                                    alt={public_url + weaponIcons[dict["ProjGrenade_C"]]}
-                                    height={30}
-                                />
-                            }
-                            {
-                                (log.reasonCategory === "Damage_Explosion_Vehicle") &&
-                                <img
-                                    src={feedIcons["Vehicle_Explosion"]}
-                                    alt={feedIcons["Vehicle_Explosion"]}
-                                    width={70}
-                                />
-                            }
-                            {
-                                (log.reasonCategory === "Damage_Groggy") &&
-                                <img
-                                    src={feedIcons["Groggy"]}
-                                    alt={feedIcons["Groggy"]}
-                                    width={70}
-                                />
-                            }
-                            {
-                                (log.reasonCategory === "Damage_Instant_Fall") &&
-                                <img
-                                    src={feedIcons["Fall"]}
-                                    alt={feedIcons["Fall"]}
-                                    width={70}
-                                />
-                            }
-                            {
-                                (log.reasonCategory === "Damage_Molotov") &&
-                                <img
-                                    src={public_url + weaponIcons[dict["ProjMolotov_C"]]}
-                                    alt={public_url + weaponIcons[dict["ProjMolotov_C"]]}
-                                    width={70}
-                                />
-                            }
-                            {
-                                (log.reasonCategory === "Damage_Punch") &&
-                                <img
-                                    src={feedIcons["Punch"]}
-                                    alt={feedIcons["Punch"]}
-                                    width={70}
-                                />
-                            }
-                            {
-                                (log.reasonCategory === "Damage_VehicleCrashHit" ||
-                                    log.reasonCategory === "Damage_VehicleHit") &&
-                                <img
-                                    src={feedIcons["Vehicle"]}
-                                    alt={feedIcons["Vehicle"]}
-                                    width={70}
-                                />
-                            }
-                            */}
-                        </PlayerDatapoint>
-                        <VictimPlayerName style={{
-                            color: (log.victimName === focusPlayer)? options.colors.dot.focused : '#ffffff'}}>
-                            {log.victimName}
+                        <KillIcon>
+                            <img
+                                src={killedIcon}
+                                alt={"Killed"}
+                                width={35}
+                            />
+                        </KillIcon>
+                        <VictimPlayerName>
+                            {log.killType === "CHAMPION_KILL" &&
+                            <img
+                                src={champions[log.victimName]}
+                                alt={log.victimName}
+                                width={40}
+                            />}
+                            {(log.killType === "ELITE_MONSTER_KILL" || log.killType === "BUILDING_KILL") &&
+                            <img
+                                src={objects[log.victimName]}
+                                alt={log.victimName}
+                                width={40}
+                            />}
                         </VictimPlayerName>
                     </LogGroup>
                 )}
