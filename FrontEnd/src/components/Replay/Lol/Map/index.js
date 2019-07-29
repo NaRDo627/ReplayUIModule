@@ -1,10 +1,11 @@
 import React from 'react'
 import { map, clamp, sortBy } from 'lodash'
 import { Container, Stage } from '@inlet/react-pixi'
-import Figure from './PlayerFigure'
+import PlayerFigure from './PlayerFigure'
 import MapSprite from "./MapSprite"
 
 import styled from 'styled-components'
+import DestroyedObject from "./DestroyedObject";
 
 const SCALE_STEP = 1.2
 const MIN_SCALE = 1
@@ -85,15 +86,26 @@ class Map extends React.Component {
                         >
                             <MapSprite mapName={mapName} mapSize={mapSize} mapScale={mapScale} />
                             {map(timeline.players, player =>
-                                <Figure
+                                <PlayerFigure
                                     options={options}
                                     player={player}
                                     mapSize={mapSize}
                                     lolMapSize={lolMapSize}
                                     mapScale={mapScale}
-                                    key={`dot-${player.name}`}
+                                    key={`player-${player.name}`}
                                     marks={marks}
                                     showName={marks.isPlayerTracked(player.name)}
+                                />
+                            )}
+                            {map(timeline.destroyedObjectLocations, object =>
+                                <DestroyedObject
+                                    options={options}
+                                    object={object}
+                                    mapSize={mapSize}
+                                    lolMapSize={lolMapSize}
+                                    mapScale={mapScale}
+                                    key={`${object.name}-${object.msSinceEpoch}`}
+                                    marks={marks}
                                 />
                             )}
 

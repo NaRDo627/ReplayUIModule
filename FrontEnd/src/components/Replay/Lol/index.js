@@ -138,6 +138,7 @@ class MatchPlayer extends React.Component {
             // See getDerivedStateFromProps
             prevPlayerName: props.playerName,
             hoveredPlayer: null,
+            hoveredObject: null,
             trackedPlayers: [],
             options: Options.DEFAULT_OPTIONS,
             setOption: null,
@@ -152,6 +153,10 @@ class MatchPlayer extends React.Component {
         hoveredPlayer: () => this.state.hoveredPlayer,
         isPlayerHovered: playerName => this.state.hoveredPlayer === playerName,
         setHoveredPlayer: playerName => this.setState({ hoveredPlayer: playerName }),
+
+        hoveredObject: () => this.state.hoveredObject,
+        isObjectHovered: objectName => this.state.hoveredObject === objectName,
+        setHoveredObject: objectName => this.setState({ hoveredObject: objectName }),
 
         trackedPlayers: () => this.state.trackedPlayers,
         isPlayerTracked: playerName => this.state.trackedPlayers.includes(playerName),

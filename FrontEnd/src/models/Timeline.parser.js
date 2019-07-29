@@ -4,6 +4,7 @@ import { get, remove, minBy, cloneDeep } from 'lodash'
 const blankIntervalState = () => ({
     players: {},
     playerLocations: {},
+    destroyedObjectLocations: [],
     killLogs: []
 })
 
@@ -147,8 +148,14 @@ export default function parseTimeline(matchData, timeline, focusedPlayerName) {
 
                 if (e.type === 'BUILDING_KILL') {
                     // pos update
-                    if(e.killerId)
                     setNewPlayerLocation(e.killerId, { x: e.position.x, y: e.position.y })
+                    curState.destroyedObjectLocations.push({
+                        type: "BUILDING",
+                        name: e.buildingType,
+                        x: e.position.x,
+                        y: e.position.y,
+                        msSinceEpoch,
+                    })
 
                     curState.killLogs.push({
                         killType: "BUILDING_KILL",
@@ -161,6 +168,13 @@ export default function parseTimeline(matchData, timeline, focusedPlayerName) {
                 if (e.type === 'ELITE_MONSTER_KILL') {
                     // pos update
                     setNewPlayerLocation(e.killerId, { x: e.position.x, y: e.position.y })
+                    curState.destroyedObjectLocations.push({
+                        type: "ELITE_MONSTER",
+                        name: (e.monsterSubType)? e.monsterSubType: e.monsterType,
+                        x: e.position.x,
+                        y: e.position.y,
+                        msSinceEpoch,
+                    })
 
                     curState.killLogs.push({
                         killType: "ELITE_MONSTER_KILL",
@@ -233,38 +247,6 @@ export default function parseTimeline(matchData, timeline, focusedPlayerName) {
                 lastState = JSON.parse(JSON.stringify(state[i])); // deep copy
         }
     }
-
-    // --- Step Three: Expand Destroyed Buildings
-
-    /*const distance = ({ location: { x: x1, y: y1 } }, { location: { x: x2, y: y2 } }) =>
-        Math.sqrt(((x2 - x1) ** 2) + ((y2 - y1) ** 2))
-
-    let activePackages = []
-
-    for (let i = 0; i < state.length; i++) {
-        const s = state[i]
-
-        s.carePackages.forEach(cp => { // eslint-disable-line no-loop-func
-            if (cp.state === 'spawned') {
-                activePackages = [...activePackages, cp]
-            }
-
-            if (cp.state === 'landed') {
-                const cpDistances = activePackages
-                    .filter(p => p.state === 'spawned')
-                    .map(p => ({ key: p.key, distance: distance(cp, p) }))
-
-                const matchingCp = minBy(cpDistances, 'distance')
-                if (matchingCp) {
-                    activePackages = cloneDeep(activePackages)
-                    activePackages.find(p => p.key === matchingCp.key).state = 'landed'
-                }
-            }
-        })
-
-        s.carePackages = activePackages
-    }*/
-
 
     console.log(epoch)
 
