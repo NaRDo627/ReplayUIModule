@@ -4,25 +4,13 @@ import styled from 'styled-components'
 import * as Options from "./Options";
 import TimeTracker from "../Time/TimeTracker";
 import SummonerList from "./SummonerList";
-import MatchInfo from "../Pubg/MatchInfo";
+import MatchInfo from "./MatchInfo";
 import Map from "./Map";
 import PlayControls from "../Time/PlayControls";
 import TimeSlider from "../Time/TimeSlider";
 import SpeedControl from "../Time/SpeedControl";
 import KillFeed from "./KillFeed";
 import MapOptions from "../Pubg/MapOptions";
-// import * as Options from './Options.js'
-// import SummonerList from './SummonerList/index.js'
-// import TimeTracker from './Time/TimeTracker.js'
-// import Map from './Map/index.js'
-// import TimeSlider from './Time/TimeSlider.js'
-// import SpeedControl from './Time/SpeedControl.js'
-// import MatchInfo from './MatchInfo.js'
-// import KillFeed from "./KillFeed";
-// import PlayControls from "./Time/PlayControls";
-// import MapOptions from "./MapOptions";
-// import HelpModal from './HelpModal.js'
-// import DownloadButton from './DownloadButton.js'
 
 // -----------------------------------------------------------------------------
 // Styled Components -----------------------------------------------------------
@@ -238,25 +226,19 @@ class MatchPlayer extends React.Component {
                         <MatchContainer id="MatchContainer">
                             <RosterContainer mapSize={mapSize}>
                                 <SummonerListHeader>Summoner / K / D / A</SummonerListHeader>
-
                                 <SummonerList
                                     match={match}
                                     currentTimeline={currentReplayData}
                                     marks={this.marks}
                                     players={Object.values(currentReplayData.players)}
                                 />
-
                             </RosterContainer>
                             <MapContainer id="MapContainer" isDotHovered={!!this.marks.hoveredPlayer()}>
                                 <MatchHeader>
-                                    {/*
                                     <MatchInfo
                                         match={match}
                                         marks={this.marks}
-                                        rawTelemetry={rawTelemetry}
-                                        playerName={prevPlayerName}
                                     />
-                                    */}
                                 </MatchHeader>
                                 <Map
                                     match={match}
