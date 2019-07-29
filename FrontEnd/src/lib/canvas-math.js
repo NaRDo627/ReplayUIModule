@@ -16,5 +16,5 @@ but exports as 8192x8192
 
 And in the telemetry case, it's 8160 / 8192 = 0.99609375
 */
-export const toScale = (pubgMapSize, mapSize, n) =>
-    n / pubgMapSize * mapSize * (pubgMapSize === 816000 ? 0.99609375 : 1)
+export const toScale = (realMapSize, mapSize, n) =>
+    n / realMapSize * mapSize * (realMapSize === 816000 ? 0.99609375 : 1)

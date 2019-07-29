@@ -10,15 +10,6 @@ const StyledSlider = styled(Slider)`
     min-width: 80px;
 `
 
-const ControlButton = styled.button`
-    padding: 0;
-    font-size: 2rem;
-    border: 0;
-    margin: 0 10px;
-    width: 25px;
-    grid-column: 1;
-`
-
 const ControlsWrapper = styled.div`
     display: grid;
 
@@ -34,8 +25,8 @@ const SliderContainer = styled.div`
 `
 
 const Tooltip = styled.div.attrs({
-    style: ({ value, max }) => ({
-        left: `${value / max * 100}%`,
+    style: ({ value, min, max }) => ({
+        left: `${(value - min) / (max - min) * 100}%`,
     }),
 })`
     position: absolute;
@@ -46,43 +37,21 @@ const Tooltip = styled.div.attrs({
     text-align: center;
 `
 
-const RewindButton = ({ rewindToStart }) => {
-    return (
-        <ControlButton className="button" type="submit" onClick={rewindToStart}>
-            <i className="fi-previous" />
-        </ControlButton>
-    )
-}
-
 class SpeedControl extends React.PureComponent {
     render() {
         const {
-            autoplay,
+            minSpeed,
+            maxSpeed,
             autoplaySpeed,
             changeSpeed,
-            isFinished,
-            toggleAutoplay,
-            rewindToStart,
         } = this.props
 
         return (
             <ControlsWrapper>
-
-                {/*<div>
-                    {!isFinished &&
-                        <ControlButton className="button" type="submit" onClick={toggleAutoplay}>
-                            <i className={`fi-${autoplay ? 'pause' : 'play'}`} />
-                        </ControlButton>
-                    }
-                    {isFinished &&
-                        <RewindButton rewindToStart={rewindToStart} />
-                    }
-                </div>
-                */}
                 <SliderContainer>
                     <StyledSlider
-                        min={1}
-                        max={40}
+                        min={minSpeed}
+                        max={maxSpeed}
                         value={autoplaySpeed}
                         onChange={changeSpeed}
                         tipFormatter={v => `${v}x`}
@@ -93,11 +62,16 @@ class SpeedControl extends React.PureComponent {
                             overlayStyle: { zIndex: 1 },
                         }}
                     />
-                    <Tooltip value={autoplaySpeed} max={40}>{autoplaySpeed}x</Tooltip>
+                    <Tooltip value={autoplaySpeed} min={minSpeed - 1} max={maxSpeed}>{autoplaySpeed}x</Tooltip>
                 </SliderContainer>
             </ControlsWrapper>
         )
     }
+}
+
+SpeedControl.defaultProps = {
+    minSpeed: 1,
+    maxSpeed: 40,
 }
 
 export default SpeedControl

@@ -17,18 +17,17 @@ const Message = styled.p`
 
 class Lol extends Component{
     state = {
-        rawTelemetry: null,
-        telemetry: null,
-        telemetryLoaded: false,
-        telemetryError: false,
-        rosters: null,
+        rawTimeline: null,
+        timeline: null,
+        timelineLoaded: false,
+        timelineError: false,
         globalState: null,
         match: null
     }
 
 
     componentDidMount() {
-        console.log(typeof this.state.telemetry);
+        console.log(typeof this.state.timeline);
         this.loadTelemetry();
     }
 
@@ -42,20 +41,20 @@ class Lol extends Component{
         this.cancelTelemetry();
 
         const { match: { params } } = this.props;
-        this.setState({ telemetry: null, telemetryLoaded: false, telemetryError: false });
+        this.setState({ timeline: null, timelineLoaded: false, timelineError: false });
 
         if(typeof params.matchId === "undefined") {
-            console.log(`Loading telemetry for local match for test.`);
+            console.log(`Loading timeline for local match for test.`);
             const match = jsonData.match
             const rawReplayData = jsonData.rawReplayData
             const { state, globalState } = parseTimeline(match, rawReplayData, "Huttels")
 
-            const telemetry = Timeline(state)
+            const timeline = Timeline(state)
             this.setState(prevState => ({
-                rawTelemetry: rawReplayData,
-                telemetry,
+                rawTimeline: rawReplayData,
+                timeline,
                 match,
-                telemetryLoaded: true,
+                timelineLoaded: true,
                 globalState,
                 playerName: "Huttels"
             }))
@@ -64,32 +63,31 @@ class Lol extends Component{
             return;
         }
 
-        console.log(`Loading telemetry for match ${params.matchId}`);
+        console.log(`Loading timeline for match ${params.matchId}`);
 
 
 
-        this.telemetryWorker = new ReplayWorker();
+        this.timelineWorker = new ReplayWorker();
 
-        this.telemetryWorker.addEventListener('message', ({ data }) => {
+        this.timelineWorker.addEventListener('message', ({ data }) => {
             const { success, error, state, globalState, rawReplayData, match } = data
 
             if (!success) {
-                console.error(`Error loading telemetry: ${error}`)
+                console.error(`Error loading timeline: ${error}`)
 
                 this.setState(prevState => ({
-                    telemetryError: true,
+                    timelineError: true,
                 }))
 
                 return
             }
 
-            const telemetry = Timeline(state)
+            const timeline = Timeline(state)
             this.setState(prevState => ({
-                rawTelemetry: rawReplayData,
-                telemetry,
+                rawTimeline: rawReplayData,
+                timeline,
                 match,
-                telemetryLoaded: true,
-                rosters: telemetry.finalRoster(params.playerId),
+                timelineLoaded: true,
                 globalState,
                 playerName: params.playerId
             }))
@@ -97,7 +95,7 @@ class Lol extends Component{
             console.log(success)
         })
 
-        this.telemetryWorker.postMessage({
+        this.timelineWorker.postMessage({
             game: 'lol',
             platform: params.regionId,
             matchId: params.matchId,
@@ -105,37 +103,31 @@ class Lol extends Component{
         })
     }
 
-    // startAutoplay = () => {
-    //     this.autoplayInterval = setInterval(() => {
-    //         this.setState(prevState => ({ secondsSinceEpoch: prevState.secondsSinceEpoch + 1 }))
-    //     }, 10)
-    // }
-
     cancelTelemetry = () => {
-        if (this.telemetryWorker) {
-            this.telemetryWorker.terminate()
-            this.telemetryWorker = null
+        if (this.timelineWorker) {
+            this.timelineWorker.terminate()
+            this.timelineWorker = null
         }
     }
 
     render() {
         const { match: { params } } = this.props
-        const { match, telemetry, rawTelemetry, telemetryLoaded, telemetryError, globalState, playerName } = this.state
+        const { match, timeline, rawTimeline, timelineLoaded, timelineError, globalState, playerName } = this.state
 
         let content
 
-        if (telemetryError) {
+        if (timelineError) {
             content = <Message>An error occurred :(</Message>
         } /*else if (!match) {
             content = <Message>Match not found</Message>
-        }*/ else if (!telemetryLoaded) {
-            content = <Message>Loading telemetry...</Message>
+        }*/ else if (!timelineLoaded) {
+            content = <Message>Loading timeline...</Message>
         } else {
             console.log(match)
             content = <ReplayLol
                 match={match}
-                rawTelemetry={rawTelemetry}
-                telemetry={telemetry}
+                rawTimeline={rawTimeline}
+                timeline={timeline}
                 globalState={globalState}
                 playerName={playerName}
             />
