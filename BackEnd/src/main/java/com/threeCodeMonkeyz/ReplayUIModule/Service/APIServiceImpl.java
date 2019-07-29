@@ -85,11 +85,28 @@ public class APIServiceImpl implements APIService {
 
         String rawMatchData = responseEntity.getBody();
         JsonArray participantsIdentitiesAry = Parser.parse(rawMatchData).getAsJsonObject().get("participantIdentities").getAsJsonArray();
+        JsonArray participantsAry = Parser.parse(rawMatchData).getAsJsonObject().get("participants").getAsJsonArray();
         JsonObject matchDataObject = Parser.parse(rawMatchData).getAsJsonObject();
 
         List<JsonObject> lolPlayerList = new ArrayList<>();
         for(int i=0;i<participantsIdentitiesAry.size();i++){
-            lolPlayerList.add(participantsIdentitiesAry.get(i).getAsJsonObject());
+            JsonObject participantsIdentityObject = participantsIdentitiesAry.get(i).getAsJsonObject();
+            String participantsIdentityObjectId = participantsIdentityObject.get("participantId").getAsString();
+            String participantsId = participantsAry.get(i).getAsJsonObject().get("participantId").getAsString();
+            if(participantsIdentityObjectId.equals(participantsId)){
+                int championId = participantsAry.get(i).getAsJsonObject().get("championId").getAsInt();
+                participantsIdentityObject.addProperty("championId",championId);
+            }
+            else {
+                for (int j = 0; j < participantsAry.size(); j++) {
+                    participantsId = participantsAry.get(j).getAsJsonObject().get("participantId").getAsString();
+                    if (!participantsIdentityObjectId.equals(participantsId))
+                        continue;
+                    int championId = participantsAry.get(i).getAsJsonObject().get("championId").getAsInt();
+                    participantsIdentityObject.addProperty("championId", championId);
+                }
+            }
+            lolPlayerList.add(participantsIdentityObject);
         }
         LolMatch lolMatch = new LolMatch();
         lolMatch.setPlayers(lolPlayerList);
