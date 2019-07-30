@@ -57,8 +57,8 @@ class MatchInfo extends React.PureComponent {
         console.log(playedAtDate, dateString)
 
         const playedAt = moment(dateString).format('MMM Do h:mm a')
-     //   const { stats } = match.players.find(p => p.name === marks.focusedPlayer())
-     //   const message = (stats.winPlace > 10)? "Too bad :/" : (stats.winPlace > 1)? "Top 10 Reached! ;)" : "Winner winner chicken dinner!! XD"
+       // const { stats } = match.players.find(p => p.name === marks.focusedPlayer())
+       // const message = (stats.winPlace > 10)? "Too bad :/" : (stats.winPlace > 1)? "Top 10 Reached! ;)" : "Winner winner chicken dinner!! XD"
 
         return (
             <StyledMatchInfo>

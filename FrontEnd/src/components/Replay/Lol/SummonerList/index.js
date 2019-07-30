@@ -1,9 +1,10 @@
 import React from 'react'
 import styled from 'styled-components'
 import Tooltip from '../../../../components/Tooltip'
-import Loadout from './Loadout.js'
+import Inventory from './Inventory.js'
 import * as Options from '../Options.js'
 import championDict from '../../../../assets/Lol/championFull.json'
+import goldImg from '../../../../assets/Lol/misc/gold.png'
 
 const importAll = req => {
 
@@ -23,7 +24,7 @@ const importAll = req => {
 }
 
 
-const getRosterColor = ({ colors }, marks, player) => {
+const getRosterColor = ({colors}, marks, player) => {
     const dead = player.status === 'dead'
     const knocked = player.status !== 'dead' && player.health === 0
 
@@ -36,7 +37,7 @@ const getRosterColor = ({ colors }, marks, player) => {
     return dead ? colors.roster.dead : colors.roster.enemy
 }
 
-const getSkillName = (championName, slot) => championDict.data[championName].spells[slot-1].id
+const getSkillName = (championName, slot) => championDict.data[championName].spells[slot - 1].id
 
 const SummonerGroup = styled.div`
     border: 1px solid #ddd;
@@ -72,18 +73,20 @@ const SummonerIcon = styled.div`
     grid-row: 2;
 `
 
-const SummonerKDA = styled.div`
+const SummonerStatus = styled.div`
     grid-column: 3 / 5;
     grid-row: 2;
     margin: 0;
-    overflow: hidden;
-
-    i {
-        margin-left: 5px;
-        font-size: 1rem;
-        line-height: 0.5rem;
-    }
 `
+
+const SummonerKDA = styled.div`
+    font-weight: 700;
+`
+
+const SummonerGold = styled.div`
+    font-weight: 700;
+`
+
 
 const SummonerSkill = styled.div`
     grid-row: 3;
@@ -107,111 +110,112 @@ const SummonerSkillLevel = styled.div`
     background-color: black;
 `
 
-const PlayerName = styled.div`
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-`
-
-function arrayContainsArray (superset, subset) {
-    if (0 === subset.length) {
-        return false;
-    }
-    return subset.every(function (value) {
-        return (superset.indexOf(value) >= 0);
-    });
-}
-
 const champions = importAll(require.context('../../../../assets/Lol/champion', true, /.png$/))
 const spells = importAll(require.context('../../../../assets/Lol/spell', true, /.png$/))
 
-const SummonerList = ({match, currentTimeline, marks, players}) => {
-    // switch side to see focused player more conveninetly
-    if(players.find(p => p.name === marks.focusedPlayer()).teamId === 200)
+const SummonerList = ({marks, players}) => {
+    // switch side to see focused player more conveniently
+    if (players.find(p => p.name.toLowerCase() === marks.focusedPlayer().toLowerCase()).teamId === 200)
         players = players.slice(5, 10).concat(players.slice(0, 5))
+
+    const focuedPlayer = players.find(p => p.name.toLowerCase() === marks.focusedPlayer().toLowerCase())
+    const playerIndex = players.indexOf(focuedPlayer)
+    players = players.slice(0, playerIndex).concat(players.slice(playerIndex + 1, 10))
+    players.unshift(focuedPlayer)
 
     return (
         <Options.Context.Consumer>
             {({options}) => players.map((p, i) => {
                 return (
                     <SummonerGroup key={`summoner-${i}`}
-                                   backgroud={(p.teamId === 100)? '#A0A0FF' : '#FFA0A0'}
+                                   backgroud={(p.teamId === 100) ? '#A0A0FF' : '#FFA0A0'}
                                    onClick={() => marks.toggleTrackedPlayer(p.name)}
                                    onMouseEnter={() => marks.setHoveredPlayer(p.name)}
                                    onMouseLeave={() => marks.setHoveredPlayer(null)}>
-                        <SummonerName style={{
-                            color: getRosterColor(options, marks, p),
-                            textDecoration: marks.isPlayerTracked(p.name) ? 'underline' : '',
-                        }}>
-                            {p.name}
-                        </SummonerName>
-                        {/*<Tooltip
-                            arrow
-                            placement="left"
-                            duration={0}
-                            theme="pubgsh"
-                            html={<Loadout items={p.items}/>}
-                        >*/}
-                            <SummonerIcon>
-                                <img
-                                    src={champions[p.championName]}
-                                    alt={p.championName}
-                                    width={40}
-                                />
-                            </SummonerIcon>
+                            <SummonerName style={{
+                                color: getRosterColor(options, marks, p),
+                                textDecoration: marks.isPlayerTracked(p.name) ? 'underline' : '',
+                            }}>
+                                <Tooltip
+                                    arrow
+                                    placement="left"
+                                    duration={0}
+                                    theme="lol"
+                                    html={<Inventory items={p.items}/>}
+                                >
+                                    <div>
+                                        {p.name}
+                                    </div>
+                                </Tooltip>
+                            </SummonerName>
+                        <SummonerIcon>
+                            <img
+                                src={champions[p.championName]}
+                                alt={p.championName}
+                                width={40}
+                            />
+                        </SummonerIcon>
+                        <SummonerStatus>
                             <SummonerKDA>
                                 {p.kills} / {p.deaths} / {p.assists}
                             </SummonerKDA>
-                            <SummonerSkill slot={1}>
-                                <SummonerSkillImg>
-                                    <img
-                                        src={spells[getSkillName(p.championName, 1)]}
-                                        alt={p.championName}
-                                        width={30}
-                                    />
-                                </SummonerSkillImg>
-                                <SummonerSkillLevels>
-                                    <SummonerSkillLevel width={p.skillLvlSlot1 * 20}>&nbsp;</SummonerSkillLevel>
-                                </SummonerSkillLevels>
-                            </SummonerSkill>
-                            <SummonerSkill slot={2}>
-                                <SummonerSkillImg>
-                                    <img
-                                        src={spells[getSkillName(p.championName, 2)]}
-                                        alt={p.championName}
-                                        width={30}
-                                    />
-                                </SummonerSkillImg>
-                                <SummonerSkillLevels>
-                                    <SummonerSkillLevel width={p.skillLvlSlot2 * 20}>&nbsp;</SummonerSkillLevel>
-                                </SummonerSkillLevels>
-                            </SummonerSkill>
-                            <SummonerSkill slot={3}>
-                                <SummonerSkillImg>
-                                    <img
-                                        src={spells[getSkillName(p.championName, 3)]}
-                                        alt={p.championName}
-                                        width={30}
-                                    />
-                                </SummonerSkillImg>
-                                <SummonerSkillLevels>
-                                    <SummonerSkillLevel width={p.skillLvlSlot3 * 20}>&nbsp;</SummonerSkillLevel>
-                                </SummonerSkillLevels>
-                            </SummonerSkill>
-                            <SummonerSkill slot={4}>
-                                <SummonerSkillImg>
-                                    <img
-                                        src={spells[getSkillName(p.championName, 4)]}
-                                        alt={p.championName}
-                                        width={30}
-                                    />
-                                </SummonerSkillImg>
-                                <SummonerSkillLevels>
-                                    <SummonerSkillLevel width={p.skillLvlSlot4 * 33}>&nbsp;</SummonerSkillLevel>
-                                </SummonerSkillLevels>
-                            </SummonerSkill>
-                      {/*  </Tooltip>*/}
-
+                            <SummonerGold>
+                                <img
+                                src={goldImg}
+                                alt={""}
+                                width={12}
+                                />
+                                {p.currentGold}
+                            </SummonerGold>
+                        </SummonerStatus>
+                        <SummonerSkill slot={1}>
+                            <SummonerSkillImg>
+                                <img
+                                    src={spells[getSkillName(p.championName, 1)]}
+                                    alt={p.championName}
+                                    width={30}
+                                />
+                            </SummonerSkillImg>
+                            <SummonerSkillLevels>
+                                <SummonerSkillLevel width={p.skillLvlSlot1 * 20}>&nbsp;</SummonerSkillLevel>
+                            </SummonerSkillLevels>
+                        </SummonerSkill>
+                        <SummonerSkill slot={2}>
+                            <SummonerSkillImg>
+                                <img
+                                    src={spells[getSkillName(p.championName, 2)]}
+                                    alt={p.championName}
+                                    width={30}
+                                />
+                            </SummonerSkillImg>
+                            <SummonerSkillLevels>
+                                <SummonerSkillLevel width={p.skillLvlSlot2 * 20}>&nbsp;</SummonerSkillLevel>
+                            </SummonerSkillLevels>
+                        </SummonerSkill>
+                        <SummonerSkill slot={3}>
+                            <SummonerSkillImg>
+                                <img
+                                    src={spells[getSkillName(p.championName, 3)]}
+                                    alt={p.championName}
+                                    width={30}
+                                />
+                            </SummonerSkillImg>
+                            <SummonerSkillLevels>
+                                <SummonerSkillLevel width={p.skillLvlSlot3 * 20}>&nbsp;</SummonerSkillLevel>
+                            </SummonerSkillLevels>
+                        </SummonerSkill>
+                        <SummonerSkill slot={4}>
+                            <SummonerSkillImg>
+                                <img
+                                    src={spells[getSkillName(p.championName, 4)]}
+                                    alt={p.championName}
+                                    width={30}
+                                />
+                            </SummonerSkillImg>
+                            <SummonerSkillLevels>
+                                <SummonerSkillLevel width={p.skillLvlSlot4 * 33}>&nbsp;</SummonerSkillLevel>
+                            </SummonerSkillLevels>
+                        </SummonerSkill>
                     </SummonerGroup>
                 )
             })}

@@ -202,7 +202,7 @@ export default function parseTelemetry(matchData, telemetry, focusedPlayerName) 
                     incrementPlayerStateVal(d.killer.name, 'kills', 1)
                 }
 
-                if (d && d.victim.name === focusedPlayerName) {
+                if (d && d.victim.name.toLowerCase() === focusedPlayerName.toLowerCase()) {
                     const killedBy = getKilledBy(d)
 
                     globalState.death = {
@@ -211,7 +211,7 @@ export default function parseTelemetry(matchData, telemetry, focusedPlayerName) 
                     }
                 }
 
-                if (d && d.killer && d.killer.name === focusedPlayerName) {
+                if (d && d.killer && d.killer.name.toLowerCase() === focusedPlayerName.toLowerCase()) {
                     globalState.kills.push({
                         msSinceEpoch,
                         victimName: d.victim.name,

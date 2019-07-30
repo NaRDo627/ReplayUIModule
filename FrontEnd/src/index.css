@@ -288,6 +288,13 @@ form {
   color: black;
 }
 
+.tippy-tooltip.lol-theme {
+  background: #101060;
+  border: 1px solid #0f031a;
+  border-radius: 3px;
+  color: white;
+}
+
 .tippy-tooltip.pubgsh-theme .tippy-arrow {
   border-left: 7px solid #ddd;
 }

@@ -1,7 +1,5 @@
-import moment from 'moment'
 import { get, remove, minBy, cloneDeep } from 'lodash'
 import championDict from '../assets/Lol/champion.json'
-import itemDict from '../assets/Lol/item.json'
 
 const blankIntervalState = () => ({
     players: {},
@@ -66,7 +64,7 @@ export default function parseTimeline(matchData, timeline, focusedPlayerName) {
 
             latestPlayerStates[p.participantId + ""] = curState.players[p.participantId + ""]
 
-            if(p.player.summonerName === focusedPlayerName)
+            if(p.player.summonerName.toLowerCase() === focusedPlayerName.toLowerCase())
                 focusedPlayerId = p.participantId
         })
 
@@ -150,6 +148,8 @@ export default function parseTimeline(matchData, timeline, focusedPlayerName) {
                         killerTeamId: (e.killerId !== 0)? curState.players[e.killerId + ""].teamId : "Minion",
                         killerName: (e.killerId !== 0)? curState.players[e.killerId + ""].championName : "Minion",
                         victimName: curState.players[e.victimId + ""].championName,
+                        killerSummonerName: (e.killerId !== 0)? curState.players[e.killerId + ""].name : "Minion",
+                        victimSummonerName:  curState.players[e.victimId + ""].name,
                         msSinceEpoch
                     })
                 }
@@ -160,6 +160,8 @@ export default function parseTimeline(matchData, timeline, focusedPlayerName) {
                     setNewPlayerLocation(e.killerId, { x: e.position.x, y: e.position.y })
                     curState.destroyedObjectLocations.push({
                         type: "BUILDING",
+                        killerTeamId: (e.killerId !== 0)? curState.players[e.killerId + ""].teamId : "Minion",
+                        victimTeamId: e.teamId,
                         name: e.buildingType,
                         x: e.position.x,
                         y: e.position.y,
@@ -172,6 +174,8 @@ export default function parseTimeline(matchData, timeline, focusedPlayerName) {
                         killerTeamId: (e.killerId !== 0)? curState.players[e.killerId + ""].teamId : "Minion",
                         killerName: (e.killerId !== 0)? curState.players[e.killerId + ""].championName : "Minion",
                         victimName: e.buildingType,
+                        killerSummonerName: (e.killerId !== 0)? curState.players[e.killerId + ""].name : "Minion",
+                        victimSummonerName: e.buildingType,
                         msSinceEpoch
                     })
                 }
@@ -181,6 +185,8 @@ export default function parseTimeline(matchData, timeline, focusedPlayerName) {
                     setNewPlayerLocation(e.killerId, { x: e.position.x, y: e.position.y })
                     curState.destroyedObjectLocations.push({
                         type: "ELITE_MONSTER",
+                        killerTeamId: (e.killerId !== 0)? curState.players[e.killerId + ""].teamId : "Minion",
+                        victimTeamId: 0,
                         name: (e.monsterSubType)? e.monsterSubType: e.monsterType,
                         x: e.position.x,
                         y: e.position.y,
@@ -193,29 +199,52 @@ export default function parseTimeline(matchData, timeline, focusedPlayerName) {
                         killerTeamId: (e.killerId !== 0)? curState.players[e.killerId + ""].teamId : "Minion",
                         killerName: (e.killerId !== 0)? curState.players[e.killerId + ""].championName : "Minion",
                         victimName: (e.monsterSubType)? e.monsterSubType: e.monsterType,
+                        killerSummonerName: (e.killerId !== 0)? curState.players[e.killerId + ""].name : "Minion",
+                        victimSummonerName: (e.monsterSubType)? e.monsterSubType: e.monsterType,
                         msSinceEpoch
                     })
                 }
 
 
-                if (e.type === 'ITEM_PURCHASED') {
-                    const participantId = e.participantId + "";
-                    const currentItems = curState.players[participantId].items
+                if (e.type === 'ITEM_PURCHASED' || (e.type === 'ITEM_UNDO' && e.afterId !== 0)) {
+                    const participantId = String(e.participantId);
+                    let currentItems = curState.players[participantId].items.slice()
+                    const itemId = (e.afterId)? e.afterId : e.itemId
 
-                    setNewPlayerState(e.participantId, { items: [...currentItems, e.itemId] })
+                    setNewPlayerState(e.participantId, { items: [...currentItems, itemId] })
                 }
 
 
-                if (e.type === 'ITEM_SOLD' || e.type === 'ITEM_DESTROYED' || e.type === 'ITEM_UNDO') {
-                    const participantId = e.participantId + "";
-                    const currentItems = curState.players[participantId].items
+                if (e.type === 'ITEM_SOLD' || e.type === 'ITEM_DESTROYED' || (e.type === 'ITEM_UNDO' && e.beforeId !== 0)) {
+                    const participantId = String(e.participantId);
+                    let currentItems = curState.players[participantId].items.slice()
+                    const itemId = (e.beforeId)? e.beforeId : e.itemId
+                    currentItems.splice(currentItems.indexOf(itemId), 1)
 
                     setNewPlayerState(e.participantId, {
-                        items: currentItems.filter(item => item !== e.itemId),
+                        items: currentItems,
                     })
                 }
 
+ /*               if (e.type === 'WARD_PLACED') {
+                    if(e.wardType === "CONTROL_WARD")
+                        console.log("control ward placed by " + e.creatorId)
+                }*/
 
+          /*      if (e.type === 'WARD_PLACED') {
+                    if(e.wardType === "CONTROL_WARD") {
+                        const wardId = 2055
+                        const participantId = e.creatorId + "";
+                        let currentItems = curState.players[participantId].items
+                        currentItems.splice(currentItems.indexOf(wardId), 1)
+
+                        setNewPlayerState(e.creatorId, {
+                            items: currentItems,
+                        })
+                    }
+                }
+
+*/
                 if (e.type === 'SKILL_LEVEL_UP') {
                     const skillSlot = e.skillSlot
                     incrementPlayerStateVal(e.participantId, "skillLvlSlot" + skillSlot, 1)
@@ -257,11 +286,9 @@ export default function parseTimeline(matchData, timeline, focusedPlayerName) {
                 state[i] = lastState
             }
             else
-                lastState = JSON.parse(JSON.stringify(state[i])); // deep copy
+                lastState = state[i]
         }
     }
-
-    console.log(epoch)
 
     return { state, globalState }
 }

@@ -292,7 +292,7 @@ class MatchPlayer extends React.Component {
                                 </KillFeedContainer>
                                 <MapOptionContainer>
                                    {/* <MapOptions options={options} setOption={setOption} />*/}
-                                   options
+                                   &nbsp;
                                 </MapOptionContainer>
                             </KillFeedAndMapOptionContainer>
 

@@ -1,7 +1,8 @@
 import React from 'react'
 import { map } from 'lodash'
 import styled from 'styled-components'
-import dict from '../../../assets/Pubg/damageCauserName.json'
+import Tooltip from '../../Tooltip'
+import Inventory from "./SummonerList/Inventory";
 
 const importAll = req => {
 
@@ -57,7 +58,6 @@ const VictimPlayerName = styled.div`
 `
 
 
-const weaponIcons = importAll(require.context('../../../assets/Pubg/item/Weapon', true, /.png$/))
 const champions = importAll(require.context('../../../assets/Lol/champion', true, /.png$/))
 const objects = importAll(require.context('../../../assets/Lol/misc', true, /.png$/))
 const killedIcon = require("../../../assets/Lol/sword.png")
@@ -93,20 +93,27 @@ class KillFeed extends React.Component {
                               colorStart={(log.killerName === focusPlayer)? options.colors.dot.focused : (log.killerTeamId === 100)? "skyblue" : "Tomato"}
                               colorEnd={(log.killerName === focusPlayer)? options.colors.dot.focused : (log.killerTeamId === 100)? "Tomato" : "skyblue"}
                     >
-                        <KillerPlayerName>
-                            {log.killerName === "Minion" &&
-                            <img
-                                src={objects[log.killerName]}
-                                alt={log.killerName}
-                                width={40}
-                            />}
-                            {log.killerName !== "Minion" &&
-                            <img
-                                src={champions[log.killerName]}
-                                alt={log.killerName}
-                                width={40}
-                            />}
-                        </KillerPlayerName>
+                        <Tooltip
+                            arrow
+                            placement="left"
+                            duration={0}
+                            html={<div>{log.killerSummonerName}</div>}
+                        >
+                            <KillerPlayerName>
+                                {log.killerName === "Minion" &&
+                                <img
+                                    src={objects[log.killerName]}
+                                    alt={log.killerName}
+                                    width={40}
+                                />}
+                                {log.killerName !== "Minion" &&
+                                <img
+                                    src={champions[log.killerName]}
+                                    alt={log.killerName}
+                                    width={40}
+                                />}
+                            </KillerPlayerName>
+                        </Tooltip>
                         <KillIcon>
                             <img
                                 src={killedIcon}
@@ -114,20 +121,27 @@ class KillFeed extends React.Component {
                                 width={35}
                             />
                         </KillIcon>
-                        <VictimPlayerName>
-                            {log.killType === "CHAMPION_KILL" &&
-                            <img
-                                src={champions[log.victimName]}
-                                alt={log.victimName}
-                                width={40}
-                            />}
-                            {(log.killType === "ELITE_MONSTER_KILL" || log.killType === "BUILDING_KILL") &&
-                            <img
-                                src={objects[log.victimName]}
-                                alt={log.victimName}
-                                width={40}
-                            />}
-                        </VictimPlayerName>
+                        <Tooltip
+                            arrow
+                            placement="left"
+                            duration={0}
+                            html={<div>{log.victimSummonerName}</div>}
+                        >
+                            <VictimPlayerName>
+                                {log.killType === "CHAMPION_KILL" &&
+                                <img
+                                    src={champions[log.victimName]}
+                                    alt={log.victimName}
+                                    width={40}
+                                />}
+                                {(log.killType === "ELITE_MONSTER_KILL" || log.killType === "BUILDING_KILL") &&
+                                <img
+                                    src={objects[log.victimName]}
+                                    alt={log.victimName}
+                                    width={40}
+                                />}
+                            </VictimPlayerName>
+                        </Tooltip>
                     </LogGroup>
                 )}
             </React.Fragment>

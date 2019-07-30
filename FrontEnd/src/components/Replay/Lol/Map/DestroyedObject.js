@@ -8,7 +8,7 @@ import * as PIXI from "pixi.js"
 const ObjectLabel = ({ visible, object, colorStr }) => {
     if (!visible) return null
 
-    const width = object.name.length * 8;
+    const width = object.name.length * 10;
 
     return (
        <Container position={[-20, 10]}>
@@ -37,20 +37,30 @@ const ObjectLabel = ({ visible, object, colorStr }) => {
 }
 
 
-const Building = ({options, building, marks, mapSize}) => {
+const Objects = ({options, object, colorHex}) => {
+    const objectImg = require(`../../../../assets/Lol/misc/${object.name}.png`);
 
     return (
-        <Graphics
-            draw={g => {
-                g.clear();
+        <Container>
+            <Sprite
+                x={-15}
+                y={-15}
+                width={30}
+                height={30}
+                image={objectImg}
+            />
+            <Graphics
+                draw={g => {
+                    g.clear();
 
-                // Draw Figure
-                g.lineStyle(1, 0xffffff, 1)
-                g.beginFill(0xffffff, 1);
-                g.drawRect(-5, -5, 10, 10);
-                g.endFill()
-            }}
-        />
+                    g.lineStyle(3, colorHex, 0.7)
+                    g.moveTo(-17, -17)
+                    g.lineTo(17, 17)
+                    g.moveTo(17, -17)
+                    g.lineTo(-17, 17)
+                }}
+            />
+        </Container>
     )
 }
 
@@ -58,11 +68,12 @@ const Building = ({options, building, marks, mapSize}) => {
 const DestroyedObject = ({ options, object, lolMapSize, mapSize, marks, showName }) => {
 /*    const x=toScale(lolMapSize, mapSize, player.location.x)
     const y=toScale(lolMapSize, mapSize, player.location.y)*/
-
+    const objectColor = (object.victimTeamId !== 0)?
+        (object.victimTeamId === 100)? 0x2020FF : 0xFF2020 :
+        (object.killerTeamId === 200)? 0x2020FF : 0xFF2020;
 
     const x=toScale(lolMapSize.x, mapSize, object.x)
     const y=mapSize-toScale(lolMapSize.y, mapSize, object.y)
-    let hover = false;
 
     return (
         <Container
@@ -72,11 +83,12 @@ const DestroyedObject = ({ options, object, lolMapSize, mapSize, marks, showName
             mouseover={() => {marks.setHoveredObject(object.msSinceEpoch)}}
             mouseout={() => {marks.setHoveredObject(null)}}
         >
-            <Building
+            <Objects
                 options={options}
-                building={object}
+                object={object}
                 marks={marks}
                 mapSize={mapSize}
+                colorHex={objectColor}
             />
 
             <ObjectLabel
