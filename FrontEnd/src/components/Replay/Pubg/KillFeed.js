@@ -40,7 +40,7 @@ const KillerPlayerName = styled.div`
     text-align: left;
 `
 
-const PlayerDatapoint = styled.div`
+const Reason = styled.div`
     text-align: center;
 `
 
@@ -90,7 +90,7 @@ class KillFeed extends React.Component {
                         }}>
                             {log.killerName}
                         </KillerPlayerName>
-                        <PlayerDatapoint>
+                        <Reason>
                             {
                                 (log.reasonCategory === "Damage_Gun" || log.reasonCategory === "Damage_Melee") &&
                                 <img
@@ -181,7 +181,7 @@ class KillFeed extends React.Component {
                                     width={70}
                                 />
                             }
-                        </PlayerDatapoint>
+                        </Reason>
                         <VictimPlayerName style={{
                             color: (log.victimName === focusPlayer)? options.colors.dot.focused : (teammates.includes(log.victimName))? options.colors.dot.teammate : '#ffffff'}}>
                             {log.victimName}

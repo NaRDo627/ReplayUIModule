@@ -3,26 +3,14 @@ import { xor, union, difference, merge, cloneDeep, set } from 'lodash'
 import styled from 'styled-components'
 import * as Options from "./Options";
 import TimeTracker from "../Time/TimeTracker";
-import Roster from "../Pubg/Roster";
-import MatchInfo from "../Pubg/MatchInfo";
-import Map from "../Pubg/Map";
+import SummonerList from "./SummonerList";
+import MatchInfo from "./MatchInfo";
+import Map from "./Map";
 import PlayControls from "../Time/PlayControls";
 import TimeSlider from "../Time/TimeSlider";
 import SpeedControl from "../Time/SpeedControl";
-import KillFeed from "../Pubg/KillFeed";
-import MapOptions from "../Pubg/MapOptions";
-// import * as Options from './Options.js'
-// import Roster from './Roster/index.js'
-// import TimeTracker from './Time/TimeTracker.js'
-// import Map from './Map/index.js'
-// import TimeSlider from './Time/TimeSlider.js'
-// import SpeedControl from './Time/SpeedControl.js'
-// import MatchInfo from './MatchInfo.js'
-// import KillFeed from "./KillFeed";
-// import PlayControls from "./Time/PlayControls";
-// import MapOptions from "./MapOptions";
-// import HelpModal from './HelpModal.js'
-// import DownloadButton from './DownloadButton.js'
+import KillFeed from "./KillFeed";
+// import MapOptions from "../Pubg/MapOptions";
 
 // -----------------------------------------------------------------------------
 // Styled Components -----------------------------------------------------------
@@ -36,12 +24,6 @@ const MatchContainer = styled.div`
     overflow: visible;
     margin: 0 auto;
     max-width: calc(110vh + 10px);
-
-    @media (max-width: 700px) {
-        grid-template-columns: 0px 1fr 0px;
-        grid-column-gap: 0;
-        grid-row-gap: 15px;
-    }
 `
 
 const MapContainer = styled.div`
@@ -57,11 +39,6 @@ const RosterContainer = styled.div`
     overflow-x: hidden;
     height: ${props => props.mapSize + 48}px;
     padding-right: 10px;
-
-    @media (max-width: 700px) {
-        grid-column: 1;
-        grid-row: 2;
-    }
 `
 
 const KillFeedAndMapOptionContainer = styled.div`
@@ -70,11 +47,7 @@ const KillFeedAndMapOptionContainer = styled.div`
     height: ${props => props.mapSize + 48}px;
     grid-template-rows: ${props => props.mapSize + 48 - 100}px 100px;
     padding-right: 10px;
-    
-    @media (max-width: 700px) {
-        grid-column: 1;
-        grid-row: 2;
-    }
+   
 `
 
 const KillFeedContainer = styled.div`
@@ -92,13 +65,6 @@ const MapOptionContainer = styled.div`
 
 const MatchHeader = styled.div`
     margin: 0 20px 10px 20px;
-
-    @media (max-width: 700px) {
-        grid-template-columns: 0px 1fr max-content;
-        grid-row: 2;
-        margin-top: 10px;
-        margin-bottom: 0;
-    }
 `
 
 const ControllerContainer = styled.div`
@@ -106,16 +72,9 @@ const ControllerContainer = styled.div`
     grid-template-columns: 100px 1fr max-content;
        grid-column-gap: 10px;
     margin: 10px 10px 0px 10px;
-
-    @media (max-width: 700px) {
-        grid-template-columns: 0px 1fr max-content;
-        grid-row: 2;
-        margin-top: 10px;
-        margin-bottom: 0;
-    }
 `
 
-const RosterHeader = styled.div`
+const SummonerListHeader = styled.div`
     text-align: center;
     font-size: 1.2rem;
     font-weight: 700;
@@ -138,10 +97,12 @@ class MatchPlayer extends React.Component {
             // See getDerivedStateFromProps
             prevPlayerName: props.playerName,
             hoveredPlayer: null,
+            hoveredObject: null,
             trackedPlayers: [],
             options: Options.DEFAULT_OPTIONS,
             setOption: null,
         }
+
     }
 
     marks = {
@@ -151,6 +112,10 @@ class MatchPlayer extends React.Component {
         hoveredPlayer: () => this.state.hoveredPlayer,
         isPlayerHovered: playerName => this.state.hoveredPlayer === playerName,
         setHoveredPlayer: playerName => this.setState({ hoveredPlayer: playerName }),
+
+        hoveredObject: () => this.state.hoveredObject,
+        isObjectHovered: objectName => this.state.hoveredObject === objectName,
+        setHoveredObject: objectName => this.setState({ hoveredObject: objectName }),
 
         trackedPlayers: () => this.state.trackedPlayers,
         isPlayerTracked: playerName => this.state.trackedPlayers.includes(playerName),
@@ -169,240 +134,6 @@ class MatchPlayer extends React.Component {
         },
     }
 
-    render() {
-        const { match, rawTelemetry, telemetry, globalState } = this.props
-        const { mapSize, options, setOption, prevPlayerName } = this.state
-
-        console.log(telemetry)
-        console.log(globalState)
-
-        return (
-            <Options.Context.Provider value={{ options, setOption }}>
-                <TimeTracker
-                    options={options}
-                    durationSeconds={match.durationSeconds + 5}
-                    telemetry={telemetry}
-                    render={({ msSinceEpoch, timeControls, currentTelemetry }) =>
-                        <MatchContainer id="MatchContainer">
-                            <RosterContainer mapSize={mapSize}>
-                                {/*
-                                <RosterHeader>Name / Kills / Damage</RosterHeader>
-                                <Roster
-                                    match={match}
-                                    telemetry={currentTelemetry}
-                                    rosters={rosters}
-                                    marks={this.marks}
-                                />
-                                */}
-                            </RosterContainer>
-                            <MapContainer id="MapContainer" isDotHovered={!!this.marks.hoveredPlayer()}>
-                                <MatchHeader>
-                                    {/*
-                                    <MatchInfo
-                                        match={match}
-                                        marks={this.marks}
-                                        rawTelemetry={rawTelemetry}
-                                        playerName={prevPlayerName}
-                                    />
-                                    */}
-                                </MatchHeader>
-                                <Map
-                                    match={match}
-                                    telemetry={currentTelemetry}
-                                    mapSize={mapSize}
-                                    marks={this.marks}
-                                    msSinceEpoch={msSinceEpoch}
-                                    options={options}
-                                />
-                                <ControllerContainer>
-                                    <PlayControls
-                                        autoplay={timeControls.autoplay}
-                                        toggleAutoplay={timeControls.toggleAutoplay}
-                                        isFinished={(match.durationSeconds + 5) === (msSinceEpoch / 1000)}
-                                        rewindToStart={timeControls.rewindToStart}
-                                        skip30sForward={timeControls.skip30sForward}
-                                        skip30sReverse={timeControls.skip30sReverse}
-                                    />
-                                    <TimeSlider
-                                        value={msSinceEpoch}
-                                        stopAutoplay={timeControls.stopAutoplay}
-                                        onChange={timeControls.setMsSinceEpoch}
-                                        durationSeconds={match.durationSeconds + 5}
-                                        globalState={globalState}
-                                        options={options}
-                                        skipTo={timeControls.skipTo}
-                                    />
-                                    <SpeedControl
-                                        autoplay={timeControls.autoplay}
-                                        autoplaySpeed={timeControls.autoplaySpeed}
-                                        toggleAutoplay={timeControls.toggleAutoplay}
-                                        changeSpeed={timeControls.setAutoplaySpeed}
-                                        isFinished={(match.durationSeconds + 5) === (msSinceEpoch / 1000)}
-                                        rewindToStart={timeControls.rewindToStart}
-                                    />
-                                </ControllerContainer>
-                            </MapContainer>
-                            <KillFeedAndMapOptionContainer mapSize={mapSize}>
-                                {/*
-                                <KillFeedContainer mapSize={mapSize}>
-                                    <KillFeedHeader>Kill Feeds</KillFeedHeader>
-                                    {currentTelemetry && <KillFeed focusPlayer={this.marks.focusedPlayer()}
-                                                                   teammates={currentTelemetry.players[this.marks.focusedPlayer()].teammates}
-                                                                   mapSize={mapSize}
-                                                                   killLogs={currentTelemetry.killLogs}
-                                                                   options={options}
-                                                                   skipTo={timeControls.skipTo}
-                                                                   stopAutoplay={timeControls.stopAutoplay}
-                                                                   msSinceEpoch={msSinceEpoch}
-                                    />}
-                                </KillFeedContainer>
-                                <MapOptionContainer>
-                                    <MapOptions options={options} setOption={setOption} />
-                                </MapOptionContainer>
-                                */}
-                            </KillFeedAndMapOptionContainer>
-
-
-                            {/*
-                            <RosterContainer mapSize={mapSize}>
-                                <RosterHeader>Name / Kills / Damage</RosterHeader>
-                                <Roster
-                                    match={match}
-                                    telemetry={currentTelemetry}
-                                    rosters={rosters}
-                                    marks={this.marks}
-                                />
-                            </RosterContainer>
-                            <MapContainer id="MapContainer" isDotHovered={!!this.marks.hoveredPlayer()}>
-                                <MatchHeader>
-                                    <MatchInfo
-                                        match={match}
-                                        marks={this.marks}
-                                        rawTelemetry={rawTelemetry}
-                                        playerName={prevPlayerName}
-                                    />
-                                </MatchHeader>
-                                <Map
-                                    match={match}
-                                    telemetry={currentTelemetry}
-                                    mapSize={mapSize}
-                                    marks={this.marks}
-                                    msSinceEpoch={msSinceEpoch}
-                                    options={options}
-                                />
-                                <ControllerContainer>
-                                    <PlayControls
-                                        autoplay={timeControls.autoplay}
-                                        toggleAutoplay={timeControls.toggleAutoplay}
-                                        isFinished={(match.durationSeconds + 5) === (msSinceEpoch / 1000)}
-                                        rewindToStart={timeControls.rewindToStart}
-                                        skip30sForward={timeControls.skip30sForward}
-                                        skip30sReverse={timeControls.skip30sReverse}
-                                    />
-                                    <TimeSlider
-                                        value={msSinceEpoch}
-                                        stopAutoplay={timeControls.stopAutoplay}
-                                        onChange={timeControls.setMsSinceEpoch}
-                                        durationSeconds={match.durationSeconds + 5}
-                                        globalState={globalState}
-                                        options={options}
-                                        skipTo={timeControls.skipTo}
-                                    />
-                                    <SpeedControl
-                                        autoplay={timeControls.autoplay}
-                                        autoplaySpeed={timeControls.autoplaySpeed}
-                                        toggleAutoplay={timeControls.toggleAutoplay}
-                                        changeSpeed={timeControls.setAutoplaySpeed}
-                                        isFinished={(match.durationSeconds + 5) === (msSinceEpoch / 1000)}
-                                        rewindToStart={timeControls.rewindToStart}
-                                    />
-                                </ControllerContainer>
-                            </MapContainer>
-                            <KillFeedAndMapOptionContainer mapSize={mapSize}>
-                                <KillFeedContainer mapSize={mapSize}>
-                                    <KillFeedHeader>Kill Feeds</KillFeedHeader>
-                                    {currentTelemetry && <KillFeed focusPlayer={this.marks.focusedPlayer()}
-                                                                   teammates={currentTelemetry.players[this.marks.focusedPlayer()].teammates}
-                                                                   mapSize={mapSize}
-                                                                   killLogs={currentTelemetry.killLogs}
-                                                                   options={options}
-                                                                   skipTo={timeControls.skipTo}
-                                                                   stopAutoplay={timeControls.stopAutoplay}
-                                                                   msSinceEpoch={msSinceEpoch}
-                                    />}
-                                </KillFeedContainer>
-                                <MapOptionContainer>
-                                    <MapOptions options={options} setOption={setOption} />
-                                </MapOptionContainer>
-                            </KillFeedAndMapOptionContainer>
-*/}
-                        </MatchContainer>
-                    }
-                />
-            </Options.Context.Provider>
-        )
-    }
-}
-
-/*
-class MatchPlayer extends React.Component {
-    constructor(props) {
-        super(props)
-
-        this.state = {
-            mapSize: 0,
-            focusedPlayer: props.playerName,
-            // See getDerivedStateFromProps
-            prevPlayerName: props.playerName,
-            hoveredPlayer: null,
-            trackedPlayers: [],
-            options: Options.DEFAULT_OPTIONS,
-            setOption: null,
-        }
-    }
-
-    marks = {
-        focusedPlayer: () => this.state.focusedPlayer,
-        isPlayerFocused: playerName => this.state.focusedPlayer === playerName,
-
-        hoveredPlayer: () => this.state.hoveredPlayer,
-        isPlayerHovered: playerName => this.state.hoveredPlayer === playerName,
-        setHoveredPlayer: playerName => this.setState({ hoveredPlayer: playerName }),
-
-        trackedPlayers: () => this.state.trackedPlayers,
-        isPlayerTracked: playerName => this.state.trackedPlayers.includes(playerName),
-        toggleTrackedPlayer: (...playerNames) => {
-            this.setState(({ trackedPlayers }) => {
-                if (playerNames.length > 1 && difference(playerNames, trackedPlayers).length !== 0) {
-                    return {
-                        trackedPlayers: union(trackedPlayers, playerNames),
-                    }
-                }
-
-                return {
-                    trackedPlayers: xor(trackedPlayers, playerNames),
-                }
-            })
-        },
-    }
-
-    // -------------------------------------------------------------------------
-    // Map Sizing, Lifecycle ---------------------------------------------------
-    // -------------------------------------------------------------------------
-
-    // https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html
-    // HACK-ish. Should probably turn this into a controlled component.
-    // The functionality isn't needed right now, but I'd rather not break it.
-    static getDerivedStateFromProps(nextProps, prevState) {
-        if (prevState.prevPlayerName !== nextProps.playerName) {
-            return {
-                focusedPlayer: nextProps.playerName,
-                prevPlayerName: nextProps.playerName,
-            }
-        }
-
-        return null
-    }
 
     componentDidMount() {
         window.addEventListener('resize', this.updateMapSize.bind(this))
@@ -448,12 +179,8 @@ class MatchPlayer extends React.Component {
         window.removeEventListener('resize', this.updateMapSize.bind(this))
     }
 
-    // -------------------------------------------------------------------------
-    // Render ------------------------------------------------------------------
-    // -------------------------------------------------------------------------
-
     render() {
-        const { match, rawTelemetry, telemetry, rosters, globalState } = this.props
+        const { match, timeline, globalState } = this.props
         const { mapSize, options, setOption, prevPlayerName } = this.state
 
         return (
@@ -461,16 +188,17 @@ class MatchPlayer extends React.Component {
                 <TimeTracker
                     options={options}
                     durationSeconds={match.durationSeconds + 5}
-                    telemetry={telemetry}
-                    render={({ msSinceEpoch, timeControls, currentTelemetry }) =>
+                    replayData={timeline}
+                    autoplaySpeed={20}
+                    render={({ msSinceEpoch, timeControls, currentReplayData }) =>
                         <MatchContainer id="MatchContainer">
                             <RosterContainer mapSize={mapSize}>
-                                <RosterHeader>Name / Kills / Damage</RosterHeader>
-                                <Roster
+                                <SummonerListHeader>Summoner / K / D / A</SummonerListHeader>
+                                <SummonerList
                                     match={match}
-                                    telemetry={currentTelemetry}
-                                    rosters={rosters}
+                                    currentTimeline={currentReplayData}
                                     marks={this.marks}
+                                    players={Object.values(currentReplayData.players)}
                                 />
                             </RosterContainer>
                             <MapContainer id="MapContainer" isDotHovered={!!this.marks.hoveredPlayer()}>
@@ -478,13 +206,12 @@ class MatchPlayer extends React.Component {
                                     <MatchInfo
                                         match={match}
                                         marks={this.marks}
-                                        rawTelemetry={rawTelemetry}
-                                        playerName={prevPlayerName}
+                                        currentTimeline={currentReplayData}
                                     />
                                 </MatchHeader>
                                 <Map
                                     match={match}
-                                    telemetry={currentTelemetry}
+                                    timeline={currentReplayData}
                                     mapSize={mapSize}
                                     marks={this.marks}
                                     msSinceEpoch={msSinceEpoch}
@@ -515,23 +242,17 @@ class MatchPlayer extends React.Component {
                                         changeSpeed={timeControls.setAutoplaySpeed}
                                         isFinished={(match.durationSeconds + 5) === (msSinceEpoch / 1000)}
                                         rewindToStart={timeControls.rewindToStart}
+                                        minSpeed={10}
+                                        maxSpeed={50}
                                     />
                                 </ControllerContainer>
-
-                                {/!*<HelpModal mapSize={mapSize} />
-                                <DownloadButton
-                                    match={match}
-                                    playerName={prevPlayerName}
-                                    rawTelemetry={rawTelemetry}
-                                />*!/}
                             </MapContainer>
                             <KillFeedAndMapOptionContainer mapSize={mapSize}>
                                 <KillFeedContainer mapSize={mapSize}>
                                     <KillFeedHeader>Kill Feeds</KillFeedHeader>
-                                    {currentTelemetry && <KillFeed focusPlayer={this.marks.focusedPlayer()}
-                                                                   teammates={currentTelemetry.players[this.marks.focusedPlayer()].teammates}
+                                    {currentReplayData && <KillFeed focusPlayer={this.marks.focusedPlayer()}
                                                                    mapSize={mapSize}
-                                                                   killLogs={currentTelemetry.killLogs}
+                                                                   killLogs={currentReplayData.killLogs}
                                                                    options={options}
                                                                    skipTo={timeControls.skipTo}
                                                                    stopAutoplay={timeControls.stopAutoplay}
@@ -539,16 +260,16 @@ class MatchPlayer extends React.Component {
                                     />}
                                 </KillFeedContainer>
                                 <MapOptionContainer>
-                                    <MapOptions options={options} setOption={setOption} />
+                                   {/* <MapOptions options={options} setOption={setOption} />*/}
+                                   &nbsp;
                                 </MapOptionContainer>
                             </KillFeedAndMapOptionContainer>
-
                         </MatchContainer>
                     }
                 />
             </Options.Context.Provider>
         )
     }
-}*/
+}
 
 export default MatchPlayer

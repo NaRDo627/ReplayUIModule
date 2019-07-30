@@ -8,7 +8,7 @@ class TimeTracker extends React.Component {
         autoplay: false,
     }
 
-    clampAutoplaySpeed = val => clamp(val, 1, 40)
+    clampAutoplaySpeed = val => clamp(val, 1, 50)
     clampMsSinceEpoch = val => clamp(val, 1000, this.props.durationSeconds * 1000)
     setMsSinceEpoch = val => { this.setState({ msSinceEpoch: this.clampMsSinceEpoch(val) }) }
     setAutoplaySpeed = val => { this.setState({ autoplaySpeed: this.clampAutoplaySpeed(val) }) }
@@ -74,6 +74,8 @@ class TimeTracker extends React.Component {
         }
 
         setTimeout(this.toggleAutoplay, 100)
+
+        this.setState({ autoplaySpeed: this.props.autoplaySpeed })
     }
 
     componentWillUnmount() {
@@ -145,10 +147,10 @@ class TimeTracker extends React.Component {
     }
 
     render() {
-        const { telemetry } = this.props
+        const { replayData } = this.props
         const renderProps = {
             msSinceEpoch: this.state.msSinceEpoch,
-            currentTelemetry: telemetry && telemetry.stateAt(this.state.msSinceEpoch),
+            currentReplayData: replayData && replayData.stateAt(this.state.msSinceEpoch),
             timeControls: {
                 autoplay: this.state.autoplay,
                 autoplaySpeed: this.state.autoplaySpeed,
@@ -166,6 +168,10 @@ class TimeTracker extends React.Component {
 
         return this.props.render(renderProps)
     }
+}
+
+TimeTracker.defaultProps = {
+    autoplaySpeed: 10
 }
 
 export default TimeTracker

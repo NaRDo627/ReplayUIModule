@@ -65,6 +65,7 @@ export default function parseTelemetry(matchData, telemetry, focusedPlayerName) 
         return killedBy
     }
 
+    let isFocusedPlayerFound = false;
     { // --- Step Zero: Initialize state
         const teammates = matchData.players.reduce((acc, p) => {
             const teammateNames = matchData.players
@@ -88,10 +89,19 @@ export default function parseTelemetry(matchData, telemetry, focusedPlayerName) 
             }
 
             latestPlayerStates[p.name] = curState.players[p.name]
+            if(focusedPlayerName === p.name)
+                isFocusedPlayerFound = true;
         })
 
         state[0] = curState
     }
+
+    if(!isFocusedPlayerFound){
+        console.warn("Focused player not found")
+        const tempPlayer = Object.values(curState.players)[0]
+        focusedPlayerName = tempPlayer.name;
+    }
+
 
     { // --- Step One: Iterate through all telemetry data and store known points
         console.time('Telemetry-eventParsing')
@@ -202,7 +212,7 @@ export default function parseTelemetry(matchData, telemetry, focusedPlayerName) 
                     incrementPlayerStateVal(d.killer.name, 'kills', 1)
                 }
 
-                if (d && d.victim.name === focusedPlayerName) {
+                if (d && d.victim.name.toLowerCase() === focusedPlayerName.toLowerCase()) {
                     const killedBy = getKilledBy(d)
 
                     globalState.death = {
@@ -211,7 +221,7 @@ export default function parseTelemetry(matchData, telemetry, focusedPlayerName) 
                     }
                 }
 
-                if (d && d.killer && d.killer.name === focusedPlayerName) {
+                if (d && d.killer && d.killer.name.toLowerCase() === focusedPlayerName.toLowerCase()) {
                     globalState.kills.push({
                         msSinceEpoch,
                         victimName: d.victim.name,
@@ -460,5 +470,5 @@ export default function parseTelemetry(matchData, telemetry, focusedPlayerName) 
         }
     }
 
-    return { state, globalState }
+    return { state, globalState, focusedPlayerName }
 }

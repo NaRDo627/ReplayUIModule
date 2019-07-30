@@ -1,15 +1,16 @@
-import moment from 'moment'
-import { get, remove, minBy, cloneDeep } from 'lodash'
+import { get } from 'lodash'
+import championDict from '../assets/Lol/champion.json'
 
 const blankIntervalState = () => ({
     players: {},
     playerLocations: {},
-    killLogs: []
+    destroyedObjectLocations: [],
+    killLogs: [],
+    killStatus: {"100": 0, "200": 0}
 })
 
 export default function parseTimeline(matchData, timeline, focusedPlayerName) {
-    const epoch = new Date(Number(matchData.playedAt));
-    const state = Array(matchData.durationSeconds + 5)
+    const state = Array(matchData.durationSeconds + 9)
     const globalState = { kills: [], assists: [], deaths: [] }
     const latestPlayerStates = {}
     let curState = blankIntervalState()
@@ -33,14 +34,28 @@ export default function parseTimeline(matchData, timeline, focusedPlayerName) {
         setNewPlayerState(participantId, { [path]: latestPlayerStates[participantId][path] + delta })
     }
 
-    let focusedPlayerId = 1;
+    const getSummonerNameById = (participantId) => (participantId === 0)? 'Minion' : matchData.players[Number(participantId)-1].player.summonerName
+    const getChampionNameByKey = (championKey) => {
+        const champion = Object.values(championDict.data).find(n => n.key === String(championKey))
+        // if champion does not exist
+        if(!champion){
+            console.warn("Champion key" + championKey +"was not found in champion.json")
+            return "Aatrox"
+        }
+
+
+        return champion.id;
+    }
+
+
+    let focusedPlayerId = 0;
     { // --- Step Zero: Initialize state
         // [190727][HKPARK] 1~5 까지 1팀, 6~10까지 2팀으로 한다.
-
         matchData.players.forEach(p => {
             curState.players[p.participantId + ""] = {
                 name: p.player.summonerName,
-                teamNumber: (p.participantId < 6)? 1 : 2,
+                teamId: (p.participantId < 6)? 100 : 200,
+                championName: getChampionNameByKey(p.championId),
                 level: 1,
                 xp: 0,
                 kills: 0,
@@ -54,16 +69,21 @@ export default function parseTimeline(matchData, timeline, focusedPlayerName) {
                 skillLvlSlot2: 0,
                 skillLvlSlot3: 0,
                 skillLvlSlot4: 0,
-
             }
 
             latestPlayerStates[p.participantId + ""] = curState.players[p.participantId + ""]
 
-            if(p.player.summonerName === focusedPlayerName)
+            if(p.player.summonerName.toLowerCase() === focusedPlayerName.toLowerCase())
                 focusedPlayerId = p.participantId
         })
-        console.log(focusedPlayerId)
+
         state[0] = curState
+    }
+
+    if(focusedPlayerId === 0){
+        console.warn("Focused player not found")
+        focusedPlayerId = 1;
+        focusedPlayerName = curState.players["1"].name
     }
 
     { // --- Step One: Iterate through all telemetry data and store known points
@@ -71,7 +91,6 @@ export default function parseTimeline(matchData, timeline, focusedPlayerName) {
 
     //    let matchStarted = false
         let curStateInterval = 0
-        let lastTimestamp = 0
         timeline.forEach((d, i) => {
             // [190728][HKPARK] 현재 발생한 이벤트를 처리 후, 현재 타임라인 정보를 업데이트 한다.
             d.events.forEach((e, i) => {
@@ -94,33 +113,33 @@ export default function parseTimeline(matchData, timeline, focusedPlayerName) {
                 // ITEM_DESTROYED(used), ITEM_UNDO, SKILL_LEVEL_UP,
                 // ASCENDED_EVENT, CAPTURE_POINT, PORO_KING_SUMMON
 
-                // events with is I dont know : PORO_KING_SUMMON, CAPTURE_POINT, ASCENDED_EVENT
+                // events witch is I dont know : PORO_KING_SUMMON, CAPTURE_POINT, ASCENDED_EVENT
                 //
 
                 if (e.type === 'CHAMPION_KILL') {
-                    if (e && e.killerId) {
+                    if (e.killerId) {
                         incrementPlayerStateVal(e.killerId, 'kills', 1)
                     }
-                    if (e && e.victimId) {
+                    if (e.victimId) {
                         incrementPlayerStateVal(e.victimId, 'deaths', 1)
                     }
 
-                    if (e && e.victimId === focusedPlayerId) {
+                    if (e.victimId && e.victimId === focusedPlayerId) {
                         globalState.deaths.push({
                             msSinceEpoch,
-                            killerId: e.killerId,
+                            killedBy: getSummonerNameById(e.killerId),
                         })
                     }
 
-                    if (e && e.killerId === focusedPlayerId) {
+                    if (e.killerId && e.killerId === focusedPlayerId) {
                         globalState.kills.push({
                             msSinceEpoch,
-                            victimId: e.victimId,
+                            victimName: getSummonerNameById(e.victimId),
                         })
                     }
 
                     // assist
-                    if (e && e.assistingParticipantIds) {
+                    if (e.assistingParticipantIds) {
                         e.assistingParticipantIds.map(p => {
                             incrementPlayerStateVal(p, 'assists', 1)
 
@@ -133,15 +152,18 @@ export default function parseTimeline(matchData, timeline, focusedPlayerName) {
                         })
                     }
 
-                    // pos update
+                    // pos update - victim goes home
                     setNewPlayerLocation(e.killerId, { x: e.position.x, y: e.position.y })
-                    setNewPlayerLocation(e.victimId, { x: e.position.x, y: e.position.y })
+                    setNewPlayerLocation(e.victimId, { x: state[0].playerLocations[e.victimId].x, y: state[0].playerLocations[e.victimId].y })
 
-                    // [190721][HKPARK] KillFeed 관련 추가
                     curState.killLogs.push({
                         killType: "CHAMPION_KILL",
-                        killerId: e.killerId,
-                        victimId: e.victimId,
+                        killerTeamId: (e.killerId !== 0)? curState.players[e.killerId + ""].teamId : "Minion",
+                        victimTeamId: (e.victimId !== 0)? curState.players[e.victimId + ""].teamId : "Minion",
+                        killerName: (e.killerId !== 0)? curState.players[e.killerId + ""].championName : "Minion",
+                        victimName: curState.players[e.victimId + ""].championName,
+                        killerSummonerName: (e.killerId !== 0)? curState.players[e.killerId + ""].name : "Minion",
+                        victimSummonerName:  curState.players[e.victimId + ""].name,
                         msSinceEpoch
                     })
                 }
@@ -150,12 +172,24 @@ export default function parseTimeline(matchData, timeline, focusedPlayerName) {
                 if (e.type === 'BUILDING_KILL') {
                     // pos update
                     setNewPlayerLocation(e.killerId, { x: e.position.x, y: e.position.y })
-                    setNewPlayerLocation(e.victimId, { x: e.position.x, y: e.position.y })
+                    curState.destroyedObjectLocations.push({
+                        type: "BUILDING",
+                        killerTeamId: (e.killerId !== 0)? curState.players[e.killerId + ""].teamId : "Minion",
+                        victimTeamId: e.teamId,
+                        name: e.buildingType,
+                        x: e.position.x,
+                        y: e.position.y,
+                        msSinceEpoch,
+                    })
 
                     curState.killLogs.push({
                         killType: "BUILDING_KILL",
-                        killerId: e.killerId,
-                        victimId: e.buildingType,
+                        killerTeamId: (e.killerId !== 0)? curState.players[e.killerId + ""].teamId : "Minion",
+                        victimTeamId: e.teamId,
+                        killerName: (e.killerId !== 0)? curState.players[e.killerId + ""].championName : "Minion",
+                        victimName: e.buildingType,
+                        killerSummonerName: (e.killerId !== 0)? curState.players[e.killerId + ""].name : "Minion",
+                        victimSummonerName: e.buildingType,
                         msSinceEpoch
                     })
                 }
@@ -163,34 +197,48 @@ export default function parseTimeline(matchData, timeline, focusedPlayerName) {
                 if (e.type === 'ELITE_MONSTER_KILL') {
                     // pos update
                     setNewPlayerLocation(e.killerId, { x: e.position.x, y: e.position.y })
-                    setNewPlayerLocation(e.victimId, { x: e.position.x, y: e.position.y })
+                    curState.destroyedObjectLocations.push({
+                        type: "ELITE_MONSTER",
+                        killerTeamId: (e.killerId !== 0)? curState.players[e.killerId + ""].teamId : "Minion",
+                        victimTeamId: 0,
+                        name: (e.monsterSubType)? e.monsterSubType: e.monsterType,
+                        x: e.position.x,
+                        y: e.position.y,
+                        msSinceEpoch,
+                    })
 
                     curState.killLogs.push({
                         killType: "ELITE_MONSTER_KILL",
-                        killerId: e.killerId,
-                        victimId: (e.monsterSubType)? e.monsterSubType: e.monsterType,
+                        killerTeamId: (e.killerId !== 0)? curState.players[e.killerId + ""].teamId : "Minion",
+                        victimTeamId: 0,
+                        killerName: (e.killerId !== 0)? curState.players[e.killerId + ""].championName : "Minion",
+                        victimName: (e.monsterSubType)? e.monsterSubType: e.monsterType,
+                        killerSummonerName: (e.killerId !== 0)? curState.players[e.killerId + ""].name : "Minion",
+                        victimSummonerName: (e.monsterSubType)? e.monsterSubType: e.monsterType,
                         msSinceEpoch
                     })
                 }
 
 
-                if (e.type === 'ITEM_PURCHASED') {
-                    const participantId = e.participantId + "";
-                    const currentItems = curState.players[participantId].items
+                if (e.type === 'ITEM_PURCHASED' || (e.type === 'ITEM_UNDO' && e.afterId !== 0)) {
+                    const participantId = String(e.participantId);
+                    let currentItems = curState.players[participantId].items.slice()
+                    const itemId = (e.afterId)? e.afterId : e.itemId
 
-                    setNewPlayerState(e.participantId, { items: [...currentItems, e.itemId] })
+                    setNewPlayerState(e.participantId, { items: [...currentItems, itemId] })
                 }
 
 
-                if (e.type === 'ITEM_SOLD' || e.type === 'ITEM_DESTROYED' || e.type === 'ITEM_UNDO') {
-                    const participantId = e.participantId + "";
-                    const currentItems = curState.players[participantId].items
+                if (e.type === 'ITEM_SOLD' || e.type === 'ITEM_DESTROYED' || (e.type === 'ITEM_UNDO' && e.beforeId !== 0)) {
+                    const participantId = String(e.participantId);
+                    let currentItems = curState.players[participantId].items.slice()
+                    const itemId = (e.beforeId)? e.beforeId : e.itemId
+                    currentItems.splice(currentItems.indexOf(itemId), 1)
 
                     setNewPlayerState(e.participantId, {
-                        items: currentItems.filter(item => item !== e.itemId),
+                        items: currentItems,
                     })
                 }
-
 
                 if (e.type === 'SKILL_LEVEL_UP') {
                     const skillSlot = e.skillSlot
@@ -198,7 +246,7 @@ export default function parseTimeline(matchData, timeline, focusedPlayerName) {
                 }
             })
 
-            // Players Pos Update
+            // Players pos update per frame
             for(let i = 1; i <= 10; i++) {
                 const level = d.participantFrames[String(i)].level
                 const xp = d.participantFrames[String(i)].xp
@@ -233,12 +281,9 @@ export default function parseTimeline(matchData, timeline, focusedPlayerName) {
                 state[i] = lastState
             }
             else
-                lastState = JSON.parse(JSON.stringify(state[i])); // deep copy
+                lastState = state[i]
         }
     }
 
-
-    console.log(epoch)
-
-    return { state, globalState }
+    return { state, globalState, focusedPlayerName }
 }

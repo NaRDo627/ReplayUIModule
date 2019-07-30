@@ -11,21 +11,6 @@ const StyledMatchInfo = styled.div`
     list-style-type: none;
     grid-template-columns: 180px auto;
     display: grid;
-
-    @media (max-width: 700px) {
-        grid-column: 1;
-        display: inline-block;
-        position: absolute;
-        top: -20px;
-        width: 100%;
-        text-align: center;
-        font-size: 1.1rem;
-
-        li {
-            display: inline-block;
-            margin-right: 3px;
-        }
-    }
 `
 
 const StyledPlayedAt = styled.div`
