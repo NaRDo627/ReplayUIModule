@@ -37,3 +37,4 @@ build/
 FrontEnd/node_modules
 /BackEnd/src/main/resources/application.properties
 .env.local
+/BackEnd/src/main/resources/application.properties

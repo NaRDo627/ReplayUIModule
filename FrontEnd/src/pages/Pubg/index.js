@@ -31,12 +31,6 @@ class Pubg extends Component{
     }
 
     loadTelemetry = async () => {
-        // console.log('Fetching telemetry')
-        // const res = await fetch(telemetryUrl)
-        // const telemetry = await res.json()
-        // console.log('setting telemetry', telemetry)
-        // this.setState({ telemetry })
-
         this.cancelTelemetry();
 
         const { match: { params } } = this.props;
@@ -50,7 +44,6 @@ class Pubg extends Component{
 
             const telemetry = Telemetry(state)
             this.setState(prevState => ({
-                rawTelemetry: rawReplayData,
                 telemetry,
                 match,
                 telemetryLoaded: true,
@@ -84,7 +77,6 @@ class Pubg extends Component{
 
             const telemetry = Telemetry(state)
             this.setState(prevState => ({
-                rawTelemetry: rawReplayData,
                 telemetry,
                 match,
                 telemetryLoaded: true,
@@ -112,28 +104,29 @@ class Pubg extends Component{
     }
 
     render() {
-        const { match: { params } } = this.props
-        const { match, telemetry, rawTelemetry, telemetryLoaded, telemetryError, rosters, globalState, playerName } = this.state
+        const { match, telemetry, telemetryLoaded, telemetryError, rosters, globalState, playerName } = this.state
 
         let content
 
-        if (telemetryError.length !== 0) {
-            content = <Message>An error occurred :(</Message>
-        } /*else if (!match) {
+        if (telemetryError === "404 NOT_FOUND") {
             content = <Message>Match not found</Message>
-        }*/ else if (!telemetryLoaded) {
+        }
+        else if (telemetryError === "403 FORBIDDEN") {
+            content = <Message>Current API key is not valid</Message>
+        }
+        else if (telemetryError.length !== 0) {
+            content = <Message>An error occurred :(</Message>
+        } else if (!telemetryLoaded) {
             content = <Message>Loading telemetry...</Message>
         } else {
             console.log(match)
             content = <ReplayPubg
                 match={match}
-                rawTelemetry={rawTelemetry}
                 telemetry={telemetry}
                 rosters={rosters}
                 globalState={globalState}
                 playerName={playerName}
             />
-           // content = <Message>{rawTelemetry.map(object => <div>{object._T}</div>)}</Message>
         }
 
         return (

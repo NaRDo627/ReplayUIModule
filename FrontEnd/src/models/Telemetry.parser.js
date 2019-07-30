@@ -89,7 +89,7 @@ export default function parseTelemetry(matchData, telemetry, focusedPlayerName) 
             }
 
             latestPlayerStates[p.name] = curState.players[p.name]
-            if(focusedPlayerName.toLowerCase() === p.name.toLowerCase())
+            if(focusedPlayerName === p.name)
                 isFocusedPlayerFound = true;
         })
 
@@ -100,7 +100,6 @@ export default function parseTelemetry(matchData, telemetry, focusedPlayerName) 
         console.warn("Focused player not found")
         const tempPlayer = Object.values(curState.players)[0]
         focusedPlayerName = tempPlayer.name;
-        console.log(focusedPlayerName)
     }
 
 

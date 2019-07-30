@@ -1,15 +1,15 @@
-import { get, remove, minBy, cloneDeep } from 'lodash'
+import { get } from 'lodash'
 import championDict from '../assets/Lol/champion.json'
 
 const blankIntervalState = () => ({
     players: {},
     playerLocations: {},
     destroyedObjectLocations: [],
-    killLogs: []
+    killLogs: [],
+    killStatus: {"100": 0, "200": 0}
 })
 
 export default function parseTimeline(matchData, timeline, focusedPlayerName) {
-    const epoch = new Date(Number(matchData.playedAt));
     const state = Array(matchData.durationSeconds + 9)
     const globalState = { kills: [], assists: [], deaths: [] }
     const latestPlayerStates = {}
@@ -158,9 +158,8 @@ export default function parseTimeline(matchData, timeline, focusedPlayerName) {
 
                     curState.killLogs.push({
                         killType: "CHAMPION_KILL",
-                     /*   killerName: getSummonerNameById(e.killerId),
-                        victimName: getSummonerNameById(e.victimId),*/
                         killerTeamId: (e.killerId !== 0)? curState.players[e.killerId + ""].teamId : "Minion",
+                        victimTeamId: (e.victimId !== 0)? curState.players[e.victimId + ""].teamId : "Minion",
                         killerName: (e.killerId !== 0)? curState.players[e.killerId + ""].championName : "Minion",
                         victimName: curState.players[e.victimId + ""].championName,
                         killerSummonerName: (e.killerId !== 0)? curState.players[e.killerId + ""].name : "Minion",
@@ -185,8 +184,8 @@ export default function parseTimeline(matchData, timeline, focusedPlayerName) {
 
                     curState.killLogs.push({
                         killType: "BUILDING_KILL",
-                       // killerName: getSummonerNameById(e.killerId),
                         killerTeamId: (e.killerId !== 0)? curState.players[e.killerId + ""].teamId : "Minion",
+                        victimTeamId: e.teamId,
                         killerName: (e.killerId !== 0)? curState.players[e.killerId + ""].championName : "Minion",
                         victimName: e.buildingType,
                         killerSummonerName: (e.killerId !== 0)? curState.players[e.killerId + ""].name : "Minion",
@@ -210,8 +209,8 @@ export default function parseTimeline(matchData, timeline, focusedPlayerName) {
 
                     curState.killLogs.push({
                         killType: "ELITE_MONSTER_KILL",
-                   //     killerName: getSummonerNameById(e.killerId),
                         killerTeamId: (e.killerId !== 0)? curState.players[e.killerId + ""].teamId : "Minion",
+                        victimTeamId: 0,
                         killerName: (e.killerId !== 0)? curState.players[e.killerId + ""].championName : "Minion",
                         victimName: (e.monsterSubType)? e.monsterSubType: e.monsterType,
                         killerSummonerName: (e.killerId !== 0)? curState.players[e.killerId + ""].name : "Minion",
@@ -241,25 +240,6 @@ export default function parseTimeline(matchData, timeline, focusedPlayerName) {
                     })
                 }
 
- /*               if (e.type === 'WARD_PLACED') {
-                    if(e.wardType === "CONTROL_WARD")
-                        console.log("control ward placed by " + e.creatorId)
-                }*/
-
-          /*      if (e.type === 'WARD_PLACED') {
-                    if(e.wardType === "CONTROL_WARD") {
-                        const wardId = 2055
-                        const participantId = e.creatorId + "";
-                        let currentItems = curState.players[participantId].items
-                        currentItems.splice(currentItems.indexOf(wardId), 1)
-
-                        setNewPlayerState(e.creatorId, {
-                            items: currentItems,
-                        })
-                    }
-                }
-
-*/
                 if (e.type === 'SKILL_LEVEL_UP') {
                     const skillSlot = e.skillSlot
                     incrementPlayerStateVal(e.participantId, "skillLvlSlot" + skillSlot, 1)

@@ -157,7 +157,7 @@ const SummonerList = ({marks, players}) => {
                                 <img
                                 src={goldImg}
                                 alt={""}
-                                width={12}
+                                width={16}
                                 />
                                 {p.currentGold}
                             </SummonerGold>

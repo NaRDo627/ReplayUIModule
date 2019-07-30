@@ -20,7 +20,7 @@ class Lol extends Component{
         rawTimeline: null,
         timeline: null,
         timelineLoaded: false,
-        timelineError: false,
+        timelineError: "",
         globalState: null,
         match: null
     }
@@ -32,26 +32,19 @@ class Lol extends Component{
     }
 
     loadTelemetry = async () => {
-        // console.log('Fetching telemetry')
-        // const res = await fetch(telemetryUrl)
-        // const telemetry = await res.json()
-        // console.log('setting telemetry', telemetry)
-        // this.setState({ telemetry })
-
         this.cancelTelemetry();
 
         const { match: { params } } = this.props;
-        this.setState({ timeline: null, timelineLoaded: false, timelineError: false });
+        this.setState({ timeline: null, timelineLoaded: false, timelineError: "" });
 
         if(typeof params.matchId === "undefined") {
             console.log(`Loading timeline for local match for test.`);
             const match = jsonData.match
             const rawReplayData = jsonData.rawReplayData
-            const { state, globalState } = parseTimeline(match, rawReplayData, "Huttels")
+            const { state, globalState, focusedPlayerName } = parseTimeline(match, rawReplayData, "Huttels")
 
             const timeline = Timeline(state)
             this.setState(prevState => ({
-                rawTimeline: rawReplayData,
                 timeline,
                 match,
                 timelineLoaded: true,
@@ -66,7 +59,6 @@ class Lol extends Component{
         console.log(`Loading timeline for match ${params.matchId}`);
 
 
-
         this.timelineWorker = new ReplayWorker();
 
         this.timelineWorker.addEventListener('message', ({ data }) => {
@@ -76,15 +68,16 @@ class Lol extends Component{
                 console.error(`Error loading timeline: ${error}`)
 
                 this.setState(prevState => ({
-                    timelineError: true,
+                    timelineError: error,
                 }))
 
                 return
             }
 
+            console.log(focusedPlayerName)
+
             const timeline = Timeline(state)
             this.setState(prevState => ({
-                rawTimeline: rawReplayData,
                 timeline,
                 match,
                 timelineLoaded: true,
@@ -111,27 +104,27 @@ class Lol extends Component{
     }
 
     render() {
-        const { match: { params } } = this.props
-        const { match, timeline, rawTimeline, timelineLoaded, timelineError, globalState, playerName } = this.state
+        const { match, timeline, timelineLoaded, timelineError, globalState, playerName } = this.state
 
         let content
 
-        if (timelineError) {
-            content = <Message>An error occurred :(</Message>
-        } /*else if (!match) {
+        if (timelineError === "404 NOT_FOUND") {
             content = <Message>Match not found</Message>
-        }*/ else if (!timelineLoaded) {
+        }
+        else if (timelineError === "403 FORBIDDEN") {
+            content = <Message>Current API key is not valid</Message>
+        }
+        else if (timelineError.length !== 0) {
+            content = <Message>An error occurred :(</Message>
+        } else if (!timelineLoaded) {
             content = <Message>Loading timeline...</Message>
         } else {
-            console.log(match)
             content = <ReplayLol
                 match={match}
-                rawTimeline={rawTimeline}
                 timeline={timeline}
                 globalState={globalState}
                 playerName={playerName}
             />
-            // content = <Message>{rawTelemetry.map(object => <div>{object._T}</div>)}</Message>
         }
 
         return (

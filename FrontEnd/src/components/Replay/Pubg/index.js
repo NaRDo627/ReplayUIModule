@@ -11,8 +11,6 @@ import MatchInfo from './MatchInfo.js'
 import KillFeed from "./KillFeed";
 import PlayControls from "../Time/PlayControls";
 import MapOptions from "./MapOptions";
-// import HelpModal from './HelpModal.js'
-// import DownloadButton from './DownloadButton.js'
 
 // -----------------------------------------------------------------------------
 // Styled Components -----------------------------------------------------------
@@ -26,12 +24,6 @@ const MatchContainer = styled.div`
     overflow: visible;
     margin: 0 auto;
     max-width: calc(110vh + 10px);
-
-    @media (max-width: 700px) {
-        grid-template-columns: 0px 1fr 0px;
-        grid-column-gap: 0;
-        grid-row-gap: 15px;
-    }
 `
 
 const MapContainer = styled.div`
@@ -47,11 +39,6 @@ const RosterContainer = styled.div`
     overflow-x: hidden;
     height: ${props => props.mapSize + 48}px;
     padding-right: 10px;
-
-    @media (max-width: 700px) {
-        grid-column: 1;
-        grid-row: 2;
-    }
 `
 
 const KillFeedAndMapOptionContainer = styled.div`
@@ -60,11 +47,6 @@ const KillFeedAndMapOptionContainer = styled.div`
     height: ${props => props.mapSize + 48}px;
     grid-template-rows: ${props => props.mapSize + 48 - 100}px 100px;
     padding-right: 10px;
-    
-    @media (max-width: 700px) {
-        grid-column: 1;
-        grid-row: 2;
-    }
 `
 
 const KillFeedContainer = styled.div`
@@ -82,13 +64,6 @@ const MapOptionContainer = styled.div`
 
 const MatchHeader = styled.div`
     margin: 0 20px 10px 20px;
-
-    @media (max-width: 700px) {
-        grid-template-columns: 0px 1fr max-content;
-        grid-row: 2;
-        margin-top: 10px;
-        margin-bottom: 0;
-    }
 `
 
 const ControllerContainer = styled.div`
@@ -96,13 +71,6 @@ const ControllerContainer = styled.div`
     grid-template-columns: 100px 1fr max-content;
        grid-column-gap: 10px;
     margin: 10px 10px 0px 10px;
-
-    @media (max-width: 700px) {
-        grid-template-columns: 0px 1fr max-content;
-        grid-row: 2;
-        margin-top: 10px;
-        margin-bottom: 0;
-    }
 `
 
 const RosterHeader = styled.div`
@@ -225,7 +193,7 @@ class MatchPlayer extends React.Component {
     // -------------------------------------------------------------------------
 
     render() {
-        const { match, rawTelemetry, telemetry, rosters, globalState } = this.props
+        const { match, telemetry, rosters, globalState } = this.props
         const { mapSize, options, setOption, prevPlayerName } = this.state
 
         return (
@@ -250,7 +218,6 @@ class MatchPlayer extends React.Component {
                                     <MatchInfo
                                         match={match}
                                         marks={this.marks}
-                                        rawTelemetry={rawTelemetry}
                                         playerName={prevPlayerName}
                                     />
                                 </MatchHeader>
@@ -289,13 +256,6 @@ class MatchPlayer extends React.Component {
                                         rewindToStart={timeControls.rewindToStart}
                                     />
                                 </ControllerContainer>
-
-                                {/*<HelpModal mapSize={mapSize} />
-                                <DownloadButton
-                                    match={match}
-                                    playerName={prevPlayerName}
-                                    rawTelemetry={rawTelemetry}
-                                />*/}
                             </MapContainer>
                             <KillFeedAndMapOptionContainer mapSize={mapSize}>
                                 <KillFeedContainer mapSize={mapSize}>

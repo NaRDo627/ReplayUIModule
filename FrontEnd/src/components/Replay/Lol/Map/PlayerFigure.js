@@ -78,7 +78,7 @@ const Player = ({options, player, colorHex}) => {
 const PlayerFigure = ({ options, player, lolMapSize, mapSize, marks, showName }) => {
     const x=toScale(lolMapSize.x, mapSize, player.location.x)
     const y=mapSize-toScale(lolMapSize.y, mapSize, player.location.y)
-    const playerColor = (marks.focusedPlayer() === player.name)?
+    const playerColor = (marks.focusedPlayer().toLowerCase() === player.name.toLowerCase())?
         0x20FF20 : (player.teamId === 100)? 0x2020FF : 0xFF2020;
 
     return (

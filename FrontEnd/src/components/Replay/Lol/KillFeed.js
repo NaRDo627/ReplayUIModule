@@ -2,7 +2,6 @@ import React from 'react'
 import { map } from 'lodash'
 import styled from 'styled-components'
 import Tooltip from '../../Tooltip'
-import Inventory from "./SummonerList/Inventory";
 
 const importAll = req => {
 
@@ -60,8 +59,7 @@ const VictimPlayerName = styled.div`
 
 const champions = importAll(require.context('../../../assets/Lol/champion', true, /.png$/))
 const objects = importAll(require.context('../../../assets/Lol/misc', true, /.png$/))
-const killedIcon = require("../../../assets/Lol/sword.png")
-const public_url = (process.env.NODE_ENV === 'production')? process.env.PUBLIC_URL : "http://localhost:3000"
+const killedIcon = require("../../../assets/Lol/misc/sword.png")
 
 class KillFeed extends React.Component {
 

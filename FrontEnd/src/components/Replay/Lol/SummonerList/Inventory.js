@@ -58,7 +58,7 @@ const WardIconHolder = styled.div`
     height: 32px;
     border: 1px solid #000011
     display: inline-block;
-    margin: 20px 0px 20px;
+    margin: 20px 0px;
     justify-self: center;
     padding: 3px 1px 1px 1px;
     background-color: #00001a;
