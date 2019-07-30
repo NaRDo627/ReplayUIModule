@@ -8,6 +8,7 @@ public class LolMatch {
     private String gameMode;
     private String playedAt;
     private String mapName;
+    private String victoryTeam;
     private Integer durationSeconds;
     private List players;
 
@@ -65,5 +66,13 @@ public class LolMatch {
 
     public void setPlayers(List players) {
         this.players = players;
+    }
+
+    public String getVictoryTeam() {
+        return victoryTeam;
+    }
+
+    public void setVictoryTeam(String victoryTeam) {
+        this.victoryTeam = victoryTeam;
     }
 }

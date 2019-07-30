@@ -84,9 +84,11 @@ public class APIServiceImpl implements APIService {
         }
 
         String rawMatchData = responseEntity.getBody();
-        JsonArray participantsIdentitiesAry = Parser.parse(rawMatchData).getAsJsonObject().get("participantIdentities").getAsJsonArray();
-        JsonArray participantsAry = Parser.parse(rawMatchData).getAsJsonObject().get("participants").getAsJsonArray();
         JsonObject matchDataObject = Parser.parse(rawMatchData).getAsJsonObject();
+        JsonArray participantsIdentitiesAry = matchDataObject.get("participantIdentities").getAsJsonArray();
+        JsonArray participantsAry = matchDataObject.get("participants").getAsJsonArray();
+        JsonArray teamDataAry = matchDataObject.get("teams").getAsJsonArray();
+
 
         List<JsonObject> lolPlayerList = new ArrayList<>();
         for(int i=0;i<participantsIdentitiesAry.size();i++){
@@ -116,6 +118,14 @@ public class APIServiceImpl implements APIService {
         lolMatch.setPlayedAt(matchDataObject.get("gameCreation").getAsString());
         lolMatch.setMapName(matchDataObject.get("mapId").getAsString());
         lolMatch.setDurationSeconds(matchDataObject.get("gameDuration").getAsInt());
+
+        String victoryTeam = "";
+        for(int i=0;i<teamDataAry.size();i++){
+            if(teamDataAry.get(i).getAsJsonObject().get("win").getAsString().equals("Fail"))
+                continue;
+            victoryTeam = teamDataAry.get(i).getAsJsonObject().get("teamId").getAsString();
+        }
+        lolMatch.setVictoryTeam(victoryTeam);
 
         List<JsonObject> replayDataList = new ArrayList<>();
         if (replayDataAry != null) {
