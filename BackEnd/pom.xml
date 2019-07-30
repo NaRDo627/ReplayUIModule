@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.threeCodeMonkeyz</groupId>
-	<artifactId>ReplayUIModule - BackEnd</artifactId>
+	<artifactId>ReplayUIModule-BackEnd</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>ReplayUIModule</name>
 	<description>Open source replay UI module for Naver D2</description>
