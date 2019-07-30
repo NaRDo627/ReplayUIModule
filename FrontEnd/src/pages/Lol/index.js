@@ -70,7 +70,7 @@ class Lol extends Component{
         this.timelineWorker = new ReplayWorker();
 
         this.timelineWorker.addEventListener('message', ({ data }) => {
-            const { success, error, state, globalState, rawReplayData, match } = data
+            const { success, error, state, globalState, rawReplayData, match, focusedPlayerName } = data
 
             if (!success) {
                 console.error(`Error loading timeline: ${error}`)
@@ -89,7 +89,7 @@ class Lol extends Component{
                 match,
                 timelineLoaded: true,
                 globalState,
-                playerName: params.playerId
+                playerName: focusedPlayerName
             }))
 
             console.log(success)

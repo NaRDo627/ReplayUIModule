@@ -25,16 +25,9 @@ const importAll = req => {
 
 
 const getRosterColor = ({colors}, marks, player) => {
-    const dead = player.status === 'dead'
-    const knocked = player.status !== 'dead' && player.health === 0
-
-    if (knocked) {
-        return colors.roster.knocked
-    } else if (marks.focusedPlayer() === player.name) {
-        return dead ? colors.roster.deadTeammate : colors.roster.focused
-    }
-
-    return dead ? colors.roster.dead : colors.roster.enemy
+    if (marks.focusedPlayer().toLowerCase() === player.name.toLowerCase())
+        return colors.roster.focused
+    return  colors.roster.enemy
 }
 
 const getSkillName = (championName, slot) => championDict.data[championName].spells[slot - 1].id
@@ -118,7 +111,8 @@ const SummonerList = ({marks, players}) => {
     if (players.find(p => p.name.toLowerCase() === marks.focusedPlayer().toLowerCase()).teamId === 200)
         players = players.slice(5, 10).concat(players.slice(0, 5))
 
-    const focuedPlayer = players.find(p => p.name.toLowerCase() === marks.focusedPlayer().toLowerCase())
+    const focuedPlayer = players.find(p => p.name.toLowerCase() ===
+        marks.focusedPlayer().toLowerCase())
     const playerIndex = players.indexOf(focuedPlayer)
     players = players.slice(0, playerIndex).concat(players.slice(playerIndex + 1, 10))
     players.unshift(focuedPlayer)

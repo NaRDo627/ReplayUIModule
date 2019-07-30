@@ -12,7 +12,10 @@ const MIN_SCALE = 1
 const MAX_SCALE = 50
 const CLAMP_MAP = true // TODO: This should be a configurable option
 const MAP_SIZES = {
-    "11": {x: 14990, y: 15100}
+    "8": {x: 13987, y: 13987},
+    "10": {x: 15398, y: 15398},
+    "11": {x: 14990, y: 15100},
+    "12": {x: 15500, y: 15500},
 }
 
 

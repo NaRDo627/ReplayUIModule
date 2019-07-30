@@ -3,6 +3,13 @@
 import parseTelemetry from './Telemetry.parser.js'
 import parseTimeline from "./Timeline.parser";
 
+function handleErrors(response) {
+    if (!response.ok) {
+        throw Error(response.statusText);
+    }
+    return response;
+}
+
 async function handleMessage({ data: { game, platform, matchId, focusedPlayer } }) {
     try {
         if(game === "pubg") {
@@ -12,11 +19,8 @@ async function handleMessage({ data: { game, platform, matchId, focusedPlayer } 
 
             console.log("fetch successful");
             console.log(pubgData.match);
-            // const state = true
-            // const globalState = true
-            // postMessage({ success: true, state, globalState, rawReplayData: pubgData })
-            const { state, globalState } = parseTelemetry(pubgData.match, pubgData.rawReplayData, focusedPlayer)
-            postMessage({ success: true, state, globalState, rawReplayData: pubgData.rawReplayData, match: pubgData.match })
+            const { state, globalState, focusedPlayerName } = parseTelemetry(pubgData.match, pubgData.rawReplayData, focusedPlayer)
+            postMessage({ success: true, state, globalState, rawReplayData: pubgData.rawReplayData, match: pubgData.match, focusedPlayerName: focusedPlayerName })
         } else if (game === "lol") {
             const reqUrl = `${process.env.REACT_APP_API}/api/lol/${platform}/${matchId}`;
             const res = await fetch(reqUrl);

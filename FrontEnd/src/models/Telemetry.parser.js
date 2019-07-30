@@ -65,6 +65,7 @@ export default function parseTelemetry(matchData, telemetry, focusedPlayerName) 
         return killedBy
     }
 
+    let isFocusedPlayerFound = false;
     { // --- Step Zero: Initialize state
         const teammates = matchData.players.reduce((acc, p) => {
             const teammateNames = matchData.players
@@ -88,10 +89,20 @@ export default function parseTelemetry(matchData, telemetry, focusedPlayerName) 
             }
 
             latestPlayerStates[p.name] = curState.players[p.name]
+            if(focusedPlayerName.toLowerCase() === p.name.toLowerCase())
+                isFocusedPlayerFound = true;
         })
 
         state[0] = curState
     }
+
+    if(!isFocusedPlayerFound){
+        console.warn("Focused player not found")
+        const tempPlayer = Object.values(curState.players)[0]
+        focusedPlayerName = tempPlayer.name;
+        console.log(focusedPlayerName)
+    }
+
 
     { // --- Step One: Iterate through all telemetry data and store known points
         console.time('Telemetry-eventParsing')
@@ -460,5 +471,5 @@ export default function parseTelemetry(matchData, telemetry, focusedPlayerName) 
         }
     }
 
-    return { state, globalState }
+    return { state, globalState, focusedPlayerName }
 }

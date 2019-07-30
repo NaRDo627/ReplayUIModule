@@ -1,13 +1,10 @@
 import React from 'react'
 import { toScale } from '../../../../lib/canvas-math.js'
 import {Container, Sprite, Graphics, Text} from '@inlet/react-pixi'
-import {clamp} from "lodash";
-
 import * as PIXI from "pixi.js"
-import parachute from "../../../../assets/Pubg/open-parachute.png";
 
 const getBasePlayerColor = ({ colors }, marks, player) => {
-    if (marks.focusedPlayer() === player.name) {
+    if (marks.focusedPlayer().toLowerCase() === player.name.toLowerCase()) {
         return colors.dot.focused
     }
 
@@ -17,25 +14,6 @@ const getBasePlayerColor = ({ colors }, marks, player) => {
 const getPlayerColor = ({ colors }, marks, player) => {
     const base = getBasePlayerColor({ colors }, marks, player)
     return `${base}E0`
-}
-
-const getBaseStatusColor = ({ colors }, marks, player) => {
-    if (player.status === 'dead') {
-        const isFocused = marks.focusedPlayer() === player.name
-
-        if (isFocused) {
-            return colors.dot.deadTeammate
-        }
-
-        return colors.dot.dead
-    }
-
-    return colors.dot.base
-}
-
-const getStatusColor = ({ colors }, marks, player) => {
-    const base = getBaseStatusColor({ colors }, marks, player)
-    return `${base}B0`
 }
 
 const PlayerLabel = ({ visible, player, colorStr }) => {

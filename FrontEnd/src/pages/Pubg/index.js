@@ -18,7 +18,7 @@ class Pubg extends Component{
         rawTelemetry: null,
         telemetry: null,
         telemetryLoaded: false,
-        telemetryError: false,
+        telemetryError: "",
         rosters: null,
         globalState: null,
         match: null
@@ -40,7 +40,7 @@ class Pubg extends Component{
         this.cancelTelemetry();
 
         const { match: { params } } = this.props;
-        this.setState({ telemetry: null, telemetryLoaded: false, telemetryError: false });
+        this.setState({ telemetry: null, telemetryLoaded: false, telemetryError: "" });
 
         if(typeof params.matchId === "undefined") {
             console.log(`Loading telemetry for local match for test.`);
@@ -70,13 +70,13 @@ class Pubg extends Component{
         this.telemetryWorker = new ReplayWorker();
 
         this.telemetryWorker.addEventListener('message', ({ data }) => {
-            const { success, error, state, globalState, rawReplayData, match } = data
+            const { success, error, state, globalState, rawReplayData, match, focusedPlayerName } = data
 
             if (!success) {
                 console.error(`Error loading telemetry: ${error}`)
 
                 this.setState(prevState => ({
-                    telemetryError: true,
+                    telemetryError: error,
                 }))
 
                 return
@@ -90,7 +90,7 @@ class Pubg extends Component{
                 telemetryLoaded: true,
                 rosters: telemetry.finalRoster(params.playerId),
                 globalState,
-                playerName: params.playerId
+                playerName: focusedPlayerName
             }))
 
             console.log(success)
@@ -117,7 +117,7 @@ class Pubg extends Component{
 
         let content
 
-        if (telemetryError) {
+        if (telemetryError.length !== 0) {
             content = <Message>An error occurred :(</Message>
         } /*else if (!match) {
             content = <Message>Match not found</Message>

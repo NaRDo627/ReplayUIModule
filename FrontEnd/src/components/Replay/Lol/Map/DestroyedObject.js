@@ -49,11 +49,18 @@ const Objects = ({options, object, colorHex}) => {
                 height={30}
                 image={objectImg}
             />
+            {object.type === "BUILDING" && <Graphics
+                draw={g => {
+                    g.clear();
+                    g.lineStyle(2, (object.victimTeamId === 200)? 0xFF2020 : 0x2020FF, 0.7)
+                    g.drawRect(-15, -15, 30, 30);
+                }}
+            />}
             <Graphics
                 draw={g => {
                     g.clear();
 
-                    g.lineStyle(3, colorHex, 0.7)
+                    g.lineStyle(3, (object.victimTeamId === 200)? 0x2020FF : 0xFF2020, 0.7)
                     g.moveTo(-17, -17)
                     g.lineTo(17, 17)
                     g.moveTo(17, -17)
@@ -68,9 +75,7 @@ const Objects = ({options, object, colorHex}) => {
 const DestroyedObject = ({ options, object, lolMapSize, mapSize, marks, showName }) => {
 /*    const x=toScale(lolMapSize, mapSize, player.location.x)
     const y=toScale(lolMapSize, mapSize, player.location.y)*/
-    const objectColor = (object.victimTeamId !== 0)?
-        (object.victimTeamId === 100)? 0x2020FF : 0xFF2020 :
-        (object.killerTeamId === 200)? 0x2020FF : 0xFF2020;
+    const objectColor = (object.killerTeamId === 100)? 0x2020FF : 0xFF2020;
 
     const x=toScale(lolMapSize.x, mapSize, object.x)
     const y=mapSize-toScale(lolMapSize.y, mapSize, object.y)

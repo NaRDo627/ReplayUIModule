@@ -75,6 +75,7 @@ const WardIcon = styled.img`
 `
 
 const StyledInventoryIcons = styled.div`
+    border-radius: 4px;
     width: 160px;
     margin: 2px auto;
     display: grid;

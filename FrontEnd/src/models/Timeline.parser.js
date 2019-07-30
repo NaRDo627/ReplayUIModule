@@ -35,11 +35,20 @@ export default function parseTimeline(matchData, timeline, focusedPlayerName) {
     }
 
     const getSummonerNameById = (participantId) => (participantId === 0)? 'Minion' : matchData.players[Number(participantId)-1].player.summonerName
-    const getChampionNameByKey = (championKey) => Object.values(championDict.data)
-                                                .find(n => n.key === String(championKey)).id;
+    const getChampionNameByKey = (championKey) => {
+        const champion = Object.values(championDict.data).find(n => n.key === String(championKey))
+        // if champion does not exist
+        if(!champion){
+            console.warn("Champion key" + championKey +"was not found in champion.json")
+            return "Aatrox"
+        }
 
 
-    let focusedPlayerId = 1;
+        return champion.id;
+    }
+
+
+    let focusedPlayerId = 0;
     { // --- Step Zero: Initialize state
         // [190727][HKPARK] 1~5 까지 1팀, 6~10까지 2팀으로 한다.
         matchData.players.forEach(p => {
@@ -71,6 +80,12 @@ export default function parseTimeline(matchData, timeline, focusedPlayerName) {
         state[0] = curState
     }
 
+    if(focusedPlayerId === 0){
+        console.warn("Focused player not found")
+        focusedPlayerId = 1;
+        focusedPlayerName = curState.players["1"].name
+    }
+
     { // --- Step One: Iterate through all telemetry data and store known points
         console.time('Timeline-eventParsing')
 
@@ -98,7 +113,7 @@ export default function parseTimeline(matchData, timeline, focusedPlayerName) {
                 // ITEM_DESTROYED(used), ITEM_UNDO, SKILL_LEVEL_UP,
                 // ASCENDED_EVENT, CAPTURE_POINT, PORO_KING_SUMMON
 
-                // events with is I dont know : PORO_KING_SUMMON, CAPTURE_POINT, ASCENDED_EVENT
+                // events witch is I dont know : PORO_KING_SUMMON, CAPTURE_POINT, ASCENDED_EVENT
                 //
 
                 if (e.type === 'CHAMPION_KILL') {
@@ -290,5 +305,5 @@ export default function parseTimeline(matchData, timeline, focusedPlayerName) {
         }
     }
 
-    return { state, globalState }
+    return { state, globalState, focusedPlayerName }
 }
