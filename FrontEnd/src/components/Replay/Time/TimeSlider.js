@@ -150,7 +150,6 @@ class TimeSlider extends React.PureComponent {
 
             return acc
         }, null))
-
         return (
             <SliderContainer>
                 <StyledSlider
@@ -174,7 +173,7 @@ class TimeSlider extends React.PureComponent {
                         onMouseDown={stopAutoplay.bind(this)}
                     />
                 )}
-                {globalState && globalState.death && groupedDeaths && typeof(groupedDeaths) === 'number' &&
+                {globalState && globalState.death &&
                     <DeathMarkerIcon
                         value={globalState.death.msSinceEpoch}
                         durationSeconds={durationSeconds}
