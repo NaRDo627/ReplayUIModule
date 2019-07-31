@@ -60,5 +60,9 @@ yarn, java, mvn이 설치되어 있다고 가정합니다.
 4. `java -jar ReplayUIModule-BackEnd-0.0.1-SNAPSHOT.jar` 실행
 5. 브라우저에서 `http://localhost:8080/api/test` 확인
 
+## Reference
+pubg.sh : <https://pubg.sh/>
+pubg.sh client github : <https://github.com/pubgsh/client>
+
 # License
 MIT
