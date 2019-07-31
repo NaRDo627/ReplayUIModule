@@ -61,7 +61,7 @@ yarn, java, mvn이 설치되어 있다고 가정합니다.
 5. 브라우저에서 `http://localhost:8080/api/test` 확인
 
 ## Reference
-pubg.sh : <https://pubg.sh/>
+pubg.sh : <https://pubg.sh/> <br/>
 pubg.sh client github : <https://github.com/pubgsh/client>
 
 # License
