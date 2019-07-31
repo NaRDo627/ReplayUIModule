@@ -55,10 +55,11 @@ yarn, java, mvn이 설치되어 있다고 가정합니다.
 
 ## BackEnd
 1. `git clone` 혹은 zip 다운로드 후, `cd ReplayUIModule/BackEnd`
-2. `mvn install` 실행
-3. `cd BackEnd/target`
-4. `java -jar ReplayUIModule-BackEnd-0.0.1-SNAPSHOT.jar` 실행
-5. 브라우저에서 `http://localhost:8080/api/test` 확인
+2. `src/main/resources/application.properties` 파일 생성 후, LOL API 키 입력
+3. `mvn install` 실행
+4. `cd BackEnd/target`
+5. `java -jar ReplayUIModule-BackEnd-0.0.1-SNAPSHOT.jar` 실행
+6. 브라우저에서 `http://localhost:8080/api/test` 확인
 
 ## Reference
 pubg.sh : <https://pubg.sh/> <br/>
