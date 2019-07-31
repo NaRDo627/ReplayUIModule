@@ -1,8 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 
-
-const LogGroup = styled.div`
+const StyledOption = styled.div`
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 1.2rem;
@@ -27,7 +26,7 @@ class MapOptions extends React.Component {
 
     render() {
         return(
-            <LogGroup>
+            <StyledOption>
                 options<br/>
                 <label>
                     <input type="checkbox"
@@ -43,7 +42,7 @@ class MapOptions extends React.Component {
                            onChange={this.handleChecked} />
                     showAllRosters
                 </label>
-            </LogGroup>
+            </StyledOption>
         )
     }
 }

@@ -1,7 +1,5 @@
 import React, { PureComponent } from 'react'
 import styled from 'styled-components'
-import { groupBy, isEmpty, sortBy } from 'lodash'
-import dict from '../../../../assets/Pubg/itemId.json'
 
 const importAll = req => {
     return req.keys().reduce((prev, r) => {

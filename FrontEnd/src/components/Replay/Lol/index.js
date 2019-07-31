@@ -95,7 +95,6 @@ class MatchPlayer extends React.Component {
             mapSize: 0,
             focusedPlayer: props.playerName,
             // See getDerivedStateFromProps
-            prevPlayerName: props.playerName,
             hoveredPlayer: null,
             hoveredObject: null,
             trackedPlayers: [],
@@ -181,7 +180,7 @@ class MatchPlayer extends React.Component {
 
     render() {
         const { match, timeline, globalState } = this.props
-        const { mapSize, options, setOption, prevPlayerName } = this.state
+        const { mapSize, options, setOption } = this.state
 
         return (
             <Options.Context.Provider value={{ options, setOption }}>
@@ -214,7 +213,6 @@ class MatchPlayer extends React.Component {
                                     timeline={currentReplayData}
                                     mapSize={mapSize}
                                     marks={this.marks}
-                                    msSinceEpoch={msSinceEpoch}
                                     options={options}
                                 />
                                 <ControllerContainer>
@@ -232,7 +230,6 @@ class MatchPlayer extends React.Component {
                                         onChange={timeControls.setMsSinceEpoch}
                                         durationSeconds={match.durationSeconds + 5}
                                         globalState={globalState}
-                                        options={options}
                                         skipTo={timeControls.skipTo}
                                     />
                                     <SpeedControl

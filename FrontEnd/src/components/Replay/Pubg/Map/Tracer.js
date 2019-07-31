@@ -2,8 +2,6 @@ import React from 'react'
 import { toScale } from '../../../../lib/canvas-math.js'
 import { Container, Graphics } from "@inlet/react-pixi";
 
-const INTERVALS = 16
-
 const Tracer = ({ pubgMapSize, mapSize, mapScale, players, tracer }) => {
     if (!tracer) return null
 

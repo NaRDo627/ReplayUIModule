@@ -42,13 +42,6 @@ const StyledStage = styled(Stage)`
     }
 `
 
-const ZoomControls = styled.div`
-    position: absolute;
-    right: 0px;
-    bottom: 0px;
-`
-
-
 let isDrag = false;
 
 class Map extends React.Component {

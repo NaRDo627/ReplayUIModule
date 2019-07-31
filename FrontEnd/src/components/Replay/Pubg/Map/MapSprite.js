@@ -1,6 +1,5 @@
 import React from 'react'
 import { Container, Sprite } from '@inlet/react-pixi'
-import {Image} from "react-konva";
 
 
 class MapSprite extends React.Component {

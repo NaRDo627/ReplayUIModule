@@ -119,7 +119,7 @@ const DeathMarkerIcon = HoverableTimePositionedElement.extend`
 
 class TimeSlider extends React.PureComponent {
     render() {
-        const { value, stopAutoplay, onChange, durationSeconds, globalState, options, skipTo } = this.props
+        const { value, stopAutoplay, onChange, durationSeconds, globalState, skipTo } = this.props
 
         const groupedKills = globalState && globalState.kills.reduce((acc, kill, idx) => {
             if (idx === 0) return [[kill]]

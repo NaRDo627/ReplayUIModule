@@ -1,11 +1,10 @@
 import React from 'react'
 import { toScale } from '../../../../lib/canvas-math.js'
 import {Container, Sprite, Graphics, Text} from '@inlet/react-pixi'
-import {clamp} from "lodash";
 
 import * as PIXI from "pixi.js"
 
-const ObjectLabel = ({ visible, object, colorStr }) => {
+const ObjectLabel = ({ visible, object }) => {
     if (!visible) return null
 
     const width = object.name.length * 10;
@@ -37,7 +36,7 @@ const ObjectLabel = ({ visible, object, colorStr }) => {
 }
 
 
-const Objects = ({options, object, colorHex}) => {
+const Objects = ({object}) => {
     const objectImg = require(`../../../../assets/Lol/misc/${object.name}.png`);
 
     return (
@@ -72,11 +71,7 @@ const Objects = ({options, object, colorHex}) => {
 }
 
 
-const DestroyedObject = ({ options, object, lolMapSize, mapSize, marks, showName }) => {
-/*    const x=toScale(lolMapSize, mapSize, player.location.x)
-    const y=toScale(lolMapSize, mapSize, player.location.y)*/
-    const objectColor = (object.killerTeamId === 100)? 0x2020FF : 0xFF2020;
-
+const DestroyedObject = ({ object, lolMapSize, mapSize, marks }) => {
     const x=toScale(lolMapSize.x, mapSize, object.x)
     const y=mapSize-toScale(lolMapSize.y, mapSize, object.y)
 
@@ -89,13 +84,8 @@ const DestroyedObject = ({ options, object, lolMapSize, mapSize, marks, showName
             mouseout={() => {marks.setHoveredObject(null)}}
         >
             <Objects
-                options={options}
                 object={object}
-                marks={marks}
-                mapSize={mapSize}
-                colorHex={objectColor}
             />
-
             <ObjectLabel
                 object={object}
                 visible={marks.isObjectHovered(object.msSinceEpoch)}

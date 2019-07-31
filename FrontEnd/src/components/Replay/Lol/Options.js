@@ -1,7 +1,7 @@
 import React from 'react'
 import { merge } from 'lodash'
 
-export const STORAGE_KEY = 'optionsV2'
+export const STORAGE_KEY = 'optionsV2_LOL'
 
 export const DEFAULT_OPTIONS = {
     colors: {
@@ -23,8 +23,6 @@ export const DEFAULT_OPTIONS = {
             knocked: '#E6B476',
         },
     },
-    showHealthBar: true,
-    showAllRosters: false,
 }
 
 const DEV_OPTIONS = {

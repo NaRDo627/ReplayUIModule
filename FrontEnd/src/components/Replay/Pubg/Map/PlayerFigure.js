@@ -216,6 +216,4 @@ const PlayerFigure = ({ options, player, pubgMapSize, mapSize, marks, mapScale, 
 
 
 
-
-
 export default PlayerFigure;

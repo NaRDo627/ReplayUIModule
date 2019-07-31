@@ -62,18 +62,6 @@ const objects = importAll(require.context('../../../assets/Lol/misc', true, /.pn
 const killedIcon = require("../../../assets/Lol/misc/sword.png")
 
 class KillFeed extends React.Component {
-
-    // [190727][HKPARK] KillLogs중 비어있는 부분 때문에 KillFeed가 깜빡이는 것처럼 보이는 것 처리
-    shouldComponentUpdate(nextProps, nextState) {
-        const curLogLength = this.props.killLogs.length
-        if(curLogLength === nextProps.killLogs.length ||
-            curLogLength > 0 && nextProps.killLogs.length === 0 && nextProps.msSinceEpoch > this.props.killLogs[0].msSinceEpoch) {
-            return false;
-        }
-
-        return true;
-    }
-
     render() {
        const { focusPlayer, killLogs, options, skipTo, stopAutoplay } = this.props;
 
