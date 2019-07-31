@@ -1,6 +1,5 @@
 import React from 'react'
 import { filter } from 'lodash'
-import styled from 'styled-components'
 import {Container, Graphics, Text} from "@inlet/react-pixi";
 import * as PIXI from "pixi.js"
 
@@ -56,13 +55,6 @@ const AliveCount = ({ players }) => {
                       })} />
             </Container>
         </React.Fragment>
-
-
-
-        /*<Wrapper>
-            <AliveCountNumber>{aliveCount}</AliveCountNumber>
-            <AliveText>alive</AliveText>
-        </Wrapper>*/
     )
 }
 

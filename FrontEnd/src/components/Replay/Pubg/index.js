@@ -244,7 +244,6 @@ class MatchPlayer extends React.Component {
                                         onChange={timeControls.setMsSinceEpoch}
                                         durationSeconds={match.durationSeconds + 5}
                                         globalState={globalState}
-                                        options={options}
                                         skipTo={timeControls.skipTo}
                                     />
                                     <SpeedControl

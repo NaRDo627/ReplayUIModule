@@ -1,4 +1,4 @@
-import { forEach, groupBy, minBy, sortBy } from 'lodash'
+import { forEach } from 'lodash'
 
 export default function Timeline(state) {
     const stateAt = msSinceEpoch => {

@@ -7,7 +7,6 @@ import championDict from '../../../../assets/Lol/championFull.json'
 import goldImg from '../../../../assets/Lol/misc/gold.png'
 
 const importAll = req => {
-
     return req.keys().reduce((prev, r) => {
         // Split by directory and then reverse to get the filename
         const [itemId] = r.split('/').reverse()

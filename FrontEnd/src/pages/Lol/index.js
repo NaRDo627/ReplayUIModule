@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import styled from 'styled-components'
 
 import ReplayLol from "../../components/Replay/Lol";
-import Telemetry from "../../models/Telemetry"
 import ReplayWorker from "../../models/Replay.worker.js";
 import jsonData from '../../assets/Lol/loldata.json'
 import DocumentTitle from 'react-document-title'
@@ -44,13 +43,13 @@ class Lol extends Component{
             const { state, globalState, focusedPlayerName } = parseTimeline(match, rawReplayData, "Huttels")
 
             const timeline = Timeline(state)
-            this.setState(prevState => ({
+            this.setState({
                 timeline,
                 match,
                 timelineLoaded: true,
                 globalState,
-                playerName: "Huttels"
-            }))
+                playerName: focusedPlayerName
+            })
 
             console.log("success")
             return;
@@ -62,7 +61,7 @@ class Lol extends Component{
         this.timelineWorker = new ReplayWorker();
 
         this.timelineWorker.addEventListener('message', ({ data }) => {
-            const { success, error, state, globalState, rawReplayData, match, focusedPlayerName } = data
+            const { success, error, state, globalState, match, focusedPlayerName } = data
 
             if (!success) {
                 console.error(`Error loading timeline: ${error}`)
@@ -74,16 +73,14 @@ class Lol extends Component{
                 return
             }
 
-            console.log(focusedPlayerName)
-
             const timeline = Timeline(state)
-            this.setState(prevState => ({
+            this.setState({
                 timeline,
                 match,
                 timelineLoaded: true,
                 globalState,
                 playerName: focusedPlayerName
-            }))
+            })
 
             console.log(success)
         })

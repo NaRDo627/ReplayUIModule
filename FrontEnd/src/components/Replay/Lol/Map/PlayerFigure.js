@@ -48,7 +48,7 @@ const PlayerLabel = ({ visible, player, colorStr }) => {
 }
 
 
-const Player = ({options, player, colorHex}) => {
+const Player = ({player, colorHex}) => {
     const champName = player.championName;
     const champion = require(`../../../../assets/Lol/champion/${champName}.png`);
     return (
@@ -63,11 +63,8 @@ const Player = ({options, player, colorHex}) => {
             <Graphics
                 draw={g => {
                     g.clear();
-
                     g.lineStyle(2, colorHex, 0.7)
-              //      g.beginFill(colorHex, 0.7);
                     g.drawRect(-13, -13, 26, 26);
-                //    g.endFill()
                 }}
             />
         </Container>
@@ -96,10 +93,7 @@ const PlayerFigure = ({ options, player, lolMapSize, mapSize, marks, showName })
                 marks.toggleTrackedPlayer(...toToggle)}}
         >
             <Player
-                options={options}
                 player={player}
-                marks={marks}
-                mapSize={mapSize}
                 colorHex={playerColor}
             />
 
@@ -111,9 +105,6 @@ const PlayerFigure = ({ options, player, lolMapSize, mapSize, marks, showName })
         </Container>
     )
 }
-
-
-
 
 
 export default PlayerFigure;

@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Link, withRouter } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 import logoImg from 'assets/logo.png'
 
@@ -48,24 +48,6 @@ const LeftLinks = styled.div`
     }
 `
 
-
-const RightLinks = styled.div`
-    align-self: center;
-    justify-self: end;
-    a {
-        text-decoration: none;
-        text-transform: uppercase;
-        font-size: 1.0rem;
-        font-weight: 400;
-        color: #222;
-        grid-column: 3;
-        margin-left: 15px;
-        &:hover {
-            color: #714868;
-        }
-    }
-`
-
 class Menu extends Component {
     render() {
         return(
@@ -79,11 +61,7 @@ class Menu extends Component {
                     <Link to ="/lol">Lol</Link>
                     <Link to ="/pubg">Pubg</Link>
                 </LeftLinks>
-               {/* <RightLinks>
-                    <Link to ="/about">About</Link>
-                </RightLinks>*/}
             </TopMenuContainer>
-            
         );
     }
 }

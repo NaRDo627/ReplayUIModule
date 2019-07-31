@@ -26,7 +26,6 @@ class Pubg extends Component{
 
 
     componentDidMount() {
-        console.log(typeof this.state.telemetry);
         this.loadTelemetry();
     }
 
@@ -43,14 +42,14 @@ class Pubg extends Component{
             const { state, globalState } = parseTelemetry(match, rawReplayData, "NaLDo627")
 
             const telemetry = Telemetry(state)
-            this.setState(prevState => ({
+            this.setState({
                 telemetry,
                 match,
                 telemetryLoaded: true,
                 rosters: telemetry.finalRoster("NaLDo627"),
                 globalState,
                 playerName: "NaLDo627"
-            }))
+            })
 
             console.log("success")
             return;
@@ -63,27 +62,27 @@ class Pubg extends Component{
         this.telemetryWorker = new ReplayWorker();
 
         this.telemetryWorker.addEventListener('message', ({ data }) => {
-            const { success, error, state, globalState, rawReplayData, match, focusedPlayerName } = data
+            const { success, error, state, globalState, match, focusedPlayerName } = data
 
             if (!success) {
                 console.error(`Error loading telemetry: ${error}`)
 
-                this.setState(prevState => ({
+                this.setState({
                     telemetryError: error,
-                }))
+                })
 
                 return
             }
 
             const telemetry = Telemetry(state)
-            this.setState(prevState => ({
+            this.setState({
                 telemetry,
                 match,
                 telemetryLoaded: true,
                 rosters: telemetry.finalRoster(params.playerId),
                 globalState,
                 playerName: focusedPlayerName
-            }))
+            })
 
             console.log(success)
         })

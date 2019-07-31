@@ -1,8 +1,7 @@
 import React from 'react'
-import { Group, Image, Label, Tag, Text } from 'react-konva'
 import { toScale } from '../../../../lib/canvas-math'
 import dict from '../../../../assets/Pubg/itemId.json'
-import {Container, Graphics, Sprite} from "@inlet/react-pixi";
+import {Container, Graphics, Sprite, Text} from "@inlet/react-pixi";
 import * as PIXI from "pixi.js";
 
 const Items = ({ visible, items }) => {
