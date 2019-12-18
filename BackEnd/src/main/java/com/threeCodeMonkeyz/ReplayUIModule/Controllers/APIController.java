@@ -13,7 +13,7 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 
 
 @RestController
-@RequestMapping(value = "/")
+@RequestMapping(value = "/api")
 public class APIController {
     @Autowired
     private APIService apiService;
