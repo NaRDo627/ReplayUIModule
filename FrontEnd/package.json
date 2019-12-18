@@ -6,7 +6,7 @@
   "scripts": {
     "watch": "webpack --watch -d",
     "check": "yarn run lint && CI=true yarn run test",
-    "start": "cross-env NODE_PATH=src react-app-rewired start",
+    "start": "cross-env NODE_PATH=src PORT=8080 react-app-rewired start",
     "lint": "eslint -c .eslintrc src",
     "build": "cross-env NODE_PATH=src react-app-rewired build",
     "test": "react-app-rewired test --env=jsdom",
